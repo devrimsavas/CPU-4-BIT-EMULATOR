@@ -534,7 +534,8 @@ namespace WinFormsApp1
                        "- 2 Discrete Internal Hardware Registers (AX, BX)\n" +
                        "- Hardware-based FILO/LIFO Memory Stack\n" +
                        "- Combinational Logic ALU (16-Opcode Limit)\n\n" +
-                       "Designed and Emulated smoothly in C# WinForms.";
+                       "Designed and Emulated smoothly in C# WinForms.\n\n" +
+                       "2026 © Devrim Savas Yilmaz. \n";
 
             MessageBox.Show(aboutInfo, "About Core Architecture", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
@@ -607,6 +608,53 @@ namespace WinFormsApp1
             // Example: StackList.Items.Clear();
 
             MessageBox.Show("CPU hardware cold boot sequence completed. All buffers and registers reset.", "Hardware Reset", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+        }
+
+        private void hZSLOWToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            cpuClock.Interval = 1000;
+        }
+
+        private void hZNORMALToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //normal mode
+            cpuClock.Interval = 500;
+        }
+
+        private void tURBOMODEToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //turbo
+            cpuClock.Interval = 50;
+        }
+
+        private void saveCodeToFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Check if there is any data in RAM to save
+            if (WinFormsApp1.Models.ProgramMemory.MemoryList.Count == 0)
+            {
+                MessageBox.Show("Memory is empty! Load some code first.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Initialize the save file dialog
+            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            {
+                // Set file extensions and default title
+                saveFileDialog.Filter = "Binary ROM File (*.bin)|*.bin|Text File (*.txt)|*.txt";
+                saveFileDialog.Title = "Save CPU Program Memory";
+                saveFileDialog.DefaultExt = "bin";
+
+                // If the user clicks OK, save the contents
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    // Write the dynamic RAM list to the selected file
+                    System.IO.File.WriteAllLines(saveFileDialog.FileName, WinFormsApp1.Models.ProgramMemory.MemoryList);
+
+                    // Show a success confirmation
+                    MessageBox.Show("Hardware memory dumped to file successfully!", "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
 
         }
     }

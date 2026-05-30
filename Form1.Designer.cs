@@ -69,7 +69,6 @@
             clearEditorButton = new Button();
             MemoryGrid = new DataGridView();
             loadToMemoryButton = new Button();
-            saveToFileButton = new Button();
             cpuClock = new System.Windows.Forms.Timer(components);
             btnStep = new Button();
             btnStartClock = new Button();
@@ -81,14 +80,16 @@
             hELPToolStripMenuItem = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
             architectureToolStripMenuItem = new ToolStripMenuItem();
-            helpToolStripMenuItem1 = new ToolStripMenuItem();
-            isaReferenceToolStripMenuItem = new ToolStripMenuItem();
-            oppGuideToolStripMenuItem = new ToolStripMenuItem();
             hARDWARERESETToolStripMenuItem = new ToolStripMenuItem();
             cLOCKSPEEDToolStripMenuItem = new ToolStripMenuItem();
             hZSLOWToolStripMenuItem = new ToolStripMenuItem();
             hZNORMALToolStripMenuItem = new ToolStripMenuItem();
             tURBOMODEToolStripMenuItem = new ToolStripMenuItem();
+            isaReferenceToolStripMenuItem = new ToolStripMenuItem();
+            oppGuideToolStripMenuItem = new ToolStripMenuItem();
+            saveCodeToFileToolStripMenuItem = new ToolStripMenuItem();
+            helpToolStripMenuItem1 = new ToolStripMenuItem();
+            groupBox5 = new GroupBox();
             RegisterAxBox.SuspendLayout();
             RegisterBxBox.SuspendLayout();
             registersBox.SuspendLayout();
@@ -101,6 +102,7 @@
             groupBox3.SuspendLayout();
             groupBox4.SuspendLayout();
             menuStrip1.SuspendLayout();
+            groupBox5.SuspendLayout();
             SuspendLayout();
             // 
             // RegisterAxBox
@@ -290,7 +292,7 @@
             registersBox.Controls.Add(RegisterAxBox);
             registersBox.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             registersBox.ForeColor = Color.FromArgb(192, 64, 0);
-            registersBox.Location = new Point(12, 58);
+            registersBox.Location = new Point(7, 17);
             registersBox.Name = "registersBox";
             registersBox.Size = new Size(324, 411);
             registersBox.TabIndex = 11;
@@ -402,7 +404,7 @@
             groupBox1.Controls.Add(popStackButton);
             groupBox1.Controls.Add(stackList);
             groupBox1.Font = new Font("Consolas", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            groupBox1.Location = new Point(12, 481);
+            groupBox1.Location = new Point(7, 440);
             groupBox1.Name = "groupBox1";
             groupBox1.Size = new Size(324, 197);
             groupBox1.TabIndex = 13;
@@ -440,7 +442,7 @@
             oppCommandBox.Controls.Add(executebutton);
             oppCommandBox.Controls.Add(oppCom);
             oppCommandBox.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            oppCommandBox.Location = new Point(12, 680);
+            oppCommandBox.Location = new Point(7, 639);
             oppCommandBox.Name = "oppCommandBox";
             oppCommandBox.Size = new Size(324, 117);
             oppCommandBox.TabIndex = 14;
@@ -486,7 +488,7 @@
             OUTPUT.Controls.Add(clearOutput);
             OUTPUT.Controls.Add(OutputRegister);
             OUTPUT.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            OUTPUT.Location = new Point(1027, 58);
+            OUTPUT.Location = new Point(1022, 17);
             OUTPUT.Name = "OUTPUT";
             OUTPUT.Size = new Size(387, 437);
             OUTPUT.TabIndex = 15;
@@ -562,25 +564,13 @@
             // 
             loadToMemoryButton.BackColor = Color.FromArgb(192, 192, 0);
             loadToMemoryButton.ForeColor = SystemColors.ActiveCaptionText;
-            loadToMemoryButton.Location = new Point(712, 17);
+            loadToMemoryButton.Location = new Point(522, 17);
             loadToMemoryButton.Name = "loadToMemoryButton";
             loadToMemoryButton.Size = new Size(187, 40);
             loadToMemoryButton.TabIndex = 21;
             loadToMemoryButton.Text = "LOAD TO MEMORY";
             loadToMemoryButton.UseVisualStyleBackColor = false;
             loadToMemoryButton.Click += loadToMemoryButton_Click;
-            // 
-            // saveToFileButton
-            // 
-            saveToFileButton.BackColor = Color.FromArgb(192, 192, 0);
-            saveToFileButton.ForeColor = SystemColors.ActiveCaptionText;
-            saveToFileButton.Location = new Point(448, 17);
-            saveToFileButton.Name = "saveToFileButton";
-            saveToFileButton.Size = new Size(130, 40);
-            saveToFileButton.TabIndex = 22;
-            saveToFileButton.Text = "SAVE TO FILE";
-            saveToFileButton.UseVisualStyleBackColor = false;
-            saveToFileButton.Click += saveToFileButton_Click;
             // 
             // cpuClock
             // 
@@ -591,7 +581,7 @@
             // 
             btnStep.BackColor = Color.FromArgb(255, 192, 128);
             btnStep.ForeColor = SystemColors.ActiveCaptionText;
-            btnStep.Location = new Point(584, 17);
+            btnStep.Location = new Point(394, 17);
             btnStep.Name = "btnStep";
             btnStep.Size = new Size(122, 40);
             btnStep.TabIndex = 23;
@@ -603,7 +593,7 @@
             // 
             btnStartClock.BackColor = Color.FromArgb(0, 64, 0);
             btnStartClock.ForeColor = Color.White;
-            btnStartClock.Location = new Point(327, 17);
+            btnStartClock.Location = new Point(273, 17);
             btnStartClock.Name = "btnStartClock";
             btnStartClock.Size = new Size(115, 40);
             btnStartClock.TabIndex = 24;
@@ -617,14 +607,13 @@
             groupBox2.Controls.Add(resetButton);
             groupBox2.Controls.Add(btnStartClock);
             groupBox2.Controls.Add(btnStep);
-            groupBox2.Controls.Add(saveToFileButton);
             groupBox2.Controls.Add(loadToMemoryButton);
             groupBox2.Controls.Add(clearEditorButton);
             groupBox2.Controls.Add(runCodeButton);
             groupBox2.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            groupBox2.Location = new Point(190, 805);
+            groupBox2.Location = new Point(7, 764);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(1076, 69);
+            groupBox2.Size = new Size(877, 71);
             groupBox2.TabIndex = 26;
             groupBox2.TabStop = false;
             groupBox2.Text = "OPERATIONS";
@@ -633,7 +622,7 @@
             // 
             resetButton.BackColor = Color.FromArgb(0, 64, 0);
             resetButton.ForeColor = Color.White;
-            resetButton.Location = new Point(905, 17);
+            resetButton.Location = new Point(716, 17);
             resetButton.Name = "resetButton";
             resetButton.Size = new Size(115, 40);
             resetButton.TabIndex = 25;
@@ -647,7 +636,7 @@
             groupBox3.Controls.Add(assemblyCodeBox);
             groupBox3.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             groupBox3.ForeColor = Color.Black;
-            groupBox3.Location = new Point(337, 58);
+            groupBox3.Location = new Point(332, 17);
             groupBox3.Name = "groupBox3";
             groupBox3.Size = new Size(684, 739);
             groupBox3.TabIndex = 27;
@@ -659,7 +648,7 @@
             groupBox4.BackColor = Color.FromArgb(224, 224, 224);
             groupBox4.Controls.Add(MemoryGrid);
             groupBox4.Font = new Font("Consolas", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            groupBox4.Location = new Point(1027, 509);
+            groupBox4.Location = new Point(1022, 468);
             groupBox4.Name = "groupBox4";
             groupBox4.Size = new Size(387, 288);
             groupBox4.TabIndex = 28;
@@ -668,9 +657,9 @@
             // 
             // menuStrip1
             // 
-            menuStrip1.BackColor = Color.FromArgb(255, 192, 192);
+            menuStrip1.BackColor = Color.ForestGreen;
             menuStrip1.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { hELPToolStripMenuItem, architectureToolStripMenuItem, helpToolStripMenuItem1, isaReferenceToolStripMenuItem, oppGuideToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { hELPToolStripMenuItem, architectureToolStripMenuItem, isaReferenceToolStripMenuItem, oppGuideToolStripMenuItem, saveCodeToFileToolStripMenuItem, helpToolStripMenuItem1 });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1441, 27);
@@ -699,27 +688,6 @@
             architectureToolStripMenuItem.Size = new Size(129, 23);
             architectureToolStripMenuItem.Text = "Architecture";
             // 
-            // helpToolStripMenuItem1
-            // 
-            helpToolStripMenuItem1.Name = "helpToolStripMenuItem1";
-            helpToolStripMenuItem1.Size = new Size(66, 23);
-            helpToolStripMenuItem1.Text = "About";
-            helpToolStripMenuItem1.Click += helpToolStripMenuItem1_Click;
-            // 
-            // isaReferenceToolStripMenuItem
-            // 
-            isaReferenceToolStripMenuItem.Name = "isaReferenceToolStripMenuItem";
-            isaReferenceToolStripMenuItem.Size = new Size(138, 23);
-            isaReferenceToolStripMenuItem.Text = "Isa Reference";
-            isaReferenceToolStripMenuItem.Click += isaReferenceToolStripMenuItem_Click;
-            // 
-            // oppGuideToolStripMenuItem
-            // 
-            oppGuideToolStripMenuItem.Name = "oppGuideToolStripMenuItem";
-            oppGuideToolStripMenuItem.Size = new Size(93, 23);
-            oppGuideToolStripMenuItem.Text = "OppGuide";
-            oppGuideToolStripMenuItem.Click += oppGuideToolStripMenuItem_Click;
-            // 
             // hARDWARERESETToolStripMenuItem
             // 
             hARDWARERESETToolStripMenuItem.Name = "hARDWARERESETToolStripMenuItem";
@@ -737,20 +705,64 @@
             // hZSLOWToolStripMenuItem
             // 
             hZSLOWToolStripMenuItem.Name = "hZSLOWToolStripMenuItem";
-            hZSLOWToolStripMenuItem.Size = new Size(180, 24);
+            hZSLOWToolStripMenuItem.Size = new Size(177, 24);
             hZSLOWToolStripMenuItem.Text = "1 HZ SLOW";
             // 
             // hZNORMALToolStripMenuItem
             // 
             hZNORMALToolStripMenuItem.Name = "hZNORMALToolStripMenuItem";
-            hZNORMALToolStripMenuItem.Size = new Size(180, 24);
+            hZNORMALToolStripMenuItem.Size = new Size(177, 24);
             hZNORMALToolStripMenuItem.Text = "2 HZ NORMAL";
             // 
             // tURBOMODEToolStripMenuItem
             // 
             tURBOMODEToolStripMenuItem.Name = "tURBOMODEToolStripMenuItem";
-            tURBOMODEToolStripMenuItem.Size = new Size(180, 24);
+            tURBOMODEToolStripMenuItem.Size = new Size(177, 24);
             tURBOMODEToolStripMenuItem.Text = "TURBO MODE";
+            // 
+            // isaReferenceToolStripMenuItem
+            // 
+            isaReferenceToolStripMenuItem.Name = "isaReferenceToolStripMenuItem";
+            isaReferenceToolStripMenuItem.Size = new Size(138, 23);
+            isaReferenceToolStripMenuItem.Text = "Isa Reference";
+            isaReferenceToolStripMenuItem.Click += isaReferenceToolStripMenuItem_Click;
+            // 
+            // oppGuideToolStripMenuItem
+            // 
+            oppGuideToolStripMenuItem.Name = "oppGuideToolStripMenuItem";
+            oppGuideToolStripMenuItem.Size = new Size(93, 23);
+            oppGuideToolStripMenuItem.Text = "OppGuide";
+            oppGuideToolStripMenuItem.Click += oppGuideToolStripMenuItem_Click;
+            // 
+            // saveCodeToFileToolStripMenuItem
+            // 
+            saveCodeToFileToolStripMenuItem.Name = "saveCodeToFileToolStripMenuItem";
+            saveCodeToFileToolStripMenuItem.Size = new Size(174, 23);
+            saveCodeToFileToolStripMenuItem.Text = "Save Code To File";
+            saveCodeToFileToolStripMenuItem.Click += saveCodeToFileToolStripMenuItem_Click;
+            // 
+            // helpToolStripMenuItem1
+            // 
+            helpToolStripMenuItem1.Name = "helpToolStripMenuItem1";
+            helpToolStripMenuItem1.Size = new Size(66, 23);
+            helpToolStripMenuItem1.Text = "About";
+            helpToolStripMenuItem1.Click += helpToolStripMenuItem1_Click;
+            // 
+            // groupBox5
+            // 
+            groupBox5.BackColor = Color.FromArgb(128, 64, 64);
+            groupBox5.Controls.Add(groupBox4);
+            groupBox5.Controls.Add(groupBox3);
+            groupBox5.Controls.Add(groupBox2);
+            groupBox5.Controls.Add(OUTPUT);
+            groupBox5.Controls.Add(oppCommandBox);
+            groupBox5.Controls.Add(groupBox1);
+            groupBox5.Controls.Add(registersBox);
+            groupBox5.Location = new Point(5, 41);
+            groupBox5.Name = "groupBox5";
+            groupBox5.Size = new Size(1423, 841);
+            groupBox5.TabIndex = 30;
+            groupBox5.TabStop = false;
             // 
             // Form1
             // 
@@ -758,13 +770,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.DimGray;
             ClientSize = new Size(1441, 888);
-            Controls.Add(groupBox4);
-            Controls.Add(groupBox3);
-            Controls.Add(groupBox2);
-            Controls.Add(OUTPUT);
-            Controls.Add(oppCommandBox);
-            Controls.Add(groupBox1);
-            Controls.Add(registersBox);
+            Controls.Add(groupBox5);
             Controls.Add(menuStrip1);
             ForeColor = SystemColors.ButtonFace;
             MainMenuStrip = menuStrip1;
@@ -786,6 +792,7 @@
             groupBox4.ResumeLayout(false);
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
+            groupBox5.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -835,7 +842,6 @@
         private Button clearEditorButton;
         private DataGridView MemoryGrid;
         private Button loadToMemoryButton;
-        private Button saveToFileButton;
         private Button clearOutput;
         private System.Windows.Forms.Timer cpuClock;
         private Button btnStep;
@@ -856,5 +862,7 @@
         private ToolStripMenuItem hZSLOWToolStripMenuItem;
         private ToolStripMenuItem hZNORMALToolStripMenuItem;
         private ToolStripMenuItem tURBOMODEToolStripMenuItem;
+        private ToolStripMenuItem saveCodeToFileToolStripMenuItem;
+        private GroupBox groupBox5;
     }
 }
