@@ -9,6 +9,43 @@ namespace WinFormsApp1
         {
             InitializeComponent();
         }
+        // Simulated Program Counter to track current instruction in memory
+        private int programCounter = 0;
+        // Flag to indicate if the CPU is halted (e.g., after executing a HLT instruction or reaching end of memory)
+        private bool isHalted = false;
+        //Core hardware cycle for fetch-decode-execute
+        private void ExecuteNextInstruction()
+        {
+            if (isHalted) return; // If CPU is halted, do not execute further instructions
+
+            //Hardware Error: Check if there are instructions in memory and if the program counter is within bounds
+            if (MemoryGrid.Rows.Count == 0)
+            {
+                isHalted = true;
+                cpuClock.Stop();
+                MessageBox.Show("No instructions in memory!", "Hardware Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            //Successful fetch-decode-execute cycle:Program counter reaches the end of loaded instructions, halting the CPU to prevent out-of-bounds access
+            if (programCounter >= MemoryGrid.Rows.Count)
+            {
+                isHalted = true;
+                cpuClock.Stop();
+                MessageBox.Show("End of program memory reached. CPU halted.", "Program Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // Fetch
+            string assemblyLine = MemoryGrid.Rows[programCounter].Cells[1].Value.ToString();
+            //highlight current instruction in grid
+            MemoryGrid.ClearSelection();
+            MemoryGrid.Rows[programCounter].Selected = true;
+
+            //execute
+            Assembler.RunCode(assemblyLine);
+            programCounter++;
+        }
+
         private void AddInstructionToMemory(string address, string assembly, string machineCode)
         {
             MemoryGrid.Rows.Add(address, assembly, machineCode);
@@ -233,14 +270,14 @@ namespace WinFormsApp1
             opguide.Items.Add("0001: OR  (Logical)");
             opguide.Items.Add("0010: XOR (Logical)");
             opguide.Items.Add("0011: NOT A (Invert A)");
-            opguide.Items.Add("0100: A + B (Addition)");       
-            opguide.Items.Add("0101: A - B (Subtraction)");    
+            opguide.Items.Add("0100: A + B (Addition)");
+            opguide.Items.Add("0101: A - B (Subtraction)");
             opguide.Items.Add("0110: NOT B (Invert B)");       // Shifted down safely
             opguide.Items.Add("0111: B - A (Reverse Sub)");
             opguide.Items.Add("1000: A << 1 (Shift Left)");
             opguide.Items.Add("1001: A >> 1 (Shift Right)");
             opguide.Items.Add("1010: Increment A");
-            
+
             opguide.Items.Add("1011: Decrement A");
             opguide.Items.Add("1100: Increment B");
             opguide.Items.Add("1101: Decrement B");
@@ -368,6 +405,8 @@ namespace WinFormsApp1
                 AddInstructionToMemory(hexAddress, line.Trim(), binaryInstruction);
 
                 address++;
+                programCounter = 0; // Reset program counter to start of memory after loading new instructions  
+                isHalted = false; // Reset halt state in case it was previously set 
             }
         }
 
@@ -439,6 +478,29 @@ namespace WinFormsApp1
             }
         }
 
+        private void cpuClock_Tick(object sender, EventArgs e)
+        {
+            ExecuteNextInstruction();
+            //RefreshUI();
+        }
 
+        private void btnStep_Click(object sender, EventArgs e)
+        {
+            ExecuteNextInstruction();
+            RefreshUI();
+        }
+
+        private void btnStartClock_Click(object sender, EventArgs e)
+        {
+            isHalted = false;
+            cpuClock.Start();
+        }
+
+        private void resetButton_Click(object sender, EventArgs e)
+        {
+            //reset 
+            programCounter = 0;
+            isHalted = false;
+        }
     }
 }

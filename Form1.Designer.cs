@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             saveFileDialog1 = new SaveFileDialog();
             RegisterAxBox = new GroupBox();
             resetAx = new Button();
@@ -61,6 +62,7 @@
             executebutton = new Button();
             oppCom = new ListBox();
             OUTPUT = new GroupBox();
+            clearOutput = new Button();
             OutputRegister = new ListBox();
             opguide = new ListBox();
             assemblyCodeBox = new RichTextBox();
@@ -69,7 +71,13 @@
             MemoryGrid = new DataGridView();
             loadToMemoryButton = new Button();
             saveToFileButton = new Button();
-            clearOutput = new Button();
+            cpuClock = new System.Windows.Forms.Timer(components);
+            btnStep = new Button();
+            btnStartClock = new Button();
+            label2 = new Label();
+            groupBox2 = new GroupBox();
+            groupBox3 = new GroupBox();
+            resetButton = new Button();
             RegisterAxBox.SuspendLayout();
             RegisterBxBox.SuspendLayout();
             registersBox.SuspendLayout();
@@ -78,6 +86,8 @@
             oppCommandBox.SuspendLayout();
             OUTPUT.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)MemoryGrid).BeginInit();
+            groupBox2.SuspendLayout();
+            groupBox3.SuspendLayout();
             SuspendLayout();
             // 
             // RegisterAxBox
@@ -92,7 +102,7 @@
             RegisterAxBox.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             RegisterAxBox.Location = new Point(31, 22);
             RegisterAxBox.Name = "RegisterAxBox";
-            RegisterAxBox.Size = new Size(317, 134);
+            RegisterAxBox.Size = new Size(249, 115);
             RegisterAxBox.TabIndex = 0;
             RegisterAxBox.TabStop = false;
             RegisterAxBox.Text = "REGISTER AX";
@@ -101,7 +111,7 @@
             // 
             resetAx.BackColor = Color.Green;
             resetAx.ForeColor = SystemColors.ButtonHighlight;
-            resetAx.Location = new Point(176, 89);
+            resetAx.Location = new Point(138, 68);
             resetAx.Name = "resetAx";
             resetAx.Size = new Size(98, 30);
             resetAx.TabIndex = 9;
@@ -112,7 +122,7 @@
             // regAxPush
             // 
             regAxPush.BackColor = Color.FromArgb(0, 192, 192);
-            regAxPush.Location = new Point(44, 89);
+            regAxPush.Location = new Point(6, 68);
             regAxPush.Name = "regAxPush";
             regAxPush.Size = new Size(98, 30);
             regAxPush.TabIndex = 8;
@@ -123,7 +133,7 @@
             // ax0
             // 
             ax0.ForeColor = Color.Black;
-            ax0.Location = new Point(218, 39);
+            ax0.Location = new Point(180, 28);
             ax0.Name = "ax0";
             ax0.Size = new Size(56, 34);
             ax0.TabIndex = 5;
@@ -134,7 +144,7 @@
             // ax1
             // 
             ax1.ForeColor = Color.Black;
-            ax1.Location = new Point(160, 39);
+            ax1.Location = new Point(122, 28);
             ax1.Name = "ax1";
             ax1.Size = new Size(52, 34);
             ax1.TabIndex = 4;
@@ -145,7 +155,7 @@
             // ax2
             // 
             ax2.ForeColor = Color.Black;
-            ax2.Location = new Point(102, 39);
+            ax2.Location = new Point(64, 28);
             ax2.Name = "ax2";
             ax2.Size = new Size(52, 34);
             ax2.TabIndex = 7;
@@ -156,7 +166,7 @@
             // ax3
             // 
             ax3.ForeColor = Color.Black;
-            ax3.Location = new Point(44, 39);
+            ax3.Location = new Point(6, 28);
             ax3.Name = "ax3";
             ax3.Size = new Size(52, 34);
             ax3.TabIndex = 6;
@@ -172,7 +182,7 @@
             stackList.FormattingEnabled = true;
             stackList.Location = new Point(18, 20);
             stackList.Name = "stackList";
-            stackList.Size = new Size(422, 289);
+            stackList.Size = new Size(275, 118);
             stackList.TabIndex = 1;
             // 
             // RegisterBxBox
@@ -185,9 +195,9 @@
             RegisterBxBox.Controls.Add(bx2);
             RegisterBxBox.Controls.Add(bx3);
             RegisterBxBox.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            RegisterBxBox.Location = new Point(31, 175);
+            RegisterBxBox.Location = new Point(31, 143);
             RegisterBxBox.Name = "RegisterBxBox";
-            RegisterBxBox.Size = new Size(317, 134);
+            RegisterBxBox.Size = new Size(249, 121);
             RegisterBxBox.TabIndex = 10;
             RegisterBxBox.TabStop = false;
             RegisterBxBox.Text = "REGISTER BX";
@@ -196,7 +206,7 @@
             // 
             resetBx.BackColor = Color.Green;
             resetBx.ForeColor = SystemColors.ButtonHighlight;
-            resetBx.Location = new Point(176, 89);
+            resetBx.Location = new Point(138, 68);
             resetBx.Name = "resetBx";
             resetBx.Size = new Size(98, 30);
             resetBx.TabIndex = 9;
@@ -207,7 +217,7 @@
             // regBxPush
             // 
             regBxPush.BackColor = Color.FromArgb(0, 192, 192);
-            regBxPush.Location = new Point(44, 89);
+            regBxPush.Location = new Point(6, 68);
             regBxPush.Name = "regBxPush";
             regBxPush.Size = new Size(98, 30);
             regBxPush.TabIndex = 8;
@@ -218,7 +228,7 @@
             // bx0
             // 
             bx0.ForeColor = Color.Black;
-            bx0.Location = new Point(218, 39);
+            bx0.Location = new Point(180, 28);
             bx0.Name = "bx0";
             bx0.Size = new Size(56, 34);
             bx0.TabIndex = 5;
@@ -229,7 +239,7 @@
             // bx1
             // 
             bx1.ForeColor = Color.Black;
-            bx1.Location = new Point(160, 39);
+            bx1.Location = new Point(122, 28);
             bx1.Name = "bx1";
             bx1.Size = new Size(52, 34);
             bx1.TabIndex = 4;
@@ -240,7 +250,7 @@
             // bx2
             // 
             bx2.ForeColor = Color.Black;
-            bx2.Location = new Point(102, 39);
+            bx2.Location = new Point(64, 28);
             bx2.Name = "bx2";
             bx2.Size = new Size(52, 34);
             bx2.TabIndex = 7;
@@ -251,7 +261,7 @@
             // bx3
             // 
             bx3.ForeColor = Color.Black;
-            bx3.Location = new Point(44, 39);
+            bx3.Location = new Point(6, 28);
             bx3.Name = "bx3";
             bx3.Size = new Size(52, 34);
             bx3.TabIndex = 6;
@@ -266,9 +276,9 @@
             registersBox.Controls.Add(RegisterBxBox);
             registersBox.Controls.Add(RegisterAxBox);
             registersBox.ForeColor = Color.FromArgb(192, 64, 0);
-            registersBox.Location = new Point(12, 12);
+            registersBox.Location = new Point(12, 15);
             registersBox.Name = "registersBox";
-            registersBox.Size = new Size(393, 514);
+            registersBox.Size = new Size(324, 411);
             registersBox.TabIndex = 11;
             registersBox.TabStop = false;
             registersBox.Text = "Registers ";
@@ -283,9 +293,9 @@
             oppcodebox.Controls.Add(op2);
             oppcodebox.Controls.Add(op3);
             oppcodebox.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            oppcodebox.Location = new Point(31, 334);
+            oppcodebox.Location = new Point(31, 270);
             oppcodebox.Name = "oppcodebox";
-            oppcodebox.Size = new Size(317, 134);
+            oppcodebox.Size = new Size(249, 115);
             oppcodebox.TabIndex = 11;
             oppcodebox.TabStop = false;
             oppcodebox.Text = "OPPCODE BOX";
@@ -294,7 +304,7 @@
             // 
             oppResetButton.BackColor = Color.Green;
             oppResetButton.ForeColor = SystemColors.ButtonHighlight;
-            oppResetButton.Location = new Point(176, 89);
+            oppResetButton.Location = new Point(122, 68);
             oppResetButton.Name = "oppResetButton";
             oppResetButton.Size = new Size(98, 30);
             oppResetButton.TabIndex = 9;
@@ -305,7 +315,7 @@
             // oppPush
             // 
             oppPush.BackColor = Color.FromArgb(0, 192, 192);
-            oppPush.Location = new Point(44, 89);
+            oppPush.Location = new Point(6, 68);
             oppPush.Name = "oppPush";
             oppPush.Size = new Size(98, 30);
             oppPush.TabIndex = 8;
@@ -316,7 +326,7 @@
             // op0
             // 
             op0.ForeColor = Color.Black;
-            op0.Location = new Point(218, 39);
+            op0.Location = new Point(180, 28);
             op0.Name = "op0";
             op0.Size = new Size(56, 34);
             op0.TabIndex = 5;
@@ -327,7 +337,7 @@
             // op1
             // 
             op1.ForeColor = Color.Black;
-            op1.Location = new Point(160, 39);
+            op1.Location = new Point(122, 28);
             op1.Name = "op1";
             op1.Size = new Size(52, 34);
             op1.TabIndex = 4;
@@ -338,7 +348,7 @@
             // op2
             // 
             op2.ForeColor = Color.Black;
-            op2.Location = new Point(102, 39);
+            op2.Location = new Point(64, 28);
             op2.Name = "op2";
             op2.Size = new Size(52, 34);
             op2.TabIndex = 7;
@@ -349,7 +359,7 @@
             // op3
             // 
             op3.ForeColor = Color.Black;
-            op3.Location = new Point(44, 39);
+            op3.Location = new Point(6, 28);
             op3.Name = "op3";
             op3.Size = new Size(52, 34);
             op3.TabIndex = 6;
@@ -362,9 +372,9 @@
             popStackButton.BackColor = Color.Red;
             popStackButton.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             popStackButton.ForeColor = SystemColors.ActiveCaption;
-            popStackButton.Location = new Point(18, 343);
+            popStackButton.Location = new Point(18, 164);
             popStackButton.Name = "popStackButton";
-            popStackButton.Size = new Size(154, 33);
+            popStackButton.Size = new Size(115, 30);
             popStackButton.TabIndex = 12;
             popStackButton.Text = "POP";
             popStackButton.UseVisualStyleBackColor = false;
@@ -377,9 +387,9 @@
             groupBox1.Controls.Add(clearStackButton);
             groupBox1.Controls.Add(popStackButton);
             groupBox1.Controls.Add(stackList);
-            groupBox1.Location = new Point(411, 12);
+            groupBox1.Location = new Point(12, 432);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(469, 385);
+            groupBox1.Size = new Size(324, 217);
             groupBox1.TabIndex = 13;
             groupBox1.TabStop = false;
             groupBox1.Text = "STACK LIST";
@@ -387,8 +397,9 @@
             // popedRegister
             // 
             popedRegister.AutoSize = true;
+            popedRegister.BackColor = Color.FromArgb(255, 192, 255);
             popedRegister.ForeColor = SystemColors.ActiveCaptionText;
-            popedRegister.Location = new Point(26, 317);
+            popedRegister.Location = new Point(18, 143);
             popedRegister.Name = "popedRegister";
             popedRegister.Size = new Size(110, 15);
             popedRegister.TabIndex = 14;
@@ -399,9 +410,9 @@
             clearStackButton.BackColor = Color.Firebrick;
             clearStackButton.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             clearStackButton.ForeColor = SystemColors.ActiveCaption;
-            clearStackButton.Location = new Point(286, 343);
+            clearStackButton.Location = new Point(178, 161);
             clearStackButton.Name = "clearStackButton";
-            clearStackButton.Size = new Size(154, 33);
+            clearStackButton.Size = new Size(115, 33);
             clearStackButton.TabIndex = 13;
             clearStackButton.Text = "CLEAR STACK";
             clearStackButton.UseVisualStyleBackColor = false;
@@ -413,9 +424,9 @@
             oppCommandBox.Controls.Add(label1);
             oppCommandBox.Controls.Add(executebutton);
             oppCommandBox.Controls.Add(oppCom);
-            oppCommandBox.Location = new Point(411, 403);
+            oppCommandBox.Location = new Point(12, 655);
             oppCommandBox.Name = "oppCommandBox";
-            oppCommandBox.Size = new Size(469, 123);
+            oppCommandBox.Size = new Size(324, 123);
             oppCommandBox.TabIndex = 14;
             oppCommandBox.TabStop = false;
             oppCommandBox.Text = "OPP COMMAND";
@@ -424,7 +435,7 @@
             // 
             label1.AutoSize = true;
             label1.BackColor = Color.FromArgb(255, 128, 0);
-            label1.Location = new Point(182, 81);
+            label1.Location = new Point(20, 64);
             label1.Name = "label1";
             label1.Size = new Size(113, 15);
             label1.TabIndex = 2;
@@ -434,9 +445,9 @@
             // 
             executebutton.BackColor = Color.FromArgb(192, 64, 0);
             executebutton.Font = new Font("Consolas", 12.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            executebutton.Location = new Point(20, 81);
+            executebutton.Location = new Point(18, 83);
             executebutton.Name = "executebutton";
-            executebutton.Size = new Size(156, 37);
+            executebutton.Size = new Size(115, 34);
             executebutton.TabIndex = 1;
             executebutton.Text = "EXECUTE";
             executebutton.UseVisualStyleBackColor = false;
@@ -450,7 +461,7 @@
             oppCom.FormattingEnabled = true;
             oppCom.Location = new Point(20, 15);
             oppCom.Name = "oppCom";
-            oppCom.Size = new Size(424, 60);
+            oppCom.Size = new Size(298, 46);
             oppCom.TabIndex = 0;
             // 
             // OUTPUT
@@ -458,101 +469,12 @@
             OUTPUT.BackColor = Color.Silver;
             OUTPUT.Controls.Add(clearOutput);
             OUTPUT.Controls.Add(OutputRegister);
-            OUTPUT.Location = new Point(899, 12);
+            OUTPUT.Location = new Point(942, 15);
             OUTPUT.Name = "OUTPUT";
-            OUTPUT.Size = new Size(418, 514);
+            OUTPUT.Size = new Size(377, 437);
             OUTPUT.TabIndex = 15;
             OUTPUT.TabStop = false;
             OUTPUT.Text = "OUTPUT ";
-            // 
-            // OutputRegister
-            // 
-            OutputRegister.BackColor = Color.Black;
-            OutputRegister.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            OutputRegister.ForeColor = Color.White;
-            OutputRegister.FormattingEnabled = true;
-            OutputRegister.Location = new Point(11, 26);
-            OutputRegister.Name = "OutputRegister";
-            OutputRegister.Size = new Size(391, 460);
-            OutputRegister.TabIndex = 0;
-            // 
-            // opguide
-            // 
-            opguide.BackColor = Color.Black;
-            opguide.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            opguide.ForeColor = Color.Lime;
-            opguide.FormattingEnabled = true;
-            opguide.Location = new Point(12, 533);
-            opguide.Name = "opguide";
-            opguide.Size = new Size(415, 251);
-            opguide.TabIndex = 16;
-            // 
-            // assemblyCodeBox
-            // 
-            assemblyCodeBox.BackColor = Color.Black;
-            assemblyCodeBox.Font = new Font("Consolas", 12.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            assemblyCodeBox.ForeColor = Color.Lime;
-            assemblyCodeBox.Location = new Point(437, 536);
-            assemblyCodeBox.Name = "assemblyCodeBox";
-            assemblyCodeBox.Size = new Size(331, 279);
-            assemblyCodeBox.TabIndex = 17;
-            assemblyCodeBox.Text = "";
-            // 
-            // runCodeButton
-            // 
-            runCodeButton.BackColor = Color.FromArgb(192, 192, 0);
-            runCodeButton.ForeColor = SystemColors.ActiveCaptionText;
-            runCodeButton.Location = new Point(437, 821);
-            runCodeButton.Name = "runCodeButton";
-            runCodeButton.Size = new Size(130, 40);
-            runCodeButton.TabIndex = 18;
-            runCodeButton.Text = "RUN CODE";
-            runCodeButton.UseVisualStyleBackColor = false;
-            runCodeButton.Click += runCodeButton_Click;
-            // 
-            // clearEditorButton
-            // 
-            clearEditorButton.BackColor = Color.FromArgb(192, 192, 0);
-            clearEditorButton.ForeColor = SystemColors.ActiveCaptionText;
-            clearEditorButton.Location = new Point(638, 821);
-            clearEditorButton.Name = "clearEditorButton";
-            clearEditorButton.Size = new Size(130, 40);
-            clearEditorButton.TabIndex = 19;
-            clearEditorButton.Text = "CLEAR EDITOR";
-            clearEditorButton.UseVisualStyleBackColor = false;
-            clearEditorButton.Click += clearEditorButton_Click;
-            // 
-            // MemoryGrid
-            // 
-            MemoryGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            MemoryGrid.Location = new Point(792, 536);
-            MemoryGrid.Name = "MemoryGrid";
-            MemoryGrid.Size = new Size(509, 279);
-            MemoryGrid.TabIndex = 20;
-            // 
-            // loadToMemoryButton
-            // 
-            loadToMemoryButton.BackColor = Color.FromArgb(192, 192, 0);
-            loadToMemoryButton.ForeColor = SystemColors.ActiveCaptionText;
-            loadToMemoryButton.Location = new Point(792, 821);
-            loadToMemoryButton.Name = "loadToMemoryButton";
-            loadToMemoryButton.Size = new Size(130, 40);
-            loadToMemoryButton.TabIndex = 21;
-            loadToMemoryButton.Text = "LOAD TO MEMORY";
-            loadToMemoryButton.UseVisualStyleBackColor = false;
-            loadToMemoryButton.Click += loadToMemoryButton_Click;
-            // 
-            // saveToFileButton
-            // 
-            saveToFileButton.BackColor = Color.FromArgb(192, 192, 0);
-            saveToFileButton.ForeColor = SystemColors.ActiveCaptionText;
-            saveToFileButton.Location = new Point(1171, 821);
-            saveToFileButton.Name = "saveToFileButton";
-            saveToFileButton.Size = new Size(130, 40);
-            saveToFileButton.TabIndex = 22;
-            saveToFileButton.Text = "SAVE TO FILE";
-            saveToFileButton.UseVisualStyleBackColor = false;
-            saveToFileButton.Click += saveToFileButton_Click;
             // 
             // clearOutput
             // 
@@ -565,18 +487,186 @@
             clearOutput.UseVisualStyleBackColor = false;
             clearOutput.Click += clearOutput_Click;
             // 
+            // OutputRegister
+            // 
+            OutputRegister.BackColor = Color.Black;
+            OutputRegister.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            OutputRegister.ForeColor = Color.White;
+            OutputRegister.FormattingEnabled = true;
+            OutputRegister.Location = new Point(6, 22);
+            OutputRegister.Name = "OutputRegister";
+            OutputRegister.Size = new Size(360, 403);
+            OutputRegister.TabIndex = 0;
+            // 
+            // opguide
+            // 
+            opguide.BackColor = Color.Black;
+            opguide.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            opguide.ForeColor = Color.Lime;
+            opguide.FormattingEnabled = true;
+            opguide.Location = new Point(1325, 15);
+            opguide.Name = "opguide";
+            opguide.Size = new Size(369, 441);
+            opguide.TabIndex = 16;
+            // 
+            // assemblyCodeBox
+            // 
+            assemblyCodeBox.BackColor = Color.Black;
+            assemblyCodeBox.Font = new Font("Consolas", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            assemblyCodeBox.ForeColor = Color.Lime;
+            assemblyCodeBox.Location = new Point(18, 42);
+            assemblyCodeBox.Name = "assemblyCodeBox";
+            assemblyCodeBox.Size = new Size(559, 643);
+            assemblyCodeBox.TabIndex = 17;
+            assemblyCodeBox.Text = "";
+            // 
+            // runCodeButton
+            // 
+            runCodeButton.BackColor = Color.FromArgb(192, 192, 0);
+            runCodeButton.ForeColor = SystemColors.ActiveCaptionText;
+            runCodeButton.Location = new Point(0, 17);
+            runCodeButton.Name = "runCodeButton";
+            runCodeButton.Size = new Size(130, 40);
+            runCodeButton.TabIndex = 18;
+            runCodeButton.Text = "RUN CODE";
+            runCodeButton.UseVisualStyleBackColor = false;
+            runCodeButton.Click += runCodeButton_Click;
+            // 
+            // clearEditorButton
+            // 
+            clearEditorButton.BackColor = Color.FromArgb(192, 192, 0);
+            clearEditorButton.ForeColor = SystemColors.ActiveCaptionText;
+            clearEditorButton.Location = new Point(137, 17);
+            clearEditorButton.Name = "clearEditorButton";
+            clearEditorButton.Size = new Size(130, 40);
+            clearEditorButton.TabIndex = 19;
+            clearEditorButton.Text = "CLEAR EDITOR";
+            clearEditorButton.UseVisualStyleBackColor = false;
+            clearEditorButton.Click += clearEditorButton_Click;
+            // 
+            // MemoryGrid
+            // 
+            MemoryGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            MemoryGrid.Location = new Point(946, 473);
+            MemoryGrid.Name = "MemoryGrid";
+            MemoryGrid.Size = new Size(431, 255);
+            MemoryGrid.TabIndex = 20;
+            // 
+            // loadToMemoryButton
+            // 
+            loadToMemoryButton.BackColor = Color.FromArgb(192, 192, 0);
+            loadToMemoryButton.ForeColor = SystemColors.ActiveCaptionText;
+            loadToMemoryButton.Location = new Point(273, 17);
+            loadToMemoryButton.Name = "loadToMemoryButton";
+            loadToMemoryButton.Size = new Size(130, 40);
+            loadToMemoryButton.TabIndex = 21;
+            loadToMemoryButton.Text = "LOAD TO MEMORY";
+            loadToMemoryButton.UseVisualStyleBackColor = false;
+            loadToMemoryButton.Click += loadToMemoryButton_Click;
+            // 
+            // saveToFileButton
+            // 
+            saveToFileButton.BackColor = Color.FromArgb(192, 192, 0);
+            saveToFileButton.ForeColor = SystemColors.ActiveCaptionText;
+            saveToFileButton.Location = new Point(409, 17);
+            saveToFileButton.Name = "saveToFileButton";
+            saveToFileButton.Size = new Size(130, 40);
+            saveToFileButton.TabIndex = 22;
+            saveToFileButton.Text = "SAVE TO FILE";
+            saveToFileButton.UseVisualStyleBackColor = false;
+            saveToFileButton.Click += saveToFileButton_Click;
+            // 
+            // cpuClock
+            // 
+            cpuClock.Interval = 500;
+            cpuClock.Tick += cpuClock_Tick;
+            // 
+            // btnStep
+            // 
+            btnStep.BackColor = Color.FromArgb(255, 192, 128);
+            btnStep.ForeColor = SystemColors.ActiveCaptionText;
+            btnStep.Location = new Point(545, 17);
+            btnStep.Name = "btnStep";
+            btnStep.Size = new Size(122, 40);
+            btnStep.TabIndex = 23;
+            btnStep.Text = "STEP";
+            btnStep.UseVisualStyleBackColor = false;
+            btnStep.Click += btnStep_Click;
+            // 
+            // btnStartClock
+            // 
+            btnStartClock.BackColor = Color.FromArgb(0, 64, 0);
+            btnStartClock.ForeColor = Color.White;
+            btnStartClock.Location = new Point(673, 17);
+            btnStartClock.Name = "btnStartClock";
+            btnStartClock.Size = new Size(115, 40);
+            btnStartClock.TabIndex = 24;
+            btnStartClock.Text = "AUTO RUN";
+            btnStartClock.UseVisualStyleBackColor = false;
+            btnStartClock.Click += btnStartClock_Click;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.BackColor = Color.Yellow;
+            label2.ForeColor = Color.Black;
+            label2.Location = new Point(946, 455);
+            label2.Name = "label2";
+            label2.Size = new Size(61, 15);
+            label2.TabIndex = 25;
+            label2.Text = "MEMORY ";
+            // 
+            // groupBox2
+            // 
+            groupBox2.BackColor = Color.LightGray;
+            groupBox2.Controls.Add(resetButton);
+            groupBox2.Controls.Add(btnStartClock);
+            groupBox2.Controls.Add(btnStep);
+            groupBox2.Controls.Add(saveToFileButton);
+            groupBox2.Controls.Add(loadToMemoryButton);
+            groupBox2.Controls.Add(clearEditorButton);
+            groupBox2.Controls.Add(runCodeButton);
+            groupBox2.Location = new Point(342, 756);
+            groupBox2.Name = "groupBox2";
+            groupBox2.Size = new Size(931, 69);
+            groupBox2.TabIndex = 26;
+            groupBox2.TabStop = false;
+            groupBox2.Text = "OPERATIONS";
+            // 
+            // groupBox3
+            // 
+            groupBox3.BackColor = Color.FromArgb(0, 192, 192);
+            groupBox3.Controls.Add(assemblyCodeBox);
+            groupBox3.ForeColor = Color.Yellow;
+            groupBox3.Location = new Point(339, 15);
+            groupBox3.Name = "groupBox3";
+            groupBox3.Size = new Size(601, 739);
+            groupBox3.TabIndex = 27;
+            groupBox3.TabStop = false;
+            groupBox3.Text = "ASSEMBLER EDITOR";
+            // 
+            // resetButton
+            // 
+            resetButton.BackColor = Color.FromArgb(0, 64, 0);
+            resetButton.ForeColor = Color.White;
+            resetButton.Location = new Point(794, 17);
+            resetButton.Name = "resetButton";
+            resetButton.Size = new Size(115, 40);
+            resetButton.TabIndex = 25;
+            resetButton.Text = "RESET ";
+            resetButton.UseVisualStyleBackColor = false;
+            resetButton.Click += resetButton_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.DimGray;
-            ClientSize = new Size(1523, 873);
-            Controls.Add(saveToFileButton);
-            Controls.Add(loadToMemoryButton);
+            ClientSize = new Size(1698, 873);
+            Controls.Add(groupBox3);
+            Controls.Add(groupBox2);
+            Controls.Add(label2);
             Controls.Add(MemoryGrid);
-            Controls.Add(clearEditorButton);
-            Controls.Add(runCodeButton);
-            Controls.Add(assemblyCodeBox);
             Controls.Add(opguide);
             Controls.Add(OUTPUT);
             Controls.Add(oppCommandBox);
@@ -596,7 +686,10 @@
             oppCommandBox.PerformLayout();
             OUTPUT.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)MemoryGrid).EndInit();
+            groupBox2.ResumeLayout(false);
+            groupBox3.ResumeLayout(false);
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -647,5 +740,12 @@
         private Button loadToMemoryButton;
         private Button saveToFileButton;
         private Button clearOutput;
+        private System.Windows.Forms.Timer cpuClock;
+        private Button btnStep;
+        private Button btnStartClock;
+        private Label label2;
+        private GroupBox groupBox2;
+        private GroupBox groupBox3;
+        private Button resetButton;
     }
 }
