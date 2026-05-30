@@ -45,3 +45,8 @@ PUSH BX, 0011  ; Load binary 0011 (Decimal 3) into BX and push to stack
 ADD            ; Pops 0011 (TempB) and 0110 (TempA) -> Executes 6 + 3 = 9 (1001)
 
 ```
+### Screenshots 
+![Screenshot 1](documents/schema1.png)
+![Screenshot 2](documents/schema2.png)
+![Screenshot 3](documents/programsc.png)
+
