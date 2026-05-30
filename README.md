@@ -47,6 +47,6 @@ ADD            ; Pops 0011 (TempB) and 0110 (TempA) -> Executes 6 + 3 = 9 (1001)
 ```
 ### Screenshots 
 ![Screenshot 1](Documents/schema1.png)
-![Screenshot 2](documents/schema2.png)
-![Screenshot 3](documents/programsc.png)
+![Screenshot 2](Documents/schema2.png)
+![Screenshot 3](Documents/programsc.png)
 
