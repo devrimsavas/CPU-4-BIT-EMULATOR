@@ -1,20 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Media; 
+using System.Media;
 
 namespace WinFormsApp1.Models
 {
     public static class PlaySound
     {
-        public static string PlaySoundName { get;set; } =string.Empty;
-        public static SoundPlayer player = new SoundPlayer("ss");  
+        // Using the absolute path directly as per Microsoft documentation
+        // Changed 'chimes.wav' to 'Windows Navigation Start.wav' for a more mechanical relay click feel
+        private static SoundPlayer player = new SoundPlayer(@"C:\Windows\Media\Windows Navigation Start.wav");
+
         public static void Play()
         {
-            string soundFilePath="./relay.wav"; 
-
+            try
+            {
+                // Play() is natively asynchronous and will not freeze the CPU clock or UI
+                player.Play();
+            }
+            catch(Exception exp)
+            {
+                // Failsafe in case the Windows installation is missing the file
+                Console.Write(exp.Message);   
+            }
         }
     }
 }

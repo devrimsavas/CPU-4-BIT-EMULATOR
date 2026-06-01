@@ -105,6 +105,68 @@ namespace WinFormsApp1.Models
                     return;
                 }
             }
+            //=== Ram Operations ===
+            //Handle Store "STORE 1111" to store AX value into RAM address 0x0F (15 in decimal)
+            if (cleanLine.StartsWith("STORE ", StringComparison.OrdinalIgnoreCase))
+            {
+                // Extract the 4-bit binary address
+                string binaryAddr = cleanLine.Substring(6).Trim();
+
+                if (binaryAddr.Length == 4 && binaryAddr.All(c => c == '0' || c == '1'))
+                {
+                    // Convert binary string to decimal integer for dictionary key
+                    int address = Convert.ToInt32(binaryAddr, 2);
+
+                    // Pop the value from the top of the stack
+                    var poppedReg = Program.Stack.PopRegister();
+
+                    if (poppedReg != null)
+                    {
+                        // Write to Data RAM
+                        DataMemory.Write(address, poppedReg.RegArray);
+                        string bitString = string.Join("", poppedReg.RegArray.Select(b => b ? "1" : "0"));
+                        OnExecutionComplete?.Invoke($"STORE: Saved {bitString} to RAM[0x{address:X2}]");
+                    }
+                    else
+                    {
+                        OnExecutionComplete?.Invoke("Hardware Error: Stack Underflow. Nothing to STORE.");
+                    }
+                    return;
+                }
+                else
+                {
+                    OnExecutionComplete?.Invoke($"Syntax Error: Invalid 4-bit address '{binaryAddr}'");
+                    return;
+                }
+            }
+
+            // Handle LOAD command (e.g., "LOAD 0010")
+            if (cleanLine.StartsWith("LOAD ", StringComparison.OrdinalIgnoreCase))
+            {
+                // Extract the 4-bit binary address
+                string binaryAddr = cleanLine.Substring(5).Trim();
+
+                if (binaryAddr.Length == 4 && binaryAddr.All(c => c == '0' || c == '1'))
+                {
+                    // Convert binary string to decimal integer for dictionary key
+                    int address = Convert.ToInt32(binaryAddr, 2);
+
+                    // Read from Data RAM
+                    bool[] ramData = DataMemory.Read(address);
+
+                    // Push the read data onto the stack
+                    Program.Stack.AddRegister(new Register("RAM", (bool[])ramData.Clone()));
+                    string bitString = string.Join("", ramData.Select(b => b ? "1" : "0"));
+                    OnExecutionComplete?.Invoke($"LOAD: Fetched {bitString} from RAM[0x{address:X2}]");
+                    return;
+                }
+                else
+                {
+                    OnExecutionComplete?.Invoke($"Syntax Error: Invalid 4-bit address '{binaryAddr}'");
+                    return;
+                }
+            }
+
 
 
             // === instructions ===
@@ -177,6 +239,60 @@ namespace WinFormsApp1.Models
 
             // Send the result back to the Form's UI automatically so it can refresh boxes
             OnExecutionComplete?.Invoke("Executed: " + operationName);
+        }
+
+        // Helper method to convert text mnemonics to 8-bit machine code for the UI Grid
+        public static string GetMachineCode(string line)
+        {
+            string cleanLine = line.Trim().ToUpper();
+
+            // 1. Handle Dynamic PUSH with data (e.g., "PUSH AX, 0110")
+            // First 4 bits: Opcode (1100 or 1101), Last 4 bits: The binary data
+            if (cleanLine.StartsWith("PUSH AX,"))
+            {
+                string data = cleanLine.Substring(8).Trim();
+                return "1100" + data;
+            }
+            if (cleanLine.StartsWith("PUSH BX,"))
+            {
+                string data = cleanLine.Substring(8).Trim();
+                return "1101" + data;
+            }
+            //memory load 
+            if (cleanLine.StartsWith("LOAD "))
+            {
+                string data = cleanLine.Substring(5).Trim();
+                return "0110" + data; 
+            }
+            //memory store
+            if (cleanLine.StartsWith("STORE "))
+            {
+                string data = cleanLine.Substring(6).Trim();
+                return "0111" + data; // 
+            }
+
+            // 2. Handle Standard 4-bit instructions (Padded with 0000 to complete 8-bit architecture)
+            switch (cleanLine)
+            {
+                case "AND": return "00000000";
+                case "OR": return "00010000";
+                case "XOR": return "00100000";
+                case "NOT": return "00110000";
+                case "ADD": return "01000000";
+                case "SUB": return "01010000";
+                case "SHL": return "10000000";
+                case "SHR": return "10010000";
+                case "INC": return "10100000";
+                case "DEC": return "10110000";
+                case "PUSH AX": return "11000000";
+                case "PUSH BX": return "11010000";
+                case "POP AX": return "11100000";
+                case "POP BX": return "11110000";
+                case "LOAD": return "01100000"; // Custom code for LOAD operation
+                case "STORE": return "01110000"; // Custom code for STORE operation
+
+                default: return "00000000"; // Fallback for syntax errors
+            }
         }
 
     }

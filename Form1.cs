@@ -1,5 +1,6 @@
-using WinFormsApp1.Models;
+﻿using WinFormsApp1.Models;
 using System.Media;
+using System.Diagnostics;
 namespace WinFormsApp1
 {
     public partial class Form1 : Form
@@ -8,6 +9,9 @@ namespace WinFormsApp1
         public Form1()
         {
             InitializeComponent();
+            //İnitialize the data memory grid with default values for visualization
+            //InitializeDataMemoryGrid();
+            WinFormsApp1.Models.DataMemory.Initialize();
         }
         // Simulated Program Counter to track current instruction in memory
         private int programCounter = 0;
@@ -43,7 +47,9 @@ namespace WinFormsApp1
 
             //execute
             Assembler.RunCode(assemblyLine);
+            RefreshDataMemoryGrid(); // Update the data memory grid after each instruction execution to reflect any changes in RAM
             programCounter++;
+            WinFormsApp1.Models.PlaySound.Play();
         }
 
         private void AddInstructionToMemory(string address, string assembly, string machineCode)
@@ -339,78 +345,82 @@ namespace WinFormsApp1
 
         private void loadToMemoryButton_Click(object sender, EventArgs e)
         {
-            // Reset both UI and the static RAM class
+            // Clear old data safely before loading new program
             MemoryGrid.Rows.Clear();
-            ProgramMemory.ClearMemory();
+            WinFormsApp1.Models.ProgramMemory.MemoryList.Clear();
 
-            string[] lines = assemblyCodeBox.Text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = assemblyCodeBox.Lines;
             int address = 0;
-            int overflowLimit = 256; // Hardware RAM limit configuration
 
             foreach (string line in lines)
             {
-                string cleanLine = line.Trim().ToUpper();
-                string binaryInstruction = "00000000"; // Default fallback (NOP)
+                string trimmedLine = line.Trim();
+                if (string.IsNullOrEmpty(trimmedLine)) continue;
 
-                // Encoding dynamic instructions: 4-bit Opcode + 4-bit Immediate Data
-                if (cleanLine.StartsWith("PUSH AX,"))
+                string assemblyText = "";
+                string machineCode = "";
+
+                // Check if the incoming line consists only of '0' and '1'
+                bool isBinary = true;
+                foreach (char c in trimmedLine)
                 {
-                    string dataBits = cleanLine.Substring(8).Trim();
-                    binaryInstruction = "1110" + dataBits; // Opcode 1110 + 4-bit data
-                }
-                else if (cleanLine.StartsWith("PUSH BX,"))
-                {
-                    string dataBits = cleanLine.Substring(8).Trim();
-                    binaryInstruction = "1111" + dataBits; // Opcode 1111 + 4-bit data
-                }
-                // Encoding standalone instructions: 4-bit Opcode + 4-bit Padding (0000)
-                else
-                {
-                    switch (cleanLine)
+                    if (c != '0' && c != '1')
                     {
-                        //Logical operations
-                        case "AND": binaryInstruction = "00000000"; break;
-                        case "OR": binaryInstruction = "00010000"; break;
-                        case "XOR": binaryInstruction = "00100000"; break;
-                        case "NOT": binaryInstruction = "00110000"; break;
-                        //Arithmetic operations
-                        case "ADD": binaryInstruction = "01000000"; break;
-                        case "SUB": binaryInstruction = "01010000"; break;
-                        //4 bit limit for immediate data means we can only encode values from 0 to 15, so we use the last 4 bits for data and the first 4 bits for opcode   
-                        //case "NOT B": binaryInstruction = "01100000"; break;
-                        //case "SUB BA": binaryInstruction = "01110000"; break;
-                        //Advanced operations
-                        case "SHL": binaryInstruction = "10000000"; break;
-                        case "SHR": binaryInstruction = "10010000"; break;
-                        case "INC": binaryInstruction = "10100000"; break;
-                        case "DEC": binaryInstruction = "10110000"; break;
-                        //case "INC B": binaryInstruction = "11000000"; break;
-                        //case "DEC B": binaryInstruction = "11010000"; break;
-                        //Stack Operations 
-                        case "PUSH AX": binaryInstruction = "11100000"; break; // Custom opcode
-                        case "PUSH BX": binaryInstruction = "11110000"; break; // Custom opcode
-                        case "POP AX": binaryInstruction = "11100000"; break; // Custom opcode for popping into AX from the Stack
-                        case "POP BX": binaryInstruction = "11110000"; break; // Custom opcode for popping into BX from the Stack
-                        //case "OUT AX":binaryInstruction="11101111"; break; // Custom opcode for outputting AX to the OutputRegister
-                        //4 bit limit for immediate data means we can only encode values from 0 to 15, so we use the last 4 bits for data and the first 4 bits for opcode
-                        //case "OUT BX":binaryInstruction="11111111"; break; // Custom opcode for outputting BX to the OutputRegister 
-                        //4 bit limit for immediate data means we can only encode values from 0 to 15, so we use the last 4 bits for data and the first 4 bits for opcode
-                        default: binaryInstruction = "00000000"; break; // Unknown commands act as NOP
+                        isBinary = false;
+                        break;
                     }
                 }
 
-                // Push the 8-bit binary word into the simulated hardware RAM
-                ProgramMemory.PushToMemory(binaryInstruction, overflowLimit);
+                if (isBinary)
+                {
+                    // The file provided raw machine code bits
+                    machineCode = trimmedLine;
 
-                // Display formatted Hex address and binary word in the grid
-                string hexAddress = $"0x{address:X2}";
-                AddInstructionToMemory(hexAddress, line.Trim(), binaryInstruction);
+                    // Extract the first 4 bits to perform a quick disassembly lookup
+                    string opcodePart = trimmedLine.Substring(0, Math.Min(4, trimmedLine.Length));
+                    assemblyText = DisassembleOpcode(opcodePart);
+                }
+                else
+                {
+                    // The user typed a standard text mnemonic command
+                    assemblyText = trimmedLine;
+                    // NOTE: Replace with your actual dictionary/parser lookup method if named differently
+                    machineCode = Assembler.GetMachineCode(trimmedLine);
+                }
+
+                // Properly map variables to the corresponding hardware columns
+                string hexAddress = "0x" + address.ToString("X2");
+                MemoryGrid.Rows.Add(hexAddress, assemblyText, machineCode);
+                WinFormsApp1.Models.ProgramMemory.MemoryList.Add(machineCode);
 
                 address++;
-                programCounter = 0; // Reset program counter to start of memory after loading new instructions  
-                isHalted = false; // Reset halt state in case it was previously set 
+            }
+
+        }
+        // Helper method to convert binary opcodes back to readable text
+        private string DisassembleOpcode(string opcode)
+        {
+            switch (opcode)
+            {
+                case "0000": return "AND";
+                case "0001": return "OR";
+                case "0010": return "XOR";
+                case "0011": return "NOT";
+                case "0100": return "ADD";
+                case "0101": return "SUB";
+                case "1000": return "SHL";
+                case "1001": return "SHR";
+                case "1010": return "INC";
+                case "1011": return "DEC";
+                case "1100": return "PUSH AX";
+                case "1101": return "PUSH BX";
+                case "1110": return "POP AX";
+                case "1111": return "POP BX";
+                default: return "UNKNOWN";
             }
         }
+
+
 
         private void saveToFileButton_Click(object sender, EventArgs e)
         {
@@ -496,11 +506,18 @@ namespace WinFormsApp1
         {
             isHalted = false;
             cpuClock.Start();
+            
         }
 
         private void resetButton_Click(object sender, EventArgs e)
         {
+            //flush memory grid and program memory list
+            MemoryGrid.Rows.Clear();
+            WinFormsApp1.Models.ProgramMemory.MemoryList.Clear();
+            WinFormsApp1.Models.DataMemory.Initialize(); // Reset the backend data memory to default values  
+            InitializeDataMemoryGrid(); // Re-initialize the data memory grid to default values
             //reset 
+
             programCounter = 0;
             isHalted = false;
         }
@@ -535,7 +552,7 @@ namespace WinFormsApp1
                        "- Hardware-based FILO/LIFO Memory Stack\n" +
                        "- Combinational Logic ALU (16-Opcode Limit)\n\n" +
                        "Designed and Emulated smoothly in C# WinForms.\n\n" +
-                       "2026 � Devrim Savas Yilmaz. \n";
+                       "2026 © Devrim Savas Yilmaz. \n";
 
             MessageBox.Show(aboutInfo, "About Core Architecture", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
@@ -657,5 +674,80 @@ namespace WinFormsApp1
             }
 
         }
+
+        private void lOADFROMFILEToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Initialize the open file dialog
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                // Set filter to match the save format
+                openFileDialog.Filter = "Text File (*.txt)|*.txt|Binary ROM File (*.bin)|*.bin|All Files (*.*)|*.*";
+                openFileDialog.Title = "Load CPU Program";
+
+                // If the user selects a file and clicks OK
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        // Read the entire file content as a single block to prevent UI thread freezing
+                        string fileContent = System.IO.File.ReadAllText(openFileDialog.FileName);
+
+                        // Assign the entire text to the editor in one single UI operation
+                        assemblyCodeBox.Text = fileContent;
+
+                        // Show a success confirmation
+                        MessageBox.Show("Program loaded into the editor successfully!", "Load Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Failsafe: Catch and display any file reading errors
+                        MessageBox.Show("Error reading file: " + ex.Message, "Hardware I/O Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+
+        }
+
+        private void loadFromBinaryBT_Click(object sender, EventArgs e)
+        {
+            Console.Write("test");
+            Debug.WriteLine("test");
+
+
+        }
+        
+        private void InitializeDataMemoryGrid()
+        {
+            dataMemoryGrid.Rows.Clear();    
+            for (int i=0;i<16;i++)
+            {
+                string hexAddress = "0x" + i.ToString("X2");
+                //inject current data memory values into the grid for visualization
+                dataMemoryGrid.Rows.Add(hexAddress,"0000");
+            }
+        }
+
+        // Ram chip show 
+        private void RefreshDataMemoryGrid()
+        {
+            if (dataMemoryGrid.Rows.Count < 16 || dataMemoryGrid.Columns.Count < 2)
+            {
+                InitializeDataMemoryGrid();
+            }
+            // Loop through all 16 hardware RAM addresses
+            for (int i = 0; i < 16; i++)
+            {
+                // Read the actual data from the backend RAM chip
+                bool[] ramData = WinFormsApp1.Models.DataMemory.Read(i);
+
+                // Convert the boolean array to a binary string (e.g., "1010")
+                string bitString = string.Join("", ramData.Select(b => b ? "1" : "0"));
+
+                // Update the 'Data' column (Index 1) for this specific row in the UI
+                dataMemoryGrid.Rows[i].Cells[1].Value = bitString;
+            }
+        }
+
+
     }
 }

@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
             saveFileDialog1 = new SaveFileDialog();
             RegisterAxBox = new GroupBox();
             resetAx = new Button();
@@ -89,7 +90,12 @@
             oppGuideToolStripMenuItem = new ToolStripMenuItem();
             saveCodeToFileToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem1 = new ToolStripMenuItem();
+            lOADFROMFILEToolStripMenuItem = new ToolStripMenuItem();
             groupBox5 = new GroupBox();
+            dataMemoryGrid = new DataGridView();
+            Address = new DataGridViewTextBoxColumn();
+            Data = new DataGridViewTextBoxColumn();
+            groupBox6 = new GroupBox();
             RegisterAxBox.SuspendLayout();
             RegisterBxBox.SuspendLayout();
             registersBox.SuspendLayout();
@@ -103,6 +109,8 @@
             groupBox4.SuspendLayout();
             menuStrip1.SuspendLayout();
             groupBox5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dataMemoryGrid).BeginInit();
+            groupBox6.SuspendLayout();
             SuspendLayout();
             // 
             // RegisterAxBox
@@ -114,7 +122,7 @@
             RegisterAxBox.Controls.Add(ax1);
             RegisterAxBox.Controls.Add(ax2);
             RegisterAxBox.Controls.Add(ax3);
-            RegisterAxBox.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            RegisterAxBox.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             RegisterAxBox.Location = new Point(31, 22);
             RegisterAxBox.Name = "RegisterAxBox";
             RegisterAxBox.Size = new Size(249, 115);
@@ -209,7 +217,7 @@
             RegisterBxBox.Controls.Add(bx1);
             RegisterBxBox.Controls.Add(bx2);
             RegisterBxBox.Controls.Add(bx3);
-            RegisterBxBox.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            RegisterBxBox.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             RegisterBxBox.Location = new Point(31, 143);
             RegisterBxBox.Name = "RegisterBxBox";
             RegisterBxBox.Size = new Size(249, 121);
@@ -308,7 +316,7 @@
             oppcodebox.Controls.Add(op1);
             oppcodebox.Controls.Add(op2);
             oppcodebox.Controls.Add(op3);
-            oppcodebox.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            oppcodebox.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             oppcodebox.Location = new Point(31, 270);
             oppcodebox.Name = "oppcodebox";
             oppcodebox.Size = new Size(249, 115);
@@ -488,12 +496,11 @@
             OUTPUT.Controls.Add(clearOutput);
             OUTPUT.Controls.Add(OutputRegister);
             OUTPUT.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            OUTPUT.Location = new Point(1022, 17);
+            OUTPUT.Location = new Point(889, 17);
             OUTPUT.Name = "OUTPUT";
             OUTPUT.Size = new Size(387, 437);
             OUTPUT.TabIndex = 15;
             OUTPUT.TabStop = false;
-            OUTPUT.Text = "OUTPUT ";
             // 
             // clearOutput
             // 
@@ -524,7 +531,7 @@
             assemblyCodeBox.ForeColor = Color.Lime;
             assemblyCodeBox.Location = new Point(18, 42);
             assemblyCodeBox.Name = "assemblyCodeBox";
-            assemblyCodeBox.Size = new Size(652, 643);
+            assemblyCodeBox.Size = new Size(513, 641);
             assemblyCodeBox.TabIndex = 17;
             assemblyCodeBox.Text = "";
             // 
@@ -532,7 +539,7 @@
             // 
             runCodeButton.BackColor = Color.FromArgb(192, 192, 0);
             runCodeButton.ForeColor = SystemColors.ActiveCaptionText;
-            runCodeButton.Location = new Point(0, 17);
+            runCodeButton.Location = new Point(325, 17);
             runCodeButton.Name = "runCodeButton";
             runCodeButton.Size = new Size(130, 40);
             runCodeButton.TabIndex = 18;
@@ -544,7 +551,7 @@
             // 
             clearEditorButton.BackColor = Color.FromArgb(192, 192, 0);
             clearEditorButton.ForeColor = SystemColors.ActiveCaptionText;
-            clearEditorButton.Location = new Point(137, 17);
+            clearEditorButton.Location = new Point(18, 693);
             clearEditorButton.Name = "clearEditorButton";
             clearEditorButton.Size = new Size(130, 40);
             clearEditorButton.TabIndex = 19;
@@ -564,7 +571,7 @@
             // 
             loadToMemoryButton.BackColor = Color.FromArgb(192, 192, 0);
             loadToMemoryButton.ForeColor = SystemColors.ActiveCaptionText;
-            loadToMemoryButton.Location = new Point(522, 17);
+            loadToMemoryButton.Location = new Point(1015, 17);
             loadToMemoryButton.Name = "loadToMemoryButton";
             loadToMemoryButton.Size = new Size(187, 40);
             loadToMemoryButton.TabIndex = 21;
@@ -581,7 +588,7 @@
             // 
             btnStep.BackColor = Color.FromArgb(255, 192, 128);
             btnStep.ForeColor = SystemColors.ActiveCaptionText;
-            btnStep.Location = new Point(394, 17);
+            btnStep.Location = new Point(471, 17);
             btnStep.Name = "btnStep";
             btnStep.Size = new Size(122, 40);
             btnStep.TabIndex = 23;
@@ -593,9 +600,9 @@
             // 
             btnStartClock.BackColor = Color.FromArgb(0, 64, 0);
             btnStartClock.ForeColor = Color.White;
-            btnStartClock.Location = new Point(273, 17);
+            btnStartClock.Location = new Point(610, 17);
             btnStartClock.Name = "btnStartClock";
-            btnStartClock.Size = new Size(115, 40);
+            btnStartClock.Size = new Size(176, 40);
             btnStartClock.TabIndex = 24;
             btnStartClock.Text = "AUTO RUN";
             btnStartClock.UseVisualStyleBackColor = false;
@@ -603,17 +610,16 @@
             // 
             // groupBox2
             // 
-            groupBox2.BackColor = Color.FromArgb(255, 128, 0);
+            groupBox2.BackColor = Color.Olive;
             groupBox2.Controls.Add(resetButton);
             groupBox2.Controls.Add(btnStartClock);
             groupBox2.Controls.Add(btnStep);
             groupBox2.Controls.Add(loadToMemoryButton);
-            groupBox2.Controls.Add(clearEditorButton);
             groupBox2.Controls.Add(runCodeButton);
             groupBox2.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             groupBox2.Location = new Point(7, 764);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(877, 71);
+            groupBox2.Size = new Size(1402, 71);
             groupBox2.TabIndex = 26;
             groupBox2.TabStop = false;
             groupBox2.Text = "OPERATIONS";
@@ -622,7 +628,7 @@
             // 
             resetButton.BackColor = Color.FromArgb(0, 64, 0);
             resetButton.ForeColor = Color.White;
-            resetButton.Location = new Point(716, 17);
+            resetButton.Location = new Point(1281, 17);
             resetButton.Name = "resetButton";
             resetButton.Size = new Size(115, 40);
             resetButton.TabIndex = 25;
@@ -634,11 +640,12 @@
             // 
             groupBox3.BackColor = Color.FromArgb(0, 192, 192);
             groupBox3.Controls.Add(assemblyCodeBox);
+            groupBox3.Controls.Add(clearEditorButton);
             groupBox3.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             groupBox3.ForeColor = Color.Black;
             groupBox3.Location = new Point(332, 17);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(684, 739);
+            groupBox3.Size = new Size(551, 739);
             groupBox3.TabIndex = 27;
             groupBox3.TabStop = false;
             groupBox3.Text = "ASSEMBLER EDITOR";
@@ -648,7 +655,7 @@
             groupBox4.BackColor = Color.FromArgb(224, 224, 224);
             groupBox4.Controls.Add(MemoryGrid);
             groupBox4.Font = new Font("Consolas", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            groupBox4.Location = new Point(1022, 468);
+            groupBox4.Location = new Point(889, 468);
             groupBox4.Name = "groupBox4";
             groupBox4.Size = new Size(387, 288);
             groupBox4.TabIndex = 28;
@@ -659,16 +666,17 @@
             // 
             menuStrip1.BackColor = Color.ForestGreen;
             menuStrip1.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { hELPToolStripMenuItem, architectureToolStripMenuItem, isaReferenceToolStripMenuItem, oppGuideToolStripMenuItem, saveCodeToFileToolStripMenuItem, helpToolStripMenuItem1 });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { hELPToolStripMenuItem, architectureToolStripMenuItem, isaReferenceToolStripMenuItem, oppGuideToolStripMenuItem, saveCodeToFileToolStripMenuItem, helpToolStripMenuItem1, lOADFROMFILEToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(1441, 27);
+            menuStrip1.Size = new Size(1767, 27);
             menuStrip1.TabIndex = 29;
             menuStrip1.Text = "menuStrip1";
             // 
             // hELPToolStripMenuItem
             // 
             hELPToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aboutToolStripMenuItem });
+            hELPToolStripMenuItem.ForeColor = Color.Black;
             hELPToolStripMenuItem.Name = "hELPToolStripMenuItem";
             hELPToolStripMenuItem.Size = new Size(165, 23);
             hELPToolStripMenuItem.Text = "Mnemonic/Program";
@@ -748,9 +756,17 @@
             helpToolStripMenuItem1.Text = "About";
             helpToolStripMenuItem1.Click += helpToolStripMenuItem1_Click;
             // 
+            // lOADFROMFILEToolStripMenuItem
+            // 
+            lOADFROMFILEToolStripMenuItem.Name = "lOADFROMFILEToolStripMenuItem";
+            lOADFROMFILEToolStripMenuItem.Size = new Size(147, 23);
+            lOADFROMFILEToolStripMenuItem.Text = "LOAD FROM FILE";
+            lOADFROMFILEToolStripMenuItem.Click += lOADFROMFILEToolStripMenuItem_Click;
+            // 
             // groupBox5
             // 
             groupBox5.BackColor = Color.FromArgb(128, 64, 64);
+            groupBox5.Controls.Add(groupBox6);
             groupBox5.Controls.Add(groupBox4);
             groupBox5.Controls.Add(groupBox3);
             groupBox5.Controls.Add(groupBox2);
@@ -760,16 +776,58 @@
             groupBox5.Controls.Add(registersBox);
             groupBox5.Location = new Point(5, 41);
             groupBox5.Name = "groupBox5";
-            groupBox5.Size = new Size(1423, 841);
+            groupBox5.Size = new Size(1750, 841);
             groupBox5.TabIndex = 30;
             groupBox5.TabStop = false;
+            // 
+            // dataMemoryGrid
+            // 
+            dataMemoryGrid.AllowUserToAddRows = false;
+            dataMemoryGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataMemoryGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataMemoryGrid.Columns.AddRange(new DataGridViewColumn[] { Address, Data });
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = SystemColors.InfoText;
+            dataGridViewCellStyle2.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle2.ForeColor = SystemColors.ButtonFace;
+            dataGridViewCellStyle2.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
+            dataMemoryGrid.DefaultCellStyle = dataGridViewCellStyle2;
+            dataMemoryGrid.Location = new Point(17, 25);
+            dataMemoryGrid.Name = "dataMemoryGrid";
+            dataMemoryGrid.RowHeadersVisible = false;
+            dataMemoryGrid.Size = new Size(421, 693);
+            dataMemoryGrid.TabIndex = 29;
+            // 
+            // Address
+            // 
+            Address.HeaderText = "Address";
+            Address.Name = "Address";
+            // 
+            // Data
+            // 
+            Data.HeaderText = "Data";
+            Data.Name = "Data";
+            // 
+            // groupBox6
+            // 
+            groupBox6.BackColor = Color.FromArgb(255, 192, 192);
+            groupBox6.Controls.Add(dataMemoryGrid);
+            groupBox6.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            groupBox6.Location = new Point(1282, 17);
+            groupBox6.Name = "groupBox6";
+            groupBox6.Size = new Size(450, 732);
+            groupBox6.TabIndex = 30;
+            groupBox6.TabStop = false;
+            groupBox6.Text = "MEMORY";
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.DimGray;
-            ClientSize = new Size(1441, 888);
+            ClientSize = new Size(1767, 888);
             Controls.Add(groupBox5);
             Controls.Add(menuStrip1);
             ForeColor = SystemColors.ButtonFace;
@@ -793,6 +851,8 @@
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             groupBox5.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dataMemoryGrid).EndInit();
+            groupBox6.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -864,5 +924,10 @@
         private ToolStripMenuItem tURBOMODEToolStripMenuItem;
         private ToolStripMenuItem saveCodeToFileToolStripMenuItem;
         private GroupBox groupBox5;
+        private ToolStripMenuItem lOADFROMFILEToolStripMenuItem;
+        private DataGridView dataMemoryGrid;
+        private DataGridViewTextBoxColumn Address;
+        private DataGridViewTextBoxColumn Data;
+        private GroupBox groupBox6;
     }
 }
