@@ -16,18 +16,16 @@ namespace WinFormsApp1
             //videoGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
             //videoGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
             videoGrid.Rows.Clear();
-            // Sütunları ve satırları 8x8 olacak şekilde sıfırdan kur
-            videoGrid.Rows.Clear();
             videoGrid.Columns.Clear(); // Önce eski sütunları da temizle
 
-            // 8 Sütun ekle
+            // add 8 columns
             for (int i = 0; i < 8; i++)
             {
-                videoGrid.Columns.Add($"col{i}", ""); // İsimsiz sütunlar ekle
-                videoGrid.Columns[i].Width = 50;
+                videoGrid.Columns.Add($"col{i}", "");
+                videoGrid.Columns[i].Width = 30;
             }
 
-            // 8 Satır ekle
+            // add 8 rows
             for (int i = 0; i < 8; i++)
             {
                 videoGrid.Rows.Add();
@@ -37,7 +35,7 @@ namespace WinFormsApp1
 
             for (int i = 0; i < videoGrid.Columns.Count; i++)
             {
-                videoGrid.Columns[i].Width = 50; // pixelSize;
+                videoGrid.Columns[i].Width = 30; // pixelSize;
             }
             videoGrid.ClearSelection();
             videoGrid.CurrentCell = null;
@@ -933,7 +931,7 @@ namespace WinFormsApp1
             for (int i = 0; i < 8; i++)
             {
                 videoGrid.Columns.Add($"col{i}", "");
-                videoGrid.Columns[i].Width = 50;
+                videoGrid.Columns[i].Width = 30;
             }
 
             // Setup 8 rows with height 30
@@ -949,6 +947,11 @@ namespace WinFormsApp1
         }
 
         private void tURBOMODEToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void hZSLOWToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
 
         }

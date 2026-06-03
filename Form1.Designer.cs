@@ -66,18 +66,18 @@
             clearStackButton = new Button();
             oppCommandBox = new GroupBox();
             label1 = new Label();
+            btnStep = new Button();
             executebutton = new Button();
+            runCodeButton = new Button();
             oppCom = new ListBox();
             OUTPUT = new GroupBox();
             clearOutput = new Button();
             OutputRegister = new ListBox();
             assemblyCodeBox = new RichTextBox();
-            runCodeButton = new Button();
             clearEditorButton = new Button();
             MemoryGrid = new DataGridView();
             loadToMemoryButton = new Button();
             cpuClock = new System.Windows.Forms.Timer(components);
-            btnStep = new Button();
             btnStartClock = new Button();
             groupBox2 = new GroupBox();
             resetButton = new Button();
@@ -486,7 +486,7 @@
             oppCommandBox.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             oppCommandBox.Location = new Point(6, 492);
             oppCommandBox.Name = "oppCommandBox";
-            oppCommandBox.Size = new Size(225, 198);
+            oppCommandBox.Size = new Size(225, 281);
             oppCommandBox.TabIndex = 14;
             oppCommandBox.TabStop = false;
             oppCommandBox.Text = "OPP COMMAND";
@@ -501,6 +501,19 @@
             label1.TabIndex = 2;
             label1.Text = "MANUAL STEPPING";
             // 
+            // btnStep
+            // 
+            btnStep.BackColor = Color.FromArgb(255, 192, 128);
+            btnStep.Font = new Font("Consolas", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnStep.ForeColor = SystemColors.ActiveCaptionText;
+            btnStep.Location = new Point(1, 129);
+            btnStep.Name = "btnStep";
+            btnStep.Size = new Size(91, 24);
+            btnStep.TabIndex = 23;
+            btnStep.Text = "STEP";
+            btnStep.UseVisualStyleBackColor = false;
+            btnStep.Click += btnStep_Click;
+            // 
             // executebutton
             // 
             executebutton.BackColor = Color.FromArgb(192, 64, 0);
@@ -512,6 +525,19 @@
             executebutton.Text = "EXECUTE";
             executebutton.UseVisualStyleBackColor = false;
             executebutton.Click += executebutton_Click;
+            // 
+            // runCodeButton
+            // 
+            runCodeButton.BackColor = Color.FromArgb(192, 192, 0);
+            runCodeButton.Font = new Font("Consolas", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            runCodeButton.ForeColor = SystemColors.ActiveCaptionText;
+            runCodeButton.Location = new Point(0, 99);
+            runCodeButton.Name = "runCodeButton";
+            runCodeButton.Size = new Size(95, 24);
+            runCodeButton.TabIndex = 18;
+            runCodeButton.Text = "RUN CODE";
+            runCodeButton.UseVisualStyleBackColor = false;
+            runCodeButton.Click += runCodeButton_Click;
             // 
             // oppCom
             // 
@@ -569,19 +595,6 @@
             assemblyCodeBox.TabIndex = 17;
             assemblyCodeBox.Text = "";
             // 
-            // runCodeButton
-            // 
-            runCodeButton.BackColor = Color.FromArgb(192, 192, 0);
-            runCodeButton.Font = new Font("Consolas", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            runCodeButton.ForeColor = SystemColors.ActiveCaptionText;
-            runCodeButton.Location = new Point(0, 99);
-            runCodeButton.Name = "runCodeButton";
-            runCodeButton.Size = new Size(95, 24);
-            runCodeButton.TabIndex = 18;
-            runCodeButton.Text = "RUN CODE";
-            runCodeButton.UseVisualStyleBackColor = false;
-            runCodeButton.Click += runCodeButton_Click;
-            // 
             // clearEditorButton
             // 
             clearEditorButton.BackColor = Color.FromArgb(192, 192, 0);
@@ -599,7 +612,7 @@
             MemoryGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             MemoryGrid.Location = new Point(6, 21);
             MemoryGrid.Name = "MemoryGrid";
-            MemoryGrid.Size = new Size(361, 198);
+            MemoryGrid.Size = new Size(418, 198);
             MemoryGrid.TabIndex = 20;
             // 
             // loadToMemoryButton
@@ -616,21 +629,8 @@
             // 
             // cpuClock
             // 
-            cpuClock.Interval = 500;
+            cpuClock.Interval = 50;
             cpuClock.Tick += cpuClock_Tick;
-            // 
-            // btnStep
-            // 
-            btnStep.BackColor = Color.FromArgb(255, 192, 128);
-            btnStep.Font = new Font("Consolas", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnStep.ForeColor = SystemColors.ActiveCaptionText;
-            btnStep.Location = new Point(1, 129);
-            btnStep.Name = "btnStep";
-            btnStep.Size = new Size(91, 24);
-            btnStep.TabIndex = 23;
-            btnStep.Text = "STEP";
-            btnStep.UseVisualStyleBackColor = false;
-            btnStep.Click += btnStep_Click;
             // 
             // btnStartClock
             // 
@@ -664,11 +664,11 @@
             resetButton.BackColor = Color.FromArgb(0, 64, 0);
             resetButton.Font = new Font("Consolas", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             resetButton.ForeColor = Color.White;
-            resetButton.Location = new Point(17, 91);
+            resetButton.Location = new Point(6, 73);
             resetButton.Name = "resetButton";
-            resetButton.Size = new Size(64, 24);
+            resetButton.Size = new Size(104, 36);
             resetButton.TabIndex = 25;
-            resetButton.Text = "RESET ";
+            resetButton.Text = "RESET /STOP";
             resetButton.UseVisualStyleBackColor = false;
             resetButton.Click += resetButton_Click;
             // 
@@ -685,7 +685,7 @@
             groupBox3.ForeColor = SystemColors.Control;
             groupBox3.Location = new Point(237, 17);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(1298, 778);
+            groupBox3.Size = new Size(1452, 762);
             groupBox3.TabIndex = 27;
             groupBox3.TabStop = false;
             groupBox3.Text = "ASSEMBLER EDITOR";
@@ -698,7 +698,7 @@
             groupBox6.Controls.Add(videoGrid);
             groupBox6.Location = new Point(946, 22);
             groupBox6.Name = "groupBox6";
-            groupBox6.Size = new Size(310, 426);
+            groupBox6.Size = new Size(289, 362);
             groupBox6.TabIndex = 31;
             groupBox6.TabStop = false;
             groupBox6.Text = "OUTPUT SCREEN";
@@ -707,7 +707,7 @@
             // 
             resetScreenButton.BackColor = Color.FromArgb(255, 192, 128);
             resetScreenButton.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            resetScreenButton.Location = new Point(15, 344);
+            resetScreenButton.Location = new Point(15, 303);
             resetScreenButton.Name = "resetScreenButton";
             resetScreenButton.Size = new Size(142, 47);
             resetScreenButton.TabIndex = 30;
@@ -718,9 +718,8 @@
             // videoGrid
             // 
             videoGrid.AllowUserToOrderColumns = true;
-            videoGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             videoGrid.BackgroundColor = Color.Black;
-            videoGrid.BorderStyle = BorderStyle.Fixed3D;
+            videoGrid.BorderStyle = BorderStyle.None;
             videoGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             videoGrid.ColumnHeadersVisible = false;
             dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
@@ -746,7 +745,7 @@
             videoGrid.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
             videoGrid.RowsDefaultCellStyle = dataGridViewCellStyle3;
-            videoGrid.Size = new Size(279, 308);
+            videoGrid.Size = new Size(243, 267);
             videoGrid.TabIndex = 28;
             // 
             // dataMemoryGrid
@@ -892,6 +891,7 @@
             hZSLOWToolStripMenuItem.Name = "hZSLOWToolStripMenuItem";
             hZSLOWToolStripMenuItem.Size = new Size(177, 24);
             hZSLOWToolStripMenuItem.Text = "1 HZ SLOW";
+            hZSLOWToolStripMenuItem.Click += hZSLOWToolStripMenuItem_Click_1;
             // 
             // hZNORMALToolStripMenuItem
             // 
