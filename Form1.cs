@@ -47,7 +47,7 @@ namespace WinFormsApp1
         // Flag to indicate if the CPU is halted (e.g., after executing a HLT instruction or reaching end of memory)
         private bool isHalted = false;
         //Core hardware cycle for fetch-decode-execute
-        //Core hardware cycle for fetch-decode-execute
+        
         private void ExecuteNextInstruction()
         {
             if (isHalted) return; // If CPU is halted, do not execute further instructions
@@ -77,33 +77,48 @@ namespace WinFormsApp1
             MemoryGrid.ClearSelection();
             MemoryGrid.Rows[programCounter].Selected = true;
 
-            // === JUMP LOGIC ADDED ===
-            if (assemblyLine.StartsWith("JMP ", StringComparison.OrdinalIgnoreCase))
+            // === JUMP  and conditional Jump ===
+            if (assemblyLine.StartsWith("JMP ", StringComparison.OrdinalIgnoreCase) ||
+                assemblyLine.StartsWith("JZ ", StringComparison.OrdinalIgnoreCase))
             {
-                string targetLabel = assemblyLine.Substring(4).Trim();
-                bool labelFound = false;
+                bool isJz = assemblyLine.StartsWith("JZ ", StringComparison.OrdinalIgnoreCase);
 
-                // SEARCH for the label in the memory grid
-                for (int i = 0; i < MemoryGrid.Rows.Count; i++)
+                // If it's JZ and the Zero Flag is down (false), ignore the jump and proceed to next line
+                if (isJz && !Assembler.ZeroFlag)
                 {
-                    string checkLine = MemoryGrid.Rows[i].Cells[1].Value.ToString().Trim();
-                    // if the line matches the target label (e.g., "LOOP:") then jump to that line
-                    if (checkLine.Equals(targetLabel + ":", StringComparison.OrdinalIgnoreCase))
+                    programCounter++;
+                    Assembler.OnExecutionComplete?.Invoke("JZ ignored: Zero Flag is 0");
+                }
+                else
+                {
+                    // Extract label name based on instruction length ("JZ " is 3 chars, "JMP " is 4 chars)
+                    string targetLabel = assemblyLine.Substring(isJz ? 3 : 4).Trim();
+                    bool labelFound = false;
+
+                    // Search the memory grid for the target label
+                    for (int i = 0; i < MemoryGrid.Rows.Count; i++)
                     {
-                        programCounter = i; // jump to target!
-                        labelFound = true;
-                        Assembler.OnExecutionComplete?.Invoke($"JUMPED to {targetLabel} (Line {i})");
-                        break;
+                        string checkLine = MemoryGrid.Rows[i].Cells[1].Value.ToString().Trim();
+                        if (checkLine.Equals(targetLabel + ":", StringComparison.OrdinalIgnoreCase))
+                        {
+                            programCounter = i; // Jump!
+                            labelFound = true;
+                            string jumpType = isJz ? "JZ executed (Zero Flag is 1)" : "JMP executed";
+                            Assembler.OnExecutionComplete?.Invoke($"{jumpType}. Jumped to {targetLabel}");
+                            break;
+                        }
+                    }
+
+                    if (!labelFound)
+                    {
+                        Assembler.OnExecutionComplete?.Invoke($"Syntax Error: Label '{targetLabel}' not found in Memory!");
+                        isHalted = true;
+                        cpuClock.Stop();
                     }
                 }
-
-                if (!labelFound)
-                {
-                    Assembler.OnExecutionComplete?.Invoke($"Syntax Error: Label '{targetLabel}' not found in Memory!");
-                    isHalted = true;
-                    cpuClock.Stop();
-                }
             }
+            //jump end 
+
             // === LABEL JUMP  ===
             else if (assemblyLine.EndsWith(":"))
             {
@@ -233,8 +248,6 @@ namespace WinFormsApp1
                 string bitString = string.Join("", reg.RegArray.Select(b => b ? "1" : "0"));
                 stackList.Items.Add($"{reg.RegName}: {bitString}");
             }
-
-
 
         }
 

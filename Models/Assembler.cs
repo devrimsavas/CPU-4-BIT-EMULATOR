@@ -12,6 +12,8 @@ namespace WinFormsApp1.Models
         public static int PC { get;private set; } = 0; //line number tracker for execution flow control, can be used for future jump instructions and loops
         public static Dictionary<string,int> Labels=new(StringComparer.OrdinalIgnoreCase); // Label memory to store line numbers for jump instructions, currently unused but essential for future control flow features
         public static string[] LoadedCode=Array.Empty<string>(); // Loaded code from file or input, can be used for multi-line execution and future features like loops and conditionals
+        //Zero flag 
+        public static bool ZeroFlag { get; set; } = false; // Zero flag to indicate if the last ALU operation resulted in zero, can be used for future conditional jump instructions    
 
         // This delegate or action will point to  Form's UI update logic
         public static Action<string> OnExecutionComplete;
@@ -113,7 +115,7 @@ namespace WinFormsApp1.Models
             //=== Ram Operations ===
             //Handle Store "STORE 1111" to store AX value into RAM address 0x0F (15 in decimal)
             // === STORE  ===
-            // === STORE ===
+            
             if (cleanLine.StartsWith("STORE ", StringComparison.OrdinalIgnoreCase))
             {
                 string rawAddr = cleanLine.Substring(6).Trim();
@@ -240,6 +242,8 @@ namespace WinFormsApp1.Models
             // Load opcode and execute hardware logic
             AluInputBuffer.LoadOppCode(opcode);
             bool[] hardwareResult = AluInputBuffer.Execute();
+            //update zero flag based on the result
+            ZeroFlag = hardwareResult.All(bit => bit == false);
 
             // 2. CRITICAL FIX: Write-Back the result to the Stack!
             // Clone the array to prevent memory reference ghosting bugs
@@ -323,6 +327,11 @@ namespace WinFormsApp1.Models
             if (cleanLine.StartsWith("JMP ", StringComparison.OrdinalIgnoreCase))
             {
                 return "11111111"; // Special marker for jump instructions, not actual machine code unfortunally it is fake because we have no real opcode for jump, but this will help us identify it in the UI and handle it properly during execution
+            }
+            //zero flag
+            if (cleanLine.StartsWith("JZ",StringComparison.OrdinalIgnoreCase))
+            {
+                return "11111110"; // Special marker for JZ (Jump if Zero) instruction, not actual machine code, but will help us identify it in the UI and handle it properly during execution when we implement conditional jumps
             }
 
             // 2. Handle Standard 4-bit instructions (Padded with 0000 to complete 8-bit architecture)
