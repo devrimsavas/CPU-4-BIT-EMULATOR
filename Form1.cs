@@ -1,6 +1,7 @@
-﻿using WinFormsApp1.Models;
+﻿using System.Diagnostics;
 using System.Media;
-using System.Diagnostics;
+using System.Runtime.Intrinsics.X86;
+using WinFormsApp1.Models;
 namespace WinFormsApp1
 {
     public partial class Form1 : Form
@@ -47,7 +48,7 @@ namespace WinFormsApp1
         // Flag to indicate if the CPU is halted (e.g., after executing a HLT instruction or reaching end of memory)
         private bool isHalted = false;
         //Core hardware cycle for fetch-decode-execute
-        
+
         private void ExecuteNextInstruction()
         {
             if (isHalted) return; // If CPU is halted, do not execute further instructions
@@ -128,6 +129,56 @@ namespace WinFormsApp1
                 ExecuteNextInstruction(); // execute the next instruction immediately after the label without waiting for the next clock tick
                 return;
             }
+            //==CALL Subroutine logic 
+            else if (assemblyLine.StartsWith("CALL ", StringComparison.OrdinalIgnoreCase))
+            {
+                string targetLabel = assemblyLine.Substring(5).Trim();
+                bool labelFound = false;
+
+                for (int i = 0; i < MemoryGrid.Rows.Count; i++)
+                {
+                    string checkLine = MemoryGrid.Rows[i].Cells[1].Value.ToString().Trim();
+                    if (checkLine.Equals(targetLabel + ":", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Save the CURRENT line number to the Call Stack before jumping
+                        Assembler.CallStack.Push(programCounter);
+
+                        programCounter = i; // Jump to the subroutine
+                        labelFound = true;
+                        Assembler.OnExecutionComplete?.Invoke($"CALL executed. Saved return address and jumped to {targetLabel}");
+                        break;
+                    }
+                }
+
+                if (!labelFound)
+                {
+                    Assembler.OnExecutionComplete?.Invoke($"Syntax Error: Label '{targetLabel}' not found!");
+                    isHalted = true;
+                    cpuClock.Stop();
+                }
+            }
+            // === RET (RETURN) LOGIC ===
+            else if (assemblyLine.Equals("RET", StringComparison.OrdinalIgnoreCase))
+            {
+                if (Assembler.CallStack.Count > 0)
+                {
+                    // Pop the saved address and return to the line IMMEDIATELY AFTER the CALL
+                    programCounter = Assembler.CallStack.Pop() + 1;
+                    Assembler.OnExecutionComplete?.Invoke("RET executed. Returned to main program.");
+                }
+                else
+                {
+                    // Hardware crash if RET is called without a prior CALL
+                    Assembler.OnExecutionComplete?.Invoke("Hardware Error: RET called with empty Call Stack!");
+                    isHalted = true;
+                    cpuClock.Stop();
+                }
+            }
+
+
+
+            //end call 
+
             else
             {
                 // Normal instruction execute
@@ -355,28 +406,7 @@ namespace WinFormsApp1
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            //opguide.Items.Clear();
 
-            // Populate the ListBox line by line to map your exact ALU hardware logic
-            /*
-            opguide.Items.Add("0000: AND (Logical)");
-            opguide.Items.Add("0001: OR  (Logical)");
-            opguide.Items.Add("0010: XOR (Logical)");
-            opguide.Items.Add("0011: NOT A (Invert A)");
-            opguide.Items.Add("0100: A + B (Addition)");
-            opguide.Items.Add("0101: A - B (Subtraction)");
-            opguide.Items.Add("0110: NOT B (Invert B)");       // Shifted down safely
-            opguide.Items.Add("0111: B - A (Reverse Sub)");
-            opguide.Items.Add("1000: A << 1 (Shift Left)");
-            opguide.Items.Add("1001: A >> 1 (Shift Right)");
-            opguide.Items.Add("1010: Increment A");
-
-            opguide.Items.Add("1011: Decrement A");
-            opguide.Items.Add("1100: Increment B");
-            opguide.Items.Add("1101: Decrement B");
-            opguide.Items.Add("1110: NOP (No Operation)");
-            opguide.Items.Add("1111: Custom/Undefined");
-            */
             //memory grid 
             MemoryGrid.BackgroundColor = Color.LightGray;
             MemoryGrid.ForeColor = Color.Black;
@@ -391,7 +421,6 @@ namespace WinFormsApp1
             MemoryGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
 
-
             //Assembler 
             Assembler.OnExecutionComplete += (resultText) =>
             {
@@ -400,6 +429,7 @@ namespace WinFormsApp1
                 RefreshDataMemoryGrid();
                 //video 
                 UpdateVideoDisplay();
+
             };
         }
 
@@ -421,15 +451,27 @@ namespace WinFormsApp1
 
                 // Pass each line to the Assembler core
                 Assembler.RunCode(cleanLine);
+
             }
             //assemblyCodeBox.Clear();    
-
-
         }
 
         private void clearEditorButton_Click(object sender, EventArgs e)
         {
-            assemblyCodeBox.Clear();
+
+            // Ask for user confirmation before clearing the editor
+            DialogResult result = MessageBox.Show(
+                "Are you sure? This will delete all your assembly code!",
+                "Confirm Clear",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning
+            );
+
+            // If the user clicks 'Yes', clear the text box
+            if (result == DialogResult.Yes)
+            {
+                assemblyCodeBox.Clear();
+            }
         }
 
         private void loadToMemoryButton_Click(object sender, EventArgs e)
@@ -508,7 +550,6 @@ namespace WinFormsApp1
                 default: return "UNKNOWN";
             }
         }
-
 
 
         private void saveToFileButton_Click(object sender, EventArgs e)
@@ -905,22 +946,22 @@ namespace WinFormsApp1
         //Video Display initialization and refresh methods
         public void UpdateVideoDisplay()
         {
-            // 8 satır (i) ve 8 sütun (j) üzerinden dönüyoruz
+            // 8 columns and 8 rows for an 8x8 pixel display
             for (int i = 0; i < 8; i++)
             {
-                // 8-bitlik satırı oluşturmak için iki adresi okuyoruz
-                // i*2 adresi ilk 4 bit, i*2+1 adresi sonraki 4 bit
+                // 8 bit data for each row is stored in 2 consecutive RAM addresses (4 bits per address)
+                // i*2 address for the first 4 bits of the row, i*2+1 for the next 4 bits
                 bool[] firstPart = WinFormsApp1.Models.DataMemory.Read(i * 2);
                 bool[] secondPart = WinFormsApp1.Models.DataMemory.Read(i * 2 + 1);
 
                 for (int j = 0; j < 8; j++)
                 {
-                    // Eğer j < 4 ise firstPart'tan, değilse secondPart'tan alıyoruz
+                    // if j < 4 we take bits from the firstPart, else from the secondPart
                     bool isPixelOn = (j < 4) ? firstPart[j] : secondPart[j - 4];
 
                     if (isPixelOn)
                     {
-                        videoGrid.Rows[i].Cells[j].Style.BackColor = Color.White;
+                        videoGrid.Rows[i].Cells[j].Style.BackColor = Color.Gold;
                     }
                     else
                     {
@@ -967,6 +1008,161 @@ namespace WinFormsApp1
         private void hZSLOWToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
 
+        }
+
+        private void counterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            assemblyCodeBox.Clear();
+
+            assemblyCodeBox.AppendText("main_program:\r\n");
+            assemblyCodeBox.AppendText("CALL zero_screen\r\n");
+            assemblyCodeBox.AppendText("CALL one_screen\r\n");
+            assemblyCodeBox.AppendText("CALL two_screen\r\n");
+            assemblyCodeBox.AppendText("CALL three_screen\r\n");
+            assemblyCodeBox.AppendText("CALL four_screen\r\n");
+            assemblyCodeBox.AppendText("CALL five_screen\r\n");
+            assemblyCodeBox.AppendText("CALL six_screen\r\n");
+            assemblyCodeBox.AppendText("CALL seven_screen\r\n");
+            assemblyCodeBox.AppendText("CALL eight_screen\r\n");
+            assemblyCodeBox.AppendText("CALL nine_screen\r\n");
+            assemblyCodeBox.AppendText("JMP main_program\r\n");
+
+            assemblyCodeBox.AppendText("zero_screen:\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0001\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
+            assemblyCodeBox.AppendText("STORE 0003\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
+            assemblyCodeBox.AppendText("STORE 0005\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
+            assemblyCodeBox.AppendText("STORE 0007\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0009\r\n");
+            assemblyCodeBox.AppendText("RET\r\n");
+
+            assemblyCodeBox.AppendText("one_screen:\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
+            assemblyCodeBox.AppendText("STORE 0001\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
+            assemblyCodeBox.AppendText("STORE 0003\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
+            assemblyCodeBox.AppendText("STORE 0005\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
+            assemblyCodeBox.AppendText("STORE 0007\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
+            assemblyCodeBox.AppendText("STORE 0009\r\n");
+            assemblyCodeBox.AppendText("RET\r\n");
+
+            assemblyCodeBox.AppendText("two_screen:\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0001\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
+            assemblyCodeBox.AppendText("STORE 0003\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0005\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0100\r\n");
+            assemblyCodeBox.AppendText("STORE 0007\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0009\r\n");
+            assemblyCodeBox.AppendText("RET\r\n");
+
+            assemblyCodeBox.AppendText("three_screen:\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0001\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
+            assemblyCodeBox.AppendText("STORE 0003\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0005\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
+            assemblyCodeBox.AppendText("STORE 0007\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0009\r\n");
+            assemblyCodeBox.AppendText("RET\r\n");
+
+            assemblyCodeBox.AppendText("four_screen:\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
+            assemblyCodeBox.AppendText("STORE 0001\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
+            assemblyCodeBox.AppendText("STORE 0003\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0005\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
+            assemblyCodeBox.AppendText("STORE 0007\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
+            assemblyCodeBox.AppendText("STORE 0009\r\n");
+            assemblyCodeBox.AppendText("RET\r\n");
+
+            assemblyCodeBox.AppendText("five_screen:\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0001\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0100\r\n");
+            assemblyCodeBox.AppendText("STORE 0003\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0005\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
+            assemblyCodeBox.AppendText("STORE 0007\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0009\r\n");
+            assemblyCodeBox.AppendText("RET\r\n");
+
+            assemblyCodeBox.AppendText("six_screen:\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0001\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0100\r\n");
+            assemblyCodeBox.AppendText("STORE 0003\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0005\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
+            assemblyCodeBox.AppendText("STORE 0007\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0009\r\n");
+            assemblyCodeBox.AppendText("RET\r\n");
+
+            assemblyCodeBox.AppendText("seven_screen:\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0001\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
+            assemblyCodeBox.AppendText("STORE 0003\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
+            assemblyCodeBox.AppendText("STORE 0005\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
+            assemblyCodeBox.AppendText("STORE 0007\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
+            assemblyCodeBox.AppendText("STORE 0009\r\n");
+            assemblyCodeBox.AppendText("RET\r\n");
+
+            assemblyCodeBox.AppendText("eight_screen:\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0001\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
+            assemblyCodeBox.AppendText("STORE 0003\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0005\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
+            assemblyCodeBox.AppendText("STORE 0007\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0009\r\n");
+            assemblyCodeBox.AppendText("RET\r\n");
+
+            assemblyCodeBox.AppendText("nine_screen:\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0001\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
+            assemblyCodeBox.AppendText("STORE 0003\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0005\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
+            assemblyCodeBox.AppendText("STORE 0007\r\n");
+            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
+            assemblyCodeBox.AppendText("STORE 0009\r\n");
+            assemblyCodeBox.AppendText("RET\r\n");
+
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            videoGrid.BackgroundColor = Color.Blue;
         }
     }
 }

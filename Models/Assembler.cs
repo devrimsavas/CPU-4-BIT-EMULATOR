@@ -14,6 +14,8 @@ namespace WinFormsApp1.Models
         public static string[] LoadedCode=Array.Empty<string>(); // Loaded code from file or input, can be used for multi-line execution and future features like loops and conditionals
         //Zero flag 
         public static bool ZeroFlag { get; set; } = false; // Zero flag to indicate if the last ALU operation resulted in zero, can be used for future conditional jump instructions    
+        //callstack for call and ret instructions 
+        public static Stack<int> CallStack { get;private set; }=new Stack<int>(); // Call stack to manage return addresses for CALL and RET instructions, currently unused but essential for future function call features
 
         // This delegate or action will point to  Form's UI update logic
         public static Action<string> OnExecutionComplete;
@@ -333,6 +335,17 @@ namespace WinFormsApp1.Models
             {
                 return "11111110"; // Special marker for JZ (Jump if Zero) instruction, not actual machine code, but will help us identify it in the UI and handle it properly during execution when we implement conditional jumps
             }
+            //call and ret
+            if (cleanLine.StartsWith("CALL ", StringComparison.OrdinalIgnoreCase))
+            {
+                return "11111101"; // Special marker for CALL instruction, not actual machine code, but will help us identify it in the UI and handle it properly during execution when we implement function calls
+            }
+            //ret instruction
+            if (cleanLine.Equals("RET", StringComparison.OrdinalIgnoreCase))
+            {
+                return "11111100"; // Special marker for RET instruction, not actual machine code, but will help us identify it in the UI and handle it properly during execution when we implement function calls
+            }
+
 
             // 2. Handle Standard 4-bit instructions (Padded with 0000 to complete 8-bit architecture)
             switch (cleanLine)

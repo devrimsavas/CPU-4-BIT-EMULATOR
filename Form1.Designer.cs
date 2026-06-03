@@ -83,6 +83,7 @@
             resetButton = new Button();
             groupBox3 = new GroupBox();
             groupBox6 = new GroupBox();
+            button1 = new Button();
             resetScreenButton = new Button();
             videoGrid = new DataGridView();
             dataMemoryGrid = new DataGridView();
@@ -96,6 +97,7 @@
             fastDivisionUsingSHR82ToolStripMenuItem = new ToolStripMenuItem();
             storeToMemoryToolStripMenuItem = new ToolStripMenuItem();
             xorSwapTestToolStripMenuItem = new ToolStripMenuItem();
+            counterToolStripMenuItem = new ToolStripMenuItem();
             architectureToolStripMenuItem = new ToolStripMenuItem();
             hARDWARERESETToolStripMenuItem = new ToolStripMenuItem();
             cLOCKSPEEDToolStripMenuItem = new ToolStripMenuItem();
@@ -556,7 +558,7 @@
             OUTPUT.Controls.Add(clearOutput);
             OUTPUT.Controls.Add(OutputRegister);
             OUTPUT.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            OUTPUT.Location = new Point(489, 271);
+            OUTPUT.Location = new Point(489, 22);
             OUTPUT.Name = "OUTPUT";
             OUTPUT.Size = new Size(442, 262);
             OUTPUT.TabIndex = 15;
@@ -593,7 +595,7 @@
             assemblyCodeBox.ForeColor = Color.Lime;
             assemblyCodeBox.Location = new Point(6, 22);
             assemblyCodeBox.Name = "assemblyCodeBox";
-            assemblyCodeBox.Size = new Size(477, 497);
+            assemblyCodeBox.Size = new Size(477, 734);
             assemblyCodeBox.TabIndex = 17;
             assemblyCodeBox.Text = "";
             // 
@@ -614,7 +616,7 @@
             MemoryGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             MemoryGrid.Location = new Point(6, 21);
             MemoryGrid.Name = "MemoryGrid";
-            MemoryGrid.Size = new Size(418, 198);
+            MemoryGrid.Size = new Size(372, 713);
             MemoryGrid.TabIndex = 20;
             // 
             // loadToMemoryButton
@@ -631,7 +633,7 @@
             // 
             // cpuClock
             // 
-            cpuClock.Interval = 200;
+            cpuClock.Interval = 2;
             cpuClock.Tick += cpuClock_Tick;
             // 
             // btnStartClock
@@ -654,7 +656,7 @@
             groupBox2.Controls.Add(loadToMemoryButton);
             groupBox2.Controls.Add(btnStartClock);
             groupBox2.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            groupBox2.Location = new Point(6, 525);
+            groupBox2.Location = new Point(6, 764);
             groupBox2.Name = "groupBox2";
             groupBox2.Size = new Size(477, 121);
             groupBox2.TabIndex = 26;
@@ -687,7 +689,7 @@
             groupBox3.ForeColor = SystemColors.Control;
             groupBox3.Location = new Point(237, 17);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(1248, 762);
+            groupBox3.Size = new Size(1388, 891);
             groupBox3.TabIndex = 27;
             groupBox3.TabStop = false;
             groupBox3.Text = "ASSEMBLER EDITOR";
@@ -696,20 +698,33 @@
             // groupBox6
             // 
             groupBox6.BackColor = Color.LightGray;
+            groupBox6.Controls.Add(button1);
             groupBox6.Controls.Add(resetScreenButton);
             groupBox6.Controls.Add(videoGrid);
-            groupBox6.Location = new Point(946, 22);
+            groupBox6.Location = new Point(562, 508);
             groupBox6.Name = "groupBox6";
             groupBox6.Size = new Size(289, 362);
             groupBox6.TabIndex = 31;
             groupBox6.TabStop = false;
             groupBox6.Text = "OUTPUT SCREEN";
             // 
+            // button1
+            // 
+            button1.BackColor = Color.FromArgb(255, 192, 128);
+            button1.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            button1.Location = new Point(176, 298);
+            button1.Name = "button1";
+            button1.Size = new Size(95, 47);
+            button1.TabIndex = 31;
+            button1.Text = "Color Mode";
+            button1.UseVisualStyleBackColor = false;
+            button1.Click += button1_Click;
+            // 
             // resetScreenButton
             // 
             resetScreenButton.BackColor = Color.FromArgb(255, 192, 128);
             resetScreenButton.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            resetScreenButton.Location = new Point(15, 303);
+            resetScreenButton.Location = new Point(28, 298);
             resetScreenButton.Name = "resetScreenButton";
             resetScreenButton.Size = new Size(142, 47);
             resetScreenButton.TabIndex = 30;
@@ -733,7 +748,7 @@
             dataGridViewCellStyle1.WrapMode = DataGridViewTriState.False;
             videoGrid.DefaultCellStyle = dataGridViewCellStyle1;
             videoGrid.GridColor = Color.DimGray;
-            videoGrid.Location = new Point(15, 30);
+            videoGrid.Location = new Point(28, 25);
             videoGrid.Name = "videoGrid";
             dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = Color.Black;
@@ -767,7 +782,7 @@
             dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
             dataMemoryGrid.DefaultCellStyle = dataGridViewCellStyle6;
             dataMemoryGrid.GridColor = Color.FromArgb(255, 128, 128);
-            dataMemoryGrid.Location = new Point(489, 545);
+            dataMemoryGrid.Location = new Point(489, 291);
             dataMemoryGrid.Name = "dataMemoryGrid";
             dataGridViewCellStyle7.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle7.BackColor = SystemColors.Control;
@@ -805,9 +820,9 @@
             groupBox4.BackColor = Color.FromArgb(224, 224, 224);
             groupBox4.Controls.Add(MemoryGrid);
             groupBox4.Font = new Font("Consolas", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            groupBox4.Location = new Point(489, 22);
+            groupBox4.Location = new Point(937, 22);
             groupBox4.Name = "groupBox4";
-            groupBox4.Size = new Size(442, 243);
+            groupBox4.Size = new Size(384, 740);
             groupBox4.TabIndex = 28;
             groupBox4.TabStop = false;
             groupBox4.Text = "MEMORY";
@@ -819,13 +834,13 @@
             menuStrip1.Items.AddRange(new ToolStripItem[] { hELPToolStripMenuItem, architectureToolStripMenuItem, isaReferenceToolStripMenuItem, oppGuideToolStripMenuItem, saveCodeToFileToolStripMenuItem, helpToolStripMenuItem1, lOADFROMFILEToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(1533, 27);
+            menuStrip1.Size = new Size(1663, 27);
             menuStrip1.TabIndex = 29;
             menuStrip1.Text = "menuStrip1";
             // 
             // hELPToolStripMenuItem
             // 
-            hELPToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aboutToolStripMenuItem, lOADSAMPLE2ToolStripMenuItem, fastDivisionUsingSHR82ToolStripMenuItem, storeToMemoryToolStripMenuItem, xorSwapTestToolStripMenuItem });
+            hELPToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aboutToolStripMenuItem, lOADSAMPLE2ToolStripMenuItem, fastDivisionUsingSHR82ToolStripMenuItem, storeToMemoryToolStripMenuItem, xorSwapTestToolStripMenuItem, counterToolStripMenuItem });
             hELPToolStripMenuItem.ForeColor = Color.Black;
             hELPToolStripMenuItem.Name = "hELPToolStripMenuItem";
             hELPToolStripMenuItem.Size = new Size(165, 23);
@@ -866,6 +881,13 @@
             xorSwapTestToolStripMenuItem.Size = new Size(375, 24);
             xorSwapTestToolStripMenuItem.Text = "Xor Swap Test";
             xorSwapTestToolStripMenuItem.Click += xorSwapTestToolStripMenuItem_Click;
+            // 
+            // counterToolStripMenuItem
+            // 
+            counterToolStripMenuItem.Name = "counterToolStripMenuItem";
+            counterToolStripMenuItem.Size = new Size(375, 24);
+            counterToolStripMenuItem.Text = "Counter";
+            counterToolStripMenuItem.Click += counterToolStripMenuItem_Click;
             // 
             // architectureToolStripMenuItem
             // 
@@ -953,7 +975,7 @@
             groupBox5.ForeColor = Color.Black;
             groupBox5.Location = new Point(0, 30);
             groupBox5.Name = "groupBox5";
-            groupBox5.Size = new Size(1498, 797);
+            groupBox5.Size = new Size(1663, 914);
             groupBox5.TabIndex = 30;
             groupBox5.TabStop = false;
             // 
@@ -962,7 +984,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.DimGray;
-            ClientSize = new Size(1533, 845);
+            ClientSize = new Size(1663, 946);
             Controls.Add(groupBox5);
             Controls.Add(menuStrip1);
             ForeColor = SystemColors.ButtonFace;
@@ -1071,5 +1093,7 @@
         private DataGridViewTextBoxColumn Address;
         private DataGridViewTextBoxColumn Data;
         private GroupBox groupBox6;
+        private ToolStripMenuItem counterToolStripMenuItem;
+        private Button button1;
     }
 }
