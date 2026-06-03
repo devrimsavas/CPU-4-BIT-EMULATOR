@@ -10,13 +10,45 @@ namespace WinFormsApp1
         {
             InitializeComponent();
             //İnitialize the data memory grid with default values for visualization
-            //InitializeDataMemoryGrid();
+            InitializeDataMemoryGrid();
             WinFormsApp1.Models.DataMemory.Initialize();
+
+            //videoGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+            //videoGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+            videoGrid.Rows.Clear();
+            // Sütunları ve satırları 8x8 olacak şekilde sıfırdan kur
+            videoGrid.Rows.Clear();
+            videoGrid.Columns.Clear(); // Önce eski sütunları da temizle
+
+            // 8 Sütun ekle
+            for (int i = 0; i < 8; i++)
+            {
+                videoGrid.Columns.Add($"col{i}", ""); // İsimsiz sütunlar ekle
+                videoGrid.Columns[i].Width = 50;
+            }
+
+            // 8 Satır ekle
+            for (int i = 0; i < 8; i++)
+            {
+                videoGrid.Rows.Add();
+                videoGrid.Rows[i].Height = 30;
+            }
+
+
+            for (int i = 0; i < videoGrid.Columns.Count; i++)
+            {
+                videoGrid.Columns[i].Width = 50; // pixelSize;
+            }
+            videoGrid.ClearSelection();
+            videoGrid.CurrentCell = null;
+
+
         }
         // Simulated Program Counter to track current instruction in memory
         private int programCounter = 0;
         // Flag to indicate if the CPU is halted (e.g., after executing a HLT instruction or reaching end of memory)
         private bool isHalted = false;
+        //Core hardware cycle for fetch-decode-execute
         //Core hardware cycle for fetch-decode-execute
         private void ExecuteNextInstruction()
         {
@@ -30,7 +62,8 @@ namespace WinFormsApp1
                 MessageBox.Show("No instructions in memory!", "Hardware Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            //Successful fetch-decode-execute cycle:Program counter reaches the end of loaded instructions, halting the CPU to prevent out-of-bounds access
+
+            //Successful fetch-decode-execute cycle:Program counter reaches the end of loaded instructions
             if (programCounter >= MemoryGrid.Rows.Count)
             {
                 isHalted = true;
@@ -40,17 +73,59 @@ namespace WinFormsApp1
             }
 
             // Fetch
-            string assemblyLine = MemoryGrid.Rows[programCounter].Cells[1].Value.ToString();
+            string assemblyLine = MemoryGrid.Rows[programCounter].Cells[1].Value.ToString().Trim();
+
             //highlight current instruction in grid
             MemoryGrid.ClearSelection();
             MemoryGrid.Rows[programCounter].Selected = true;
 
-            //execute
-            Assembler.RunCode(assemblyLine);
-            RefreshDataMemoryGrid(); // Update the data memory grid after each instruction execution to reflect any changes in RAM
-            programCounter++;
+            // === JUMP LOGIC ADDED ===
+            if (assemblyLine.StartsWith("JMP ", StringComparison.OrdinalIgnoreCase))
+            {
+                string targetLabel = assemblyLine.Substring(4).Trim();
+                bool labelFound = false;
+
+                // SEARCH for the label in the memory grid
+                for (int i = 0; i < MemoryGrid.Rows.Count; i++)
+                {
+                    string checkLine = MemoryGrid.Rows[i].Cells[1].Value.ToString().Trim();
+                    // if the line matches the target label (e.g., "LOOP:") then jump to that line
+                    if (checkLine.Equals(targetLabel + ":", StringComparison.OrdinalIgnoreCase))
+                    {
+                        programCounter = i; // jump to target!
+                        labelFound = true;
+                        Assembler.OnExecutionComplete?.Invoke($"JUMPED to {targetLabel} (Line {i})");
+                        break;
+                    }
+                }
+
+                if (!labelFound)
+                {
+                    Assembler.OnExecutionComplete?.Invoke($"Syntax Error: Label '{targetLabel}' not found in Memory!");
+                    isHalted = true;
+                    cpuClock.Stop();
+                }
+            }
+            // === LABEL JUMP  ===
+            else if (assemblyLine.EndsWith(":"))
+            {
+                // Label is not an executable instruction, just a marker for jumps. Skip execution. 
+                // bypass do not send to cpu.
+                programCounter++;
+                ExecuteNextInstruction(); // execute the next instruction immediately after the label without waiting for the next clock tick
+                return;
+            }
+            else
+            {
+                // Normal instruction execute
+                Assembler.RunCode(assemblyLine);
+                programCounter++; // increment program counter to point to the next instruction for the next cycle
+            }
+
+            RefreshDataMemoryGrid(); // Update the data memory grid
             WinFormsApp1.Models.PlaySound.Play();
         }
+        //end of core cycle
 
         private void AddInstructionToMemory(string address, string assembly, string machineCode)
         {
@@ -307,10 +382,13 @@ namespace WinFormsApp1
 
 
             //Assembler 
-            Assembler.OnExecutionComplete = (resultText) =>
+            Assembler.OnExecutionComplete += (resultText) =>
             {
                 OutputRegister.Items.Add(resultText);
                 RefreshUI();
+                RefreshDataMemoryGrid();
+                //video 
+                UpdateVideoDisplay();
             };
         }
 
@@ -355,7 +433,7 @@ namespace WinFormsApp1
             foreach (string line in lines)
             {
                 string trimmedLine = line.Trim();
-                if (string.IsNullOrEmpty(trimmedLine)) continue;
+                if (string.IsNullOrEmpty(trimmedLine) || trimmedLine.StartsWith(";")) continue;
 
                 string assemblyText = "";
                 string machineCode = "";
@@ -506,13 +584,14 @@ namespace WinFormsApp1
         {
             isHalted = false;
             cpuClock.Start();
-            
+
         }
 
         private void resetButton_Click(object sender, EventArgs e)
         {
             //flush memory grid and program memory list
             MemoryGrid.Rows.Clear();
+            OutputRegister.Items.Clear();
             WinFormsApp1.Models.ProgramMemory.MemoryList.Clear();
             WinFormsApp1.Models.DataMemory.Initialize(); // Reset the backend data memory to default values  
             InitializeDataMemoryGrid(); // Re-initialize the data memory grid to default values
@@ -630,7 +709,7 @@ namespace WinFormsApp1
 
         private void hZSLOWToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            cpuClock.Interval = 1000;
+            cpuClock.Interval = 100;
         }
 
         private void hZNORMALToolStripMenuItem_Click(object sender, EventArgs e)
@@ -642,7 +721,7 @@ namespace WinFormsApp1
         private void tURBOMODEToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //turbo
-            cpuClock.Interval = 50;
+            cpuClock.Interval = 20;
         }
 
         private void saveCodeToFileToolStripMenuItem_Click(object sender, EventArgs e)
@@ -715,15 +794,16 @@ namespace WinFormsApp1
 
 
         }
-        
+
         private void InitializeDataMemoryGrid()
         {
-            dataMemoryGrid.Rows.Clear();    
-            for (int i=0;i<16;i++)
+            if (dataMemoryGrid.Rows.Count >= 16) return;
+            dataMemoryGrid.Rows.Clear();
+            for (int i = 0; i < 16; i++)
             {
                 string hexAddress = "0x" + i.ToString("X2");
                 //inject current data memory values into the grid for visualization
-                dataMemoryGrid.Rows.Add(hexAddress,"0000");
+                dataMemoryGrid.Rows.Add(hexAddress, "0000");
             }
         }
 
@@ -733,6 +813,7 @@ namespace WinFormsApp1
             if (dataMemoryGrid.Rows.Count < 16 || dataMemoryGrid.Columns.Count < 2)
             {
                 InitializeDataMemoryGrid();
+                return;
             }
             // Loop through all 16 hardware RAM addresses
             for (int i = 0; i < 16; i++)
@@ -748,6 +829,128 @@ namespace WinFormsApp1
             }
         }
 
+        private void lOADSAMPLE2ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //fast multiplication example using shifts and adds
+            assemblyCodeBox.Clear();
+            assemblyCodeBox.AppendText("PUSH AX, 0011\r\n");
+            assemblyCodeBox.AppendText("PUSH AX\r\n");
+            assemblyCodeBox.AppendText("SHL\r\n");
+        }
 
+        private void fastDivisionUsingSHR82ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //fast division by 2 example using shifts
+            assemblyCodeBox.Clear();
+            assemblyCodeBox.AppendText("PUSH AX, 1000\r\n");
+            assemblyCodeBox.AppendText("PUSH AX\r\n");
+            assemblyCodeBox.AppendText("SHR\r\n");
+
+        }
+
+        private void storeToMemoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //store AX to memory address 0x00 example
+            assemblyCodeBox.Clear();
+            assemblyCodeBox.AppendText("PUSH AX, 1010\r\n"); // Load AX with some value (e.g., 1010)
+            assemblyCodeBox.AppendText("STORE 0000\r\n"); // Push AX onto the stack
+            assemblyCodeBox.AppendText("PUSH AX,0101\r\n"); // Pop the value back into AX to simulate a memory store operation
+            assemblyCodeBox.AppendText("STORE 1111\r\n"); // 
+            assemblyCodeBox.AppendText("LOAD 0000\r\n"); // Load AX with the value from memory address 0x00
+            assemblyCodeBox.AppendText("LOAD 1111\r\n"); // Load AX with the value from memory address 0x0F (for demonstration)
+            assemblyCodeBox.AppendText("ADD\r\n"); // Push the loaded value onto the stack to view in output
+
+        }
+
+        private void xorSwapTestToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //Xor Swap example: Swapping values in AX and BX without a temporary register using XOR
+            assemblyCodeBox.Clear();
+            assemblyCodeBox.AppendText("PUSH AX, 1010\r\n"); // Load AX with value 1010 (13 in decimal) 
+            assemblyCodeBox.AppendText("PUSH BX, 0101\r\n"); // Load BX with value 0101 (5 in decimal)
+            assemblyCodeBox.AppendText("PUSH AX\r\n"); // Push AX onto the stack to save its value Ax=AX XOR BX
+            assemblyCodeBox.AppendText("PUSH BX\r\n"); // Push BX onto the stack to save its value BX=AX XOR BX (BX now holds original AX value)
+            assemblyCodeBox.AppendText("XOR\r\n"); // AX now holds the result of AX XOR BX
+            assemblyCodeBox.AppendText("POP AX\r\n");
+            assemblyCodeBox.AppendText("PUSH AX\r\n"); // BX now holds the result of AX XOR BX (original AX value)   
+            assemblyCodeBox.AppendText("PUSH BX\r\n"); // AX now holds the original BX value, completing the swap
+            assemblyCodeBox.AppendText("XOR\r\n"); // Finalize the swap by XORing again to restore original values
+            assemblyCodeBox.AppendText("POP BX\r\n"); // AX now holds the original BX value, and BX holds the original AX value
+            assemblyCodeBox.AppendText("PUSH AX\r\n"); // Clean up the stack by popping the saved values (optional, depending on your stack management)
+            assemblyCodeBox.AppendText("PUSH BX\r\n"); // Clean up the stack by popping the saved values (optional, depending on your stack management)
+            assemblyCodeBox.AppendText("XOR\r\n"); // Push the final swapped value onto the stack to view in output
+        }
+
+        private void popedRegister_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox3_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        //Video Display initialization and refresh methods
+        public void UpdateVideoDisplay()
+        {
+            // 8 satır (i) ve 8 sütun (j) üzerinden dönüyoruz
+            for (int i = 0; i < 8; i++)
+            {
+                // 8-bitlik satırı oluşturmak için iki adresi okuyoruz
+                // i*2 adresi ilk 4 bit, i*2+1 adresi sonraki 4 bit
+                bool[] firstPart = WinFormsApp1.Models.DataMemory.Read(i * 2);
+                bool[] secondPart = WinFormsApp1.Models.DataMemory.Read(i * 2 + 1);
+
+                for (int j = 0; j < 8; j++)
+                {
+                    // Eğer j < 4 ise firstPart'tan, değilse secondPart'tan alıyoruz
+                    bool isPixelOn = (j < 4) ? firstPart[j] : secondPart[j - 4];
+
+                    if (isPixelOn)
+                    {
+                        videoGrid.Rows[i].Cells[j].Style.BackColor = Color.White;
+                    }
+                    else
+                    {
+                        videoGrid.Rows[i].Cells[j].Style.BackColor = Color.Black;
+                    }
+                }
+            }
+            videoGrid.Invalidate();
+            videoGrid.Update();
+        }
+
+        private void resetScreenButton_Click(object sender, EventArgs e)
+        {
+            videoGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+            videoGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+            // Clear existing rows and columns to reset fully
+            videoGrid.Rows.Clear();
+            videoGrid.Columns.Clear();
+
+            // Setup 8 columns with width 50
+            for (int i = 0; i < 8; i++)
+            {
+                videoGrid.Columns.Add($"col{i}", "");
+                videoGrid.Columns[i].Width = 50;
+            }
+
+            // Setup 8 rows with height 30
+            for (int i = 0; i < 8; i++)
+            {
+                videoGrid.Rows.Add();
+                videoGrid.Rows[i].Height = 30;
+            }
+
+            // Clear selection to avoid visual bugs
+            videoGrid.ClearSelection();
+            videoGrid.CurrentCell = null;
+        }
+
+        private void tURBOMODEToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -8,6 +8,11 @@ namespace WinFormsApp1.Models
 {
     public static class Assembler
     {
+        //program counter and label memory 
+        public static int PC { get;private set; } = 0; //line number tracker for execution flow control, can be used for future jump instructions and loops
+        public static Dictionary<string,int> Labels=new(StringComparer.OrdinalIgnoreCase); // Label memory to store line numbers for jump instructions, currently unused but essential for future control flow features
+        public static string[] LoadedCode=Array.Empty<string>(); // Loaded code from file or input, can be used for multi-line execution and future features like loops and conditionals
+
         // This delegate or action will point to  Form's UI update logic
         public static Action<string> OnExecutionComplete;
 
@@ -107,64 +112,77 @@ namespace WinFormsApp1.Models
             }
             //=== Ram Operations ===
             //Handle Store "STORE 1111" to store AX value into RAM address 0x0F (15 in decimal)
+            // === STORE  ===
+            // === STORE ===
             if (cleanLine.StartsWith("STORE ", StringComparison.OrdinalIgnoreCase))
             {
-                // Extract the 4-bit binary address
-                string binaryAddr = cleanLine.Substring(6).Trim();
+                string rawAddr = cleanLine.Substring(6).Trim();
 
-                if (binaryAddr.Length == 4 && binaryAddr.All(c => c == '0' || c == '1'))
+                try
                 {
-                    // Convert binary string to decimal integer for dictionary key
-                    int address = Convert.ToInt32(binaryAddr, 2);
+                    // Parse the address directly as Hexadecimal (e.g., "0A", "000F")
+                    int address = Convert.ToInt32(rawAddr, 16);
 
-                    // Pop the value from the top of the stack
-                    var poppedReg = Program.Stack.PopRegister();
-
-                    if (poppedReg != null)
+                    // Ensure the address is within the 16-address limit (0x00 to 0x0F)
+                    if (address >= 0 && address < 16)
                     {
-                        // Write to Data RAM
-                        DataMemory.Write(address, poppedReg.RegArray);
-                        string bitString = string.Join("", poppedReg.RegArray.Select(b => b ? "1" : "0"));
-                        OnExecutionComplete?.Invoke($"STORE: Saved {bitString} to RAM[0x{address:X2}]");
+                        var poppedReg = Program.Stack.PopRegister();
+
+                        if (poppedReg != null)
+                        {
+                            DataMemory.Write(address, poppedReg.RegArray);
+
+                            string bitString = string.Join("", poppedReg.RegArray.Select(b => b ? "1" : "0"));
+                            OnExecutionComplete?.Invoke($"STORE: Saved {bitString} to RAM[0x{address:X2}]");
+                        }
+                        else
+                        {
+                            OnExecutionComplete?.Invoke("Hardware Error: Stack Underflow.");
+                        }
                     }
                     else
                     {
-                        OnExecutionComplete?.Invoke("Hardware Error: Stack Underflow. Nothing to STORE.");
+                        OnExecutionComplete?.Invoke($"Hardware Error: Address out of range '{rawAddr}'. Max is 0F.");
                     }
-                    return;
                 }
-                else
+                catch
                 {
-                    OnExecutionComplete?.Invoke($"Syntax Error: Invalid 4-bit address '{binaryAddr}'");
-                    return;
+                    OnExecutionComplete?.Invoke($"Syntax Error: Invalid hex address '{rawAddr}'");
                 }
+
+                return;
             }
 
-            // Handle LOAD command (e.g., "LOAD 0010")
+            // === LOAD ===
             if (cleanLine.StartsWith("LOAD ", StringComparison.OrdinalIgnoreCase))
             {
-                // Extract the 4-bit binary address
-                string binaryAddr = cleanLine.Substring(5).Trim();
+                string rawAddr = cleanLine.Substring(5).Trim();
 
-                if (binaryAddr.Length == 4 && binaryAddr.All(c => c == '0' || c == '1'))
+                try
                 {
-                    // Convert binary string to decimal integer for dictionary key
-                    int address = Convert.ToInt32(binaryAddr, 2);
+                    // Parse the address directly as Hexadecimal
+                    int address = Convert.ToInt32(rawAddr, 16);
 
-                    // Read from Data RAM
-                    bool[] ramData = DataMemory.Read(address);
+                    // Ensure the address is within the 16-address limit
+                    if (address >= 0 && address < 16)
+                    {
+                        bool[] ramData = DataMemory.Read(address);
+                        Program.Stack.AddRegister(new Register("RAM", (bool[])ramData.Clone()));
 
-                    // Push the read data onto the stack
-                    Program.Stack.AddRegister(new Register("RAM", (bool[])ramData.Clone()));
-                    string bitString = string.Join("", ramData.Select(b => b ? "1" : "0"));
-                    OnExecutionComplete?.Invoke($"LOAD: Fetched {bitString} from RAM[0x{address:X2}]");
-                    return;
+                        string bitString = string.Join("", ramData.Select(b => b ? "1" : "0"));
+                        OnExecutionComplete?.Invoke($"LOAD: Fetched {bitString} from RAM[0x{address:X2}]");
+                    }
+                    else
+                    {
+                        OnExecutionComplete?.Invoke($"Hardware Error: Address out of range '{rawAddr}'. Max is 0F.");
+                    }
                 }
-                else
+                catch
                 {
-                    OnExecutionComplete?.Invoke($"Syntax Error: Invalid 4-bit address '{binaryAddr}'");
-                    return;
+                    OnExecutionComplete?.Invoke($"Syntax Error: Invalid hex address '{rawAddr}'");
                 }
+
+                return;
             }
 
 
@@ -183,28 +201,55 @@ namespace WinFormsApp1.Models
         // hardwares
         private static void RunHardwareOperation(bool[] opcode)
         {
-            var poppedB = Program.Stack.PopRegister();
-            var poppedA = Program.Stack.PopRegister();
+            AluInputBuffer.ClearBuffers(); // Clear buffers before loading new data
 
-            // If data exists in stack, load it. If it's null, our AluInputBuffer defaults will handle it!
+            // 1. Determine if operation is Unary (1 parameter) or Binary (2 parameters)
+            // 10xx (SHL, SHR, INC, DEC) and 0011 (NOT) are unary operations.
+            bool isUnary = opcode[0] == true || (opcode[0] == false && opcode[1] == false && opcode[2] == true && opcode[3] == true);
+
+
+            WinFormsApp1.Models.Register poppedA = null;
+            WinFormsApp1.Models.Register poppedB = null;
+            //  (DEBUGGING)
+            string opName = string.Join("", opcode.Select(b => b ? "1" : "0"));
+            string valA = poppedA != null ? string.Join("", poppedA.RegArray.Select(b => b ? "1" : "0")) : "NULL";
+            string valB = poppedB != null ? string.Join("", poppedB.RegArray.Select(b => b ? "1" : "0")) : "NULL";
+
+            
+            Console.WriteLine($"ALU DEBUG: Opcode:{opName} | A:{valA} | B:{valB}");
+
+            if (isUnary)
+            {
+                // Pop only once and assign directly to A for unary operations
+                poppedA = Program.Stack.PopRegister();
+            }
+            else
+            {
+                // Pop twice for binary operations (LIFO: first popped is B, second is A)
+                poppedB = Program.Stack.PopRegister();
+                poppedA = Program.Stack.PopRegister();
+            }
+
+            // Load into buffers safely
             if (poppedA != null) AluInputBuffer.LoadTempA(poppedA.RegArray);
             else AluInputBuffer.IsTempALoaded = false; // Force AluInputBuffer to assign 0000
 
             if (poppedB != null) AluInputBuffer.LoadTempB(poppedB.RegArray);
             else AluInputBuffer.IsTempBLoaded = false; // Force AluInputBuffer to assign 0000
 
-            // 1. Load the 4-bit signal into the control unit buffer
+            // Load opcode and execute hardware logic
             AluInputBuffer.LoadOppCode(opcode);
-
-            // 2. Fire the processor logic directly!
             bool[] hardwareResult = AluInputBuffer.Execute();
 
-            // 3. Convert the bool array to a readable string (e.g., "0110")
-            string stringResult = string.Join("", hardwareResult.Select(b => b ? "1" : "0"));
+            // 2. CRITICAL FIX: Write-Back the result to the Stack!
+            // Clone the array to prevent memory reference ghosting bugs
+            Program.Stack.AddRegister(new WinFormsApp1.Models.Register("ALU_RES", (bool[])hardwareResult.Clone()));
 
-            // 4. Send this result back to the Form's Output Window automatically
+            // Convert to readable string and log to UI
+            string stringResult = string.Join("", hardwareResult.Select(b => b ? "1" : "0"));
             OnExecutionComplete?.Invoke("Result: " + stringResult);
         }
+
         //  helper for stack operations
         public static void RunStackOperation(bool[] opcode)
         {
@@ -262,13 +307,22 @@ namespace WinFormsApp1.Models
             if (cleanLine.StartsWith("LOAD "))
             {
                 string data = cleanLine.Substring(5).Trim();
-                return "0110" + data; 
+                return "0110" + To4BitBinary(data); 
             }
             //memory store
             if (cleanLine.StartsWith("STORE "))
             {
                 string data = cleanLine.Substring(6).Trim();
-                return "0111" + data; // 
+                return "0111" + To4BitBinary(data); // 
+            }
+            // === JMP ===
+            if (cleanLine.EndsWith(":"))
+            {
+                return "LABEL"; // Special marker for labels, not actual machine code
+            }
+            if (cleanLine.StartsWith("JMP ", StringComparison.OrdinalIgnoreCase))
+            {
+                return "11111111"; // Special marker for jump instructions, not actual machine code unfortunally it is fake because we have no real opcode for jump, but this will help us identify it in the UI and handle it properly during execution
             }
 
             // 2. Handle Standard 4-bit instructions (Padded with 0000 to complete 8-bit architecture)
@@ -294,6 +348,79 @@ namespace WinFormsApp1.Models
                 default: return "00000000"; // Fallback for syntax errors
             }
         }
+
+        private static string To4BitBinary(string input)
+        {
+            try
+            {
+                // Parse the input directly as a hexadecimal number
+                int value = Convert.ToInt32(input.Trim(), 16);
+
+                // Convert to binary string and pad to 4 bits (e.g., A -> 10 -> "1010")
+                return Convert.ToString(value, 2).PadLeft(4, '0');
+            }
+            catch
+            {
+                // Fallback for UI if parsing fails
+                return "0000";
+            }
+        }
+        //compile and find label 
+        public static void Compile(string[] lines)
+        {
+            LoadedCode = lines;
+            Labels.Clear();
+            PC = 0;
+            for (int i=0;i< lines.Length; i++)
+            {
+                string cleanLine = lines[i].Trim();
+                //if line end  with colon, treat it as label and store the line number in label memory  
+                if (cleanLine.EndsWith(":"))
+                {
+                    string labelName = cleanLine.TrimEnd(':');
+                    Labels[labelName] = i; // Store the line number for this label
+                }
+            }
+        }
+
+        //JMP logic 
+        //when it calls , program counter run a line and execute 
+        public static bool ExecuteNextLine()
+        {
+            if (PC >= LoadedCode.Length) return false; // Kod bitti
+
+            string cleanLine = LoadedCode[PC].Trim();
+
+            // skip empty lines and labels (lines ending with ":") during execution, but still increment the program counter to avoid infinite loops on labels
+            if (string.IsNullOrWhiteSpace(cleanLine) || cleanLine.EndsWith(":"))
+            {
+                PC++;
+                return true;
+            }
+
+            // === JMP (JUMP) COMMAND CHECK ===
+            if (cleanLine.StartsWith("JMP ", StringComparison.OrdinalIgnoreCase))
+            {
+                string targetLabel = cleanLine.Substring(4).Trim();
+                if (Labels.TryGetValue(targetLabel, out int targetLine))
+                {
+                    PC = targetLine; // jump label to line number
+                    OnExecutionComplete?.Invoke($"JUMPED to label: {targetLabel}");
+                }
+                else
+                {
+                    OnExecutionComplete?.Invoke($"Syntax Error: Label '{targetLabel}' not found.");
+                    PC = LoadedCode.Length; // terminate execution if label is not found to prevent infinite loops
+                }
+                return true;
+            }
+
+            // if not a jump, run normally
+            RunCode(cleanLine);
+            PC++; // increment program counter to move to the next line for the next execution cycle
+            return true;
+        }
+
 
     }
 }
