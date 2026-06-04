@@ -110,6 +110,7 @@
             helpToolStripMenuItem1 = new ToolStripMenuItem();
             lOADFROMFILEToolStripMenuItem = new ToolStripMenuItem();
             groupBox5 = new GroupBox();
+            jUMPNOTZEROToolStripMenuItem = new ToolStripMenuItem();
             RegisterAxBox.SuspendLayout();
             RegisterBxBox.SuspendLayout();
             registersBox.SuspendLayout();
@@ -591,7 +592,7 @@
             // assemblyCodeBox
             // 
             assemblyCodeBox.BackColor = Color.FromArgb(0, 0, 64);
-            assemblyCodeBox.Font = new Font("Times New Roman", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            assemblyCodeBox.Font = new Font("Ubuntu Mono", 11.9999981F, FontStyle.Regular, GraphicsUnit.Point, 0);
             assemblyCodeBox.ForeColor = Color.Lime;
             assemblyCodeBox.Location = new Point(6, 22);
             assemblyCodeBox.Name = "assemblyCodeBox";
@@ -840,7 +841,7 @@
             // 
             // hELPToolStripMenuItem
             // 
-            hELPToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aboutToolStripMenuItem, lOADSAMPLE2ToolStripMenuItem, fastDivisionUsingSHR82ToolStripMenuItem, storeToMemoryToolStripMenuItem, xorSwapTestToolStripMenuItem, counterToolStripMenuItem });
+            hELPToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { aboutToolStripMenuItem, lOADSAMPLE2ToolStripMenuItem, fastDivisionUsingSHR82ToolStripMenuItem, storeToMemoryToolStripMenuItem, xorSwapTestToolStripMenuItem, counterToolStripMenuItem, jUMPNOTZEROToolStripMenuItem });
             hELPToolStripMenuItem.ForeColor = Color.Black;
             hELPToolStripMenuItem.Name = "hELPToolStripMenuItem";
             hELPToolStripMenuItem.Size = new Size(165, 23);
@@ -892,6 +893,7 @@
             // architectureToolStripMenuItem
             // 
             architectureToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { hARDWARERESETToolStripMenuItem, cLOCKSPEEDToolStripMenuItem });
+            architectureToolStripMenuItem.ForeColor = Color.Black;
             architectureToolStripMenuItem.Name = "architectureToolStripMenuItem";
             architectureToolStripMenuItem.Size = new Size(129, 23);
             architectureToolStripMenuItem.Text = "Architecture";
@@ -922,6 +924,7 @@
             hZNORMALToolStripMenuItem.Name = "hZNORMALToolStripMenuItem";
             hZNORMALToolStripMenuItem.Size = new Size(177, 24);
             hZNORMALToolStripMenuItem.Text = "2 HZ NORMAL";
+            hZNORMALToolStripMenuItem.Click += hZNORMALToolStripMenuItem_Click_1;
             // 
             // tURBOMODEToolStripMenuItem
             // 
@@ -932,6 +935,7 @@
             // 
             // isaReferenceToolStripMenuItem
             // 
+            isaReferenceToolStripMenuItem.ForeColor = Color.Black;
             isaReferenceToolStripMenuItem.Name = "isaReferenceToolStripMenuItem";
             isaReferenceToolStripMenuItem.Size = new Size(138, 23);
             isaReferenceToolStripMenuItem.Text = "Isa Reference";
@@ -939,6 +943,7 @@
             // 
             // oppGuideToolStripMenuItem
             // 
+            oppGuideToolStripMenuItem.ForeColor = Color.Black;
             oppGuideToolStripMenuItem.Name = "oppGuideToolStripMenuItem";
             oppGuideToolStripMenuItem.Size = new Size(93, 23);
             oppGuideToolStripMenuItem.Text = "OppGuide";
@@ -946,6 +951,7 @@
             // 
             // saveCodeToFileToolStripMenuItem
             // 
+            saveCodeToFileToolStripMenuItem.ForeColor = Color.Black;
             saveCodeToFileToolStripMenuItem.Name = "saveCodeToFileToolStripMenuItem";
             saveCodeToFileToolStripMenuItem.Size = new Size(174, 23);
             saveCodeToFileToolStripMenuItem.Text = "Save Code To File";
@@ -953,6 +959,7 @@
             // 
             // helpToolStripMenuItem1
             // 
+            helpToolStripMenuItem1.ForeColor = Color.Black;
             helpToolStripMenuItem1.Name = "helpToolStripMenuItem1";
             helpToolStripMenuItem1.Size = new Size(66, 23);
             helpToolStripMenuItem1.Text = "About";
@@ -960,6 +967,7 @@
             // 
             // lOADFROMFILEToolStripMenuItem
             // 
+            lOADFROMFILEToolStripMenuItem.ForeColor = Color.Black;
             lOADFROMFILEToolStripMenuItem.Name = "lOADFROMFILEToolStripMenuItem";
             lOADFROMFILEToolStripMenuItem.Size = new Size(147, 23);
             lOADFROMFILEToolStripMenuItem.Text = "LOAD FROM FILE";
@@ -978,6 +986,13 @@
             groupBox5.Size = new Size(1663, 914);
             groupBox5.TabIndex = 30;
             groupBox5.TabStop = false;
+            // 
+            // jUMPNOTZEROToolStripMenuItem
+            // 
+            jUMPNOTZEROToolStripMenuItem.Name = "jUMPNOTZEROToolStripMenuItem";
+            jUMPNOTZEROToolStripMenuItem.Size = new Size(375, 24);
+            jUMPNOTZEROToolStripMenuItem.Text = "JUMP If not Zero";
+            jUMPNOTZEROToolStripMenuItem.Click += jUMPNOTZEROToolStripMenuItem_Click;
             // 
             // Form1
             // 
@@ -1095,5 +1110,6 @@
         private GroupBox groupBox6;
         private ToolStripMenuItem counterToolStripMenuItem;
         private Button button1;
+        private ToolStripMenuItem jUMPNOTZEROToolStripMenuItem;
     }
 }

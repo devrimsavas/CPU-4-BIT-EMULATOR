@@ -55,28 +55,25 @@ namespace WinFormsApp1.Models
             string cleanLine = line.Trim();
 
             //  Check if it's a dynamic PUSH AX with a binary value!
-            if (cleanLine.StartsWith("PUSH AX,", StringComparison.OrdinalIgnoreCase))
+            //
+            // === IMMEDIATE ASSIGNMENT (MOV) ===
+            // Check if it's a dynamic MOV AX with a binary value!
+            if (cleanLine.StartsWith("MOV AX,", StringComparison.OrdinalIgnoreCase))
             {
                 // Extract the binary string part (e.g., "1111")
-                string binaryPart = cleanLine.Substring(8).Trim(); // Takes everything after "PUSH AX,"
+                string binaryPart = cleanLine.Substring(7).Trim(); // Takes everything after "MOV AX,"
 
                 if (binaryPart.Length == 4 && binaryPart.All(c => c == '0' || c == '1'))
                 {
                     // Convert "1111" string to bool[] array
                     bool[] newRegValue = binaryPart.Select(c => c == '1').ToArray();
 
-                    // Inject the data directly into the hardware register!
-                    //Program.Ax.RegArray = newRegValue;
+                    // Inject the data directly into the hardware register
                     Program.Ax.RegArray = (bool[])newRegValue.Clone();
 
-                    // Now that AX is loaded, safely fire the standard PUSH AX action from the dictionary
-                    if (instructionSet.TryGetValue("PUSH AX", out var pushAction))
-                    {
-                        pushAction.Invoke();
-                        //return; // Execution finished successfully
-                        OnExecutionComplete?.Invoke($"Loaded AX with {binaryPart} directly");
-                        return; // Execution finished successfully
-                    }
+                    // Log success to UI without touching the Stack!
+                    OnExecutionComplete?.Invoke($"Loaded AX with {binaryPart} directly via MOV");
+                    return; // Execution finished successfully
                 }
                 else
                 {
@@ -84,29 +81,24 @@ namespace WinFormsApp1.Models
                     return;
                 }
             }
-            //PUSH BX
-            if (cleanLine.StartsWith("PUSH BX,", StringComparison.OrdinalIgnoreCase))
+
+            // MOV BX
+            if (cleanLine.StartsWith("MOV BX,", StringComparison.OrdinalIgnoreCase))
             {
-                // Extract the binary string part after "PUSH BX,"
-                string binaryPart = cleanLine.Substring(8).Trim();
+                // Extract the binary string part after "MOV BX,"
+                string binaryPart = cleanLine.Substring(7).Trim();
 
                 if (binaryPart.Length == 4 && binaryPart.All(c => c == '0' || c == '1'))
                 {
                     // Convert string to bool[] array
                     bool[] newRegValue = binaryPart.Select(c => c == '1').ToArray();
 
-                    // Inject the data directly into the BX hardware register!
-                    //Program.Bx.RegArray = newRegValue;
+                    // Inject the data directly into the BX hardware register
                     Program.Bx.RegArray = (bool[])newRegValue.Clone();
 
-                    // Safely fire the standard PUSH BX action from your dictionary
-                    if (instructionSet.TryGetValue("PUSH BX", out var pushAction))
-                    {
-                        pushAction.Invoke();
-                        OnExecutionComplete?.Invoke($"Loaded BX with {binaryPart} directly");
-                        return;
-                        //return; // Execution finished successfully
-                    }
+                    // Log success to UI without touching the Stack!
+                    OnExecutionComplete?.Invoke($"Loaded BX with {binaryPart} directly via MOV");
+                    return; // Execution finished successfully
                 }
                 else
                 {
@@ -117,7 +109,7 @@ namespace WinFormsApp1.Models
             //=== Ram Operations ===
             //Handle Store "STORE 1111" to store AX value into RAM address 0x0F (15 in decimal)
             // === STORE  ===
-            
+
             if (cleanLine.StartsWith("STORE ", StringComparison.OrdinalIgnoreCase))
             {
                 string rawAddr = cleanLine.Substring(6).Trim();
@@ -299,12 +291,12 @@ namespace WinFormsApp1.Models
 
             // 1. Handle Dynamic PUSH with data (e.g., "PUSH AX, 0110")
             // First 4 bits: Opcode (1100 or 1101), Last 4 bits: The binary data
-            if (cleanLine.StartsWith("PUSH AX,"))
+            if (cleanLine.StartsWith("MOV AX,",StringComparison.OrdinalIgnoreCase))
             {
                 string data = cleanLine.Substring(8).Trim();
                 return "1100" + data;
             }
-            if (cleanLine.StartsWith("PUSH BX,"))
+            if (cleanLine.StartsWith("MOV BX,",StringComparison.OrdinalIgnoreCase))
             {
                 string data = cleanLine.Substring(8).Trim();
                 return "1101" + data;
@@ -344,6 +336,11 @@ namespace WinFormsApp1.Models
             if (cleanLine.Equals("RET", StringComparison.OrdinalIgnoreCase))
             {
                 return "11111100"; // Special marker for RET instruction, not actual machine code, but will help us identify it in the UI and handle it properly during execution when we implement function calls
+            }
+            //JNZ (Jump if Not Zero)
+            if (cleanLine.StartsWith("JNZ", StringComparison.OrdinalIgnoreCase))
+            {
+                return "11111011"; // Special marker for JNZ (Jump if Not Zero) instruction, not actual machine code, but will help us identify it in the UI and handle it properly during execution when we implement conditional jumps
             }
 
 

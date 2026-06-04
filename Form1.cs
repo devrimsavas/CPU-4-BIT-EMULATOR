@@ -51,6 +51,7 @@ namespace WinFormsApp1
 
         private void ExecuteNextInstruction()
         {
+            Debug.WriteLine($"cpu speed {cpuClock.Interval}");
             if (isHalted) return; // If CPU is halted, do not execute further instructions
 
             //Hardware Error: Check if there are instructions in memory and if the program counter is within bounds
@@ -79,21 +80,32 @@ namespace WinFormsApp1
             MemoryGrid.Rows[programCounter].Selected = true;
 
             // === JUMP  and conditional Jump ===
+
+            // === JUMP & CONDITIONAL JUMP LOGIC ===
             if (assemblyLine.StartsWith("JMP ", StringComparison.OrdinalIgnoreCase) ||
-                assemblyLine.StartsWith("JZ ", StringComparison.OrdinalIgnoreCase))
+                assemblyLine.StartsWith("JZ ", StringComparison.OrdinalIgnoreCase) ||
+                assemblyLine.StartsWith("JNZ ", StringComparison.OrdinalIgnoreCase))
             {
                 bool isJz = assemblyLine.StartsWith("JZ ", StringComparison.OrdinalIgnoreCase);
+                bool isJnz = assemblyLine.StartsWith("JNZ ", StringComparison.OrdinalIgnoreCase);
 
-                // If it's JZ and the Zero Flag is down (false), ignore the jump and proceed to next line
+                // Ignore JZ if Zero Flag is 0
                 if (isJz && !Assembler.ZeroFlag)
                 {
                     programCounter++;
                     Assembler.OnExecutionComplete?.Invoke("JZ ignored: Zero Flag is 0");
                 }
+                // Ignore JNZ if Zero Flag is 1
+                else if (isJnz && Assembler.ZeroFlag)
+                {
+                    programCounter++;
+                    Assembler.OnExecutionComplete?.Invoke("JNZ ignored: Zero Flag is 1");
+                }
                 else
                 {
-                    // Extract label name based on instruction length ("JZ " is 3 chars, "JMP " is 4 chars)
-                    string targetLabel = assemblyLine.Substring(isJz ? 3 : 4).Trim();
+                    // Extract label name ("JZ " is 3 chars, "JMP " and "JNZ " are 4 chars)
+                    int prefixLength = isJz ? 3 : 4;
+                    string targetLabel = assemblyLine.Substring(prefixLength).Trim();
                     bool labelFound = false;
 
                     // Search the memory grid for the target label
@@ -104,15 +116,16 @@ namespace WinFormsApp1
                         {
                             programCounter = i; // Jump!
                             labelFound = true;
-                            string jumpType = isJz ? "JZ executed (Zero Flag is 1)" : "JMP executed";
-                            Assembler.OnExecutionComplete?.Invoke($"{jumpType}. Jumped to {targetLabel}");
+
+                            string jumpType = isJz ? "JZ" : (isJnz ? "JNZ" : "JMP");
+                            Assembler.OnExecutionComplete?.Invoke($"{jumpType} executed. Jumped to {targetLabel}");
                             break;
                         }
                     }
 
                     if (!labelFound)
                     {
-                        Assembler.OnExecutionComplete?.Invoke($"Syntax Error: Label '{targetLabel}' not found in Memory!");
+                        Assembler.OnExecutionComplete?.Invoke($"Syntax Error: Label '{targetLabel}' not found!");
                         isHalted = true;
                         cpuClock.Stop();
                     }
@@ -644,13 +657,20 @@ namespace WinFormsApp1
             //flush memory grid and program memory list
             MemoryGrid.Rows.Clear();
             OutputRegister.Items.Clear();
+            
             WinFormsApp1.Models.ProgramMemory.MemoryList.Clear();
             WinFormsApp1.Models.DataMemory.Initialize(); // Reset the backend data memory to default values  
             InitializeDataMemoryGrid(); // Re-initialize the data memory grid to default values
             //reset 
+            stackList.Items.Clear();
+
 
             programCounter = 0;
             isHalted = false;
+            Program.Ax.ClearRegister();
+            Program.Bx.ClearRegister();
+            Program.Stack.ClearStack();
+            RefreshUI();
         }
 
         private void hELPToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1002,12 +1022,12 @@ namespace WinFormsApp1
 
         private void tURBOMODEToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-
+            cpuClock.Interval = 20;
         }
 
         private void hZSLOWToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-
+            cpuClock.Interval = 500;
         }
 
         private void counterToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1163,6 +1183,24 @@ namespace WinFormsApp1
         private void button1_Click(object sender, EventArgs e)
         {
             videoGrid.BackgroundColor = Color.Blue;
+        }
+
+        private void hZNORMALToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            cpuClock.Interval = 800;
+        }
+
+        private void jUMPNOTZEROToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            assemblyCodeBox.Clear();
+            assemblyCodeBox.AppendText("PUSH AX,1111\r\n");
+            assemblyCodeBox.AppendText("STORE 0000\r\n");
+            assemblyCodeBox.AppendText("COUNTDOWN:\r\n");
+            assemblyCodeBox.AppendText("LOAD 0000\r\n");
+            assemblyCodeBox.AppendText("DEC\r\n");
+            assemblyCodeBox.AppendText("STORE 0000\r\n");
+            assemblyCodeBox.AppendText("JNZ COUNTDOWN\r\n");
+
         }
     }
 }
