@@ -14,7 +14,7 @@ namespace WinFormsApp1
             InitializeDataMemoryGrid();
             WinFormsApp1.Models.DataMemory.Initialize();
 
-            //videoGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+
             //videoGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
             videoGrid.Rows.Clear();
             videoGrid.Columns.Clear(); // Önce eski sütunları da temizle
@@ -68,7 +68,7 @@ namespace WinFormsApp1
             {
                 isHalted = true;
                 cpuClock.Stop();
-                MessageBox.Show("End of program memory reached. CPU halted.", "Program Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                //MessageBox.Show("End of program memory reached. CPU halted.", "Program Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -187,11 +187,7 @@ namespace WinFormsApp1
                     cpuClock.Stop();
                 }
             }
-
-
-
             //end call 
-
             else
             {
                 // Normal instruction execute
@@ -254,9 +250,7 @@ namespace WinFormsApp1
                 string bitString = string.Join("", reg.RegArray.Select(b => b ? "1" : "0"));
                 stackList.Items.Add($"{reg.RegName}: {bitString}");
             }
-
         }
-
         private void resetAx_Click(object sender, EventArgs e)
         {
             Program.Ax.ClearRegister();
@@ -264,33 +258,25 @@ namespace WinFormsApp1
             ax1.Text = "0"; ax1.BackColor = Color.Red;
             ax2.Text = "0"; ax2.BackColor = Color.Red;
             ax3.Text = "0"; ax3.BackColor = Color.Red;
-
-
         }
-
         private void bx0_Click(object sender, EventArgs e)
         {
             Program.Bx.AddBit(0);
             bx0.Text = Program.Bx.RegArray[3] ? "1" : "0";
             bx0.BackColor = Program.Bx.RegArray[3] ? Color.Yellow : Color.Red;
-
         }
-
         private void bx1_Click(object sender, EventArgs e)
         {
             Program.Bx.AddBit(1);
             bx1.Text = Program.Bx.RegArray[2] ? "1" : "0";
             bx1.BackColor = Program.Bx.RegArray[2] ? Color.Yellow : Color.Red;
-
         }
-
         private void bx2_Click(object sender, EventArgs e)
         {
             Program.Bx.AddBit(2);
             bx2.Text = Program.Bx.RegArray[1] ? "1" : "0";
             bx2.BackColor = Program.Bx.RegArray[1] ? Color.Yellow : Color.Red;
         }
-
         private void bx3_Click(object sender, EventArgs e)
         {
             Program.Bx.AddBit(3);
@@ -312,9 +298,7 @@ namespace WinFormsApp1
                 string bitString = string.Join("", reg.RegArray.Select(b => b ? "1" : "0"));
                 stackList.Items.Add($"{reg.RegName}: {bitString}");
             }
-
         }
-
         private void resetBx_Click(object sender, EventArgs e)
         {
             Program.Bx.ClearRegister();
@@ -382,40 +366,11 @@ namespace WinFormsApp1
 
             Program.oppCodeA.SetBits(Program.oppCodeA.Bits);
             string binaryString = string.Join("", Program.oppCodeA.Bits.Select(b => b ? "1" : "0"));
-            oppCom.Items.Add($"Opcode: {binaryString}");
+            //oppCom.Items.Add($"Opcode: {binaryString}");
 
         }
 
-        private void executebutton_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                var dataB = Program.Stack.PopRegister();
-                var dataA = Program.Stack.PopRegister();
-                //load 
-                AluInputBuffer.LoadTempB(dataB.RegArray);
-                AluInputBuffer.LoadTempA(dataA.RegArray);
-                // 3. STEP: Load the currently active Opcode from the toggle panel into the buffer
-                AluInputBuffer.LoadOppCode(Program.oppCodeA.Bits);
-                // 4. STEP: Execute the operation and get the result
-                bool[] resultBits = AluInputBuffer.Execute();
-                //print result
-                string resultString = string.Join("", resultBits.Select(b => b ? "1" : "0"));
-                OutputRegister.Items.Add($"Result: {resultString}");
-                //RESET 
-                AluInputBuffer.ClearBuffers();
 
-
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error during execution: {ex.Message}");
-
-
-
-            }
-        }
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -432,6 +387,7 @@ namespace WinFormsApp1
             MemoryGrid.RowHeadersVisible = false;
             MemoryGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             MemoryGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            UpdateCpuSpeedLabel();
 
 
             //Assembler 
@@ -448,7 +404,7 @@ namespace WinFormsApp1
 
         private void oppResetButton_Click(object sender, EventArgs e)
         {
-            oppCom.Items.Clear();
+            //oppCom.Items.Clear();
             Program.oppCodeA.Clear();
         }
 
@@ -592,9 +548,8 @@ namespace WinFormsApp1
                     MessageBox.Show("Hardware memory dumped to file successfully!", "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
-
         }
-
+        //CLEAR OUTPUT 
         private void clearOutput_Click(object sender, EventArgs e)
         {
             OutputRegister.Items.Clear();
@@ -647,17 +602,31 @@ namespace WinFormsApp1
 
         private void btnStartClock_Click(object sender, EventArgs e)
         {
+            // Add visual separator for the start of the Autorun session
+            OutputRegister.Items.Add("====================");
+            OutputRegister.Items.Add("AUTORUN STARTED");
+            OutputRegister.Items.Add("--------------------");
+
+            // Auto-scroll to the bottom so you always see the new run
+            if (OutputRegister.Items.Count > 0)
+            {
+                OutputRegister.TopIndex = OutputRegister.Items.Count - 1;
+            }
+            programCounter = 0; // Reset program counter to start of memory
+
             isHalted = false;
             cpuClock.Start();
+            
 
         }
 
         private void resetButton_Click(object sender, EventArgs e)
         {
             //flush memory grid and program memory list
+            //memory grid may stay to show the last loaded program, but we will clear the assembly and machine code columns to indicate a reset state without losing the visual structure of the memory grid.
             MemoryGrid.Rows.Clear();
-            OutputRegister.Items.Clear();
-            
+            //OutputRegister.Items.Clear();
+
             WinFormsApp1.Models.ProgramMemory.MemoryList.Clear();
             WinFormsApp1.Models.DataMemory.Initialize(); // Reset the backend data memory to default values  
             InitializeDataMemoryGrid(); // Re-initialize the data memory grid to default values
@@ -681,16 +650,18 @@ namespace WinFormsApp1
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             assemblyCodeBox.Clear();
-            assemblyCodeBox.AppendText("PUSH AX, 0111\r\n");
-            assemblyCodeBox.AppendText("PUSH BX, 0010\r\n");
+            assemblyCodeBox.AppendText("MOV AX,0111\r\n");
+            assemblyCodeBox.AppendText("PUSH AX\r\n");
+            assemblyCodeBox.AppendText("MOV AX,0111\r\n");
+            assemblyCodeBox.AppendText("PUSH BX\r\n");
             assemblyCodeBox.AppendText("SUB\r\n");
-            assemblyCodeBox.AppendText("PUSH AX, 0110\r\n");
-            assemblyCodeBox.AppendText("PUSH BX, 0011\r\n");
+            assemblyCodeBox.AppendText("MOV AX,0111\r\n");
+            assemblyCodeBox.AppendText("PUSH AX\r\n");
+            assemblyCodeBox.AppendText("MOV BX,0011\r\n");
+            assemblyCodeBox.AppendText("PUSH BX\r\n");
             assemblyCodeBox.AppendText("ADD\r\n");
             assemblyCodeBox.AppendText("POP AX\r\n");
             assemblyCodeBox.AppendText("POP BX\r\n");
-
-
         }
 
         private void helpToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -729,7 +700,6 @@ namespace WinFormsApp1
             MessageBox.Show(isaInfo, "Hardware ISA Reference", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
         }
-
         private void oppGuideToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string isaInfo = "SUPPORTED INSTRUCTION SET ARCHITECTURE (ISA):\n\n" +
@@ -796,63 +766,65 @@ namespace WinFormsApp1
             cpuClock.Interval = 20;
         }
 
+        //SAVE SOURCE CODE 
+
         private void saveCodeToFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Check if there is any data in RAM to save
-            if (WinFormsApp1.Models.ProgramMemory.MemoryList.Count == 0)
+            // Check if there is any code in the editor to save
+            if (string.IsNullOrWhiteSpace(assemblyCodeBox.Text))
             {
-                MessageBox.Show("Memory is empty! Load some code first.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Editor is empty! Write some code first.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             // Initialize the save file dialog
             using (SaveFileDialog saveFileDialog = new SaveFileDialog())
             {
-                // Set file extensions and default title
-                saveFileDialog.Filter = "Binary ROM File (*.bin)|*.bin|Text File (*.txt)|*.txt";
-                saveFileDialog.Title = "Save CPU Program Memory";
-                saveFileDialog.DefaultExt = "bin";
+                // Set file extensions and default title for plain text assembly
+                saveFileDialog.Filter = "Assembly File (*.asm)|*.asm|Text File (*.txt)|*.txt";
+                saveFileDialog.Title = "Save Assembly Code";
+                saveFileDialog.DefaultExt = "asm";
 
                 // If the user clicks OK, save the contents
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    // Write the dynamic RAM list to the selected file
-                    System.IO.File.WriteAllLines(saveFileDialog.FileName, WinFormsApp1.Models.ProgramMemory.MemoryList);
+                    // Write the raw text from the editor directly to the file
+                    System.IO.File.WriteAllText(saveFileDialog.FileName, assemblyCodeBox.Text);
 
                     // Show a success confirmation
-                    MessageBox.Show("Hardware memory dumped to file successfully!", "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Source code saved to file successfully!", "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
 
         }
-
+        //LOAD SOURCE CODE
         private void lOADFROMFILEToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Initialize the open file dialog
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
                 // Set filter to match the save format
-                openFileDialog.Filter = "Text File (*.txt)|*.txt|Binary ROM File (*.bin)|*.bin|All Files (*.*)|*.*";
-                openFileDialog.Title = "Load CPU Program";
+                openFileDialog.Filter = "Assembly/Text Files (*.asm;*.txt)|*.asm;*.txt|All Files (*.*)|*.*";
+                openFileDialog.Title = "Load Assembly Code";
 
                 // If the user selects a file and clicks OK
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     try
                     {
-                        // Read the entire file content as a single block to prevent UI thread freezing
+                        // Read the entire file content as a single block
                         string fileContent = System.IO.File.ReadAllText(openFileDialog.FileName);
 
                         // Assign the entire text to the editor in one single UI operation
                         assemblyCodeBox.Text = fileContent;
 
                         // Show a success confirmation
-                        MessageBox.Show("Program loaded into the editor successfully!", "Load Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Source code loaded into the editor successfully!", "Load Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
                     {
                         // Failsafe: Catch and display any file reading errors
-                        MessageBox.Show("Error reading file: " + ex.Message, "Hardware I/O Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("Error reading file: " + ex.Message, "I/O Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -900,21 +872,20 @@ namespace WinFormsApp1
                 dataMemoryGrid.Rows[i].Cells[1].Value = bitString;
             }
         }
-
+        //==SAMPLE CODE INJECTION FOR DEMO PURPOSES 
         private void lOADSAMPLE2ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //fast multiplication example using shifts and adds
             assemblyCodeBox.Clear();
-            assemblyCodeBox.AppendText("PUSH AX, 0011\r\n");
+            assemblyCodeBox.AppendText("MOV AX,0011\r\n");
             assemblyCodeBox.AppendText("PUSH AX\r\n");
             assemblyCodeBox.AppendText("SHL\r\n");
         }
-
         private void fastDivisionUsingSHR82ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //fast division by 2 example using shifts
             assemblyCodeBox.Clear();
-            assemblyCodeBox.AppendText("PUSH AX, 1000\r\n");
+            assemblyCodeBox.AppendText("MOV AX,1000\r\n");
             assemblyCodeBox.AppendText("PUSH AX\r\n");
             assemblyCodeBox.AppendText("SHR\r\n");
 
@@ -924,9 +895,11 @@ namespace WinFormsApp1
         {
             //store AX to memory address 0x00 example
             assemblyCodeBox.Clear();
-            assemblyCodeBox.AppendText("PUSH AX, 1010\r\n"); // Load AX with some value (e.g., 1010)
+            assemblyCodeBox.AppendText("MOV AX,1010\r\n");
+            assemblyCodeBox.AppendText("PUSH AX\r\n"); // Load AX with some value (e.g., 1010))            
             assemblyCodeBox.AppendText("STORE 0000\r\n"); // Push AX onto the stack
-            assemblyCodeBox.AppendText("PUSH AX,0101\r\n"); // Pop the value back into AX to simulate a memory store operation
+            assemblyCodeBox.AppendText("MOV AX,0101\r\n");
+            assemblyCodeBox.AppendText("PUSH AX\r\n"); // Pop the value back into AX to simulate a memory store operation
             assemblyCodeBox.AppendText("STORE 1111\r\n"); // 
             assemblyCodeBox.AppendText("LOAD 0000\r\n"); // Load AX with the value from memory address 0x00
             assemblyCodeBox.AppendText("LOAD 1111\r\n"); // Load AX with the value from memory address 0x0F (for demonstration)
@@ -938,8 +911,10 @@ namespace WinFormsApp1
         {
             //Xor Swap example: Swapping values in AX and BX without a temporary register using XOR
             assemblyCodeBox.Clear();
-            assemblyCodeBox.AppendText("PUSH AX, 1010\r\n"); // Load AX with value 1010 (13 in decimal) 
-            assemblyCodeBox.AppendText("PUSH BX, 0101\r\n"); // Load BX with value 0101 (5 in decimal)
+            assemblyCodeBox.AppendText("MOV AX,1010\r\n");
+            assemblyCodeBox.AppendText("PUSH AX\r\n"); // Load AX with value 1010 (13 in decimal) 
+            assemblyCodeBox.AppendText("MOV BX,0101\r\n");
+            assemblyCodeBox.AppendText("PUSH BX\r\n"); // Load BX with value 0101 (5 in decimal)
             assemblyCodeBox.AppendText("PUSH AX\r\n"); // Push AX onto the stack to save its value Ax=AX XOR BX
             assemblyCodeBox.AppendText("PUSH BX\r\n"); // Push BX onto the stack to save its value BX=AX XOR BX (BX now holds original AX value)
             assemblyCodeBox.AppendText("XOR\r\n"); // AX now holds the result of AX XOR BX
@@ -953,11 +928,12 @@ namespace WinFormsApp1
             assemblyCodeBox.AppendText("XOR\r\n"); // Push the final swapped value onto the stack to view in output
         }
 
+        //will delete later, just for testing stack pop visualization
         private void popedRegister_Click(object sender, EventArgs e)
         {
 
         }
-
+        //will delete later, just for testing group box enter event
         private void groupBox3_Enter(object sender, EventArgs e)
         {
 
@@ -992,7 +968,8 @@ namespace WinFormsApp1
             videoGrid.Invalidate();
             videoGrid.Update();
         }
-
+        //========VIDEO DISPLAY RESET========
+        // Reset the video grid to a default state (all pixels off) and clear any visual artifacts
         private void resetScreenButton_Click(object sender, EventArgs e)
         {
             videoGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
@@ -1019,180 +996,56 @@ namespace WinFormsApp1
             videoGrid.ClearSelection();
             videoGrid.CurrentCell = null;
         }
+        //========CPU CLOCK SPEED CONTROL========
+        //helper for calculate and display cpu clock speed in Hz based on the timer interval
+        private void UpdateCpuSpeedLabel()
+        {
+            double frequencyHz = 1000.0 / cpuClock.Interval;
+            cpuSpeedLabel.Text = $"CPU Speed: {frequencyHz:F2} Hz";
+        }
+        //cpu clock speed control menu items turbo
 
         private void tURBOMODEToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             cpuClock.Interval = 20;
+            UpdateCpuSpeedLabel();
         }
 
+        //cpu clock speed control menu items slow
         private void hZSLOWToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             cpuClock.Interval = 500;
-        }
-
-        private void counterToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            assemblyCodeBox.Clear();
-
-            assemblyCodeBox.AppendText("main_program:\r\n");
-            assemblyCodeBox.AppendText("CALL zero_screen\r\n");
-            assemblyCodeBox.AppendText("CALL one_screen\r\n");
-            assemblyCodeBox.AppendText("CALL two_screen\r\n");
-            assemblyCodeBox.AppendText("CALL three_screen\r\n");
-            assemblyCodeBox.AppendText("CALL four_screen\r\n");
-            assemblyCodeBox.AppendText("CALL five_screen\r\n");
-            assemblyCodeBox.AppendText("CALL six_screen\r\n");
-            assemblyCodeBox.AppendText("CALL seven_screen\r\n");
-            assemblyCodeBox.AppendText("CALL eight_screen\r\n");
-            assemblyCodeBox.AppendText("CALL nine_screen\r\n");
-            assemblyCodeBox.AppendText("JMP main_program\r\n");
-
-            assemblyCodeBox.AppendText("zero_screen:\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0001\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
-            assemblyCodeBox.AppendText("STORE 0003\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
-            assemblyCodeBox.AppendText("STORE 0005\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
-            assemblyCodeBox.AppendText("STORE 0007\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0009\r\n");
-            assemblyCodeBox.AppendText("RET\r\n");
-
-            assemblyCodeBox.AppendText("one_screen:\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
-            assemblyCodeBox.AppendText("STORE 0001\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
-            assemblyCodeBox.AppendText("STORE 0003\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
-            assemblyCodeBox.AppendText("STORE 0005\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
-            assemblyCodeBox.AppendText("STORE 0007\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
-            assemblyCodeBox.AppendText("STORE 0009\r\n");
-            assemblyCodeBox.AppendText("RET\r\n");
-
-            assemblyCodeBox.AppendText("two_screen:\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0001\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
-            assemblyCodeBox.AppendText("STORE 0003\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0005\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0100\r\n");
-            assemblyCodeBox.AppendText("STORE 0007\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0009\r\n");
-            assemblyCodeBox.AppendText("RET\r\n");
-
-            assemblyCodeBox.AppendText("three_screen:\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0001\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
-            assemblyCodeBox.AppendText("STORE 0003\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0005\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
-            assemblyCodeBox.AppendText("STORE 0007\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0009\r\n");
-            assemblyCodeBox.AppendText("RET\r\n");
-
-            assemblyCodeBox.AppendText("four_screen:\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
-            assemblyCodeBox.AppendText("STORE 0001\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
-            assemblyCodeBox.AppendText("STORE 0003\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0005\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
-            assemblyCodeBox.AppendText("STORE 0007\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
-            assemblyCodeBox.AppendText("STORE 0009\r\n");
-            assemblyCodeBox.AppendText("RET\r\n");
-
-            assemblyCodeBox.AppendText("five_screen:\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0001\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0100\r\n");
-            assemblyCodeBox.AppendText("STORE 0003\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0005\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
-            assemblyCodeBox.AppendText("STORE 0007\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0009\r\n");
-            assemblyCodeBox.AppendText("RET\r\n");
-
-            assemblyCodeBox.AppendText("six_screen:\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0001\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0100\r\n");
-            assemblyCodeBox.AppendText("STORE 0003\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0005\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
-            assemblyCodeBox.AppendText("STORE 0007\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0009\r\n");
-            assemblyCodeBox.AppendText("RET\r\n");
-
-            assemblyCodeBox.AppendText("seven_screen:\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0001\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
-            assemblyCodeBox.AppendText("STORE 0003\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
-            assemblyCodeBox.AppendText("STORE 0005\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
-            assemblyCodeBox.AppendText("STORE 0007\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
-            assemblyCodeBox.AppendText("STORE 0009\r\n");
-            assemblyCodeBox.AppendText("RET\r\n");
-
-            assemblyCodeBox.AppendText("eight_screen:\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0001\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
-            assemblyCodeBox.AppendText("STORE 0003\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0005\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
-            assemblyCodeBox.AppendText("STORE 0007\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0009\r\n");
-            assemblyCodeBox.AppendText("RET\r\n");
-
-            assemblyCodeBox.AppendText("nine_screen:\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0001\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0101\r\n");
-            assemblyCodeBox.AppendText("STORE 0003\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0005\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0001\r\n");
-            assemblyCodeBox.AppendText("STORE 0007\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,0111\r\n");
-            assemblyCodeBox.AppendText("STORE 0009\r\n");
-            assemblyCodeBox.AppendText("RET\r\n");
-
-
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            videoGrid.BackgroundColor = Color.Blue;
+            UpdateCpuSpeedLabel();
         }
 
         private void hZNORMALToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             cpuClock.Interval = 800;
+            UpdateCpuSpeedLabel();
         }
+        //========SAMPLE CODE LOADERS========
+
+        private void counterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            assemblyCodeBox.Clear();
+
+            assemblyCodeBox.AppendText(";main_program:\r\n");
+
+
+        }
+
+        //TO CHANGE BACKGROUND COLOR OF THE VIDEO GRID FOR TESTING PURPOSES
+        private void button1_Click(object sender, EventArgs e)
+        {
+            videoGrid.BackgroundColor = Color.Blue;
+        }
+
+
 
         private void jUMPNOTZEROToolStripMenuItem_Click(object sender, EventArgs e)
         {
             assemblyCodeBox.Clear();
+            assemblyCodeBox.AppendText("MOV AX,1111\r\n");
             assemblyCodeBox.AppendText("PUSH AX,1111\r\n");
             assemblyCodeBox.AppendText("STORE 0000\r\n");
             assemblyCodeBox.AppendText("COUNTDOWN:\r\n");
@@ -1201,6 +1054,11 @@ namespace WinFormsApp1
             assemblyCodeBox.AppendText("STORE 0000\r\n");
             assemblyCodeBox.AppendText("JNZ COUNTDOWN\r\n");
 
+        }
+
+        private void clearOutputRegisterBtn_Click(object sender, EventArgs e)
+        {
+            OutputRegister.Items.Clear();
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace WinFormsApp1.Models
@@ -287,7 +288,8 @@ namespace WinFormsApp1.Models
         // Helper method to convert text mnemonics to 8-bit machine code for the UI Grid
         public static string GetMachineCode(string line)
         {
-            string cleanLine = line.Trim().ToUpper();
+            //string cleanLine = line.Trim().ToUpper();
+            string cleanLine=Regex.Replace(line.Trim(), @"\s+", " ").ToUpper(); // Normalize spaces and convert to uppercase for consistent parsing
 
             // 1. Handle Dynamic PUSH with data (e.g., "PUSH AX, 0110")
             // First 4 bits: Opcode (1100 or 1101), Last 4 bits: The binary data
@@ -302,13 +304,13 @@ namespace WinFormsApp1.Models
                 return "1101" + data;
             }
             //memory load 
-            if (cleanLine.StartsWith("LOAD "))
+            if (cleanLine.StartsWith("LOAD ",StringComparison.OrdinalIgnoreCase))
             {
                 string data = cleanLine.Substring(5).Trim();
                 return "0110" + To4BitBinary(data); 
             }
             //memory store
-            if (cleanLine.StartsWith("STORE "))
+            if (cleanLine.StartsWith("STORE ",StringComparison.OrdinalIgnoreCase))
             {
                 string data = cleanLine.Substring(6).Trim();
                 return "0111" + To4BitBinary(data); // 

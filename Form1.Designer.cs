@@ -60,17 +60,12 @@
             op1 = new Button();
             op2 = new Button();
             op3 = new Button();
-            popStackButton = new Button();
             groupBox1 = new GroupBox();
             popedRegister = new Label();
             clearStackButton = new Button();
-            oppCommandBox = new GroupBox();
-            label1 = new Label();
-            btnStep = new Button();
-            executebutton = new Button();
-            runCodeButton = new Button();
-            oppCom = new ListBox();
+            popStackButton = new Button();
             OUTPUT = new GroupBox();
+            clearOutputRegisterBtn = new Button();
             clearOutput = new Button();
             OutputRegister = new ListBox();
             assemblyCodeBox = new RichTextBox();
@@ -98,6 +93,7 @@
             storeToMemoryToolStripMenuItem = new ToolStripMenuItem();
             xorSwapTestToolStripMenuItem = new ToolStripMenuItem();
             counterToolStripMenuItem = new ToolStripMenuItem();
+            jUMPNOTZEROToolStripMenuItem = new ToolStripMenuItem();
             architectureToolStripMenuItem = new ToolStripMenuItem();
             hARDWARERESETToolStripMenuItem = new ToolStripMenuItem();
             cLOCKSPEEDToolStripMenuItem = new ToolStripMenuItem();
@@ -107,16 +103,15 @@
             isaReferenceToolStripMenuItem = new ToolStripMenuItem();
             oppGuideToolStripMenuItem = new ToolStripMenuItem();
             saveCodeToFileToolStripMenuItem = new ToolStripMenuItem();
-            helpToolStripMenuItem1 = new ToolStripMenuItem();
             lOADFROMFILEToolStripMenuItem = new ToolStripMenuItem();
+            helpToolStripMenuItem1 = new ToolStripMenuItem();
             groupBox5 = new GroupBox();
-            jUMPNOTZEROToolStripMenuItem = new ToolStripMenuItem();
+            cpuSpeedLabel = new Label();
             RegisterAxBox.SuspendLayout();
             RegisterBxBox.SuspendLayout();
             registersBox.SuspendLayout();
             oppcodebox.SuspendLayout();
             groupBox1.SuspendLayout();
-            oppCommandBox.SuspendLayout();
             OUTPUT.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)MemoryGrid).BeginInit();
             groupBox2.SuspendLayout();
@@ -425,19 +420,6 @@
             op3.UseVisualStyleBackColor = true;
             op3.Click += op3_Click;
             // 
-            // popStackButton
-            // 
-            popStackButton.BackColor = Color.Red;
-            popStackButton.Font = new Font("Segoe UI Light", 9F);
-            popStackButton.ForeColor = SystemColors.ActiveCaption;
-            popStackButton.Location = new Point(6, 73);
-            popStackButton.Name = "popStackButton";
-            popStackButton.Size = new Size(79, 26);
-            popStackButton.TabIndex = 12;
-            popStackButton.Text = "POP";
-            popStackButton.UseVisualStyleBackColor = false;
-            popStackButton.Click += popStackButton_Click;
-            // 
             // groupBox1
             // 
             groupBox1.BackColor = Color.Silver;
@@ -478,92 +460,43 @@
             clearStackButton.UseVisualStyleBackColor = false;
             clearStackButton.Click += clearStackButton_Click;
             // 
-            // oppCommandBox
+            // popStackButton
             // 
-            oppCommandBox.BackColor = Color.Silver;
-            oppCommandBox.Controls.Add(label1);
-            oppCommandBox.Controls.Add(btnStep);
-            oppCommandBox.Controls.Add(executebutton);
-            oppCommandBox.Controls.Add(runCodeButton);
-            oppCommandBox.Controls.Add(oppCom);
-            oppCommandBox.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            oppCommandBox.Location = new Point(7, 498);
-            oppCommandBox.Name = "oppCommandBox";
-            oppCommandBox.Size = new Size(225, 281);
-            oppCommandBox.TabIndex = 14;
-            oppCommandBox.TabStop = false;
-            oppCommandBox.Text = "OPP COMMAND";
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.BackColor = Color.FromArgb(255, 128, 0);
-            label1.Location = new Point(1, 79);
-            label1.Name = "label1";
-            label1.Size = new Size(112, 14);
-            label1.TabIndex = 2;
-            label1.Text = "MANUAL STEPPING";
-            // 
-            // btnStep
-            // 
-            btnStep.BackColor = Color.FromArgb(255, 192, 128);
-            btnStep.Font = new Font("Consolas", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnStep.ForeColor = SystemColors.ActiveCaptionText;
-            btnStep.Location = new Point(1, 129);
-            btnStep.Name = "btnStep";
-            btnStep.Size = new Size(112, 24);
-            btnStep.TabIndex = 23;
-            btnStep.Text = "STEP";
-            btnStep.UseVisualStyleBackColor = false;
-            btnStep.Click += btnStep_Click;
-            // 
-            // executebutton
-            // 
-            executebutton.BackColor = Color.FromArgb(192, 64, 0);
-            executebutton.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            executebutton.Location = new Point(0, 50);
-            executebutton.Name = "executebutton";
-            executebutton.Size = new Size(117, 28);
-            executebutton.TabIndex = 1;
-            executebutton.Text = "EXECUTE";
-            executebutton.UseVisualStyleBackColor = false;
-            executebutton.Click += executebutton_Click;
-            // 
-            // runCodeButton
-            // 
-            runCodeButton.BackColor = Color.FromArgb(192, 192, 0);
-            runCodeButton.Font = new Font("Consolas", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            runCodeButton.ForeColor = SystemColors.ActiveCaptionText;
-            runCodeButton.Location = new Point(0, 99);
-            runCodeButton.Name = "runCodeButton";
-            runCodeButton.Size = new Size(113, 24);
-            runCodeButton.TabIndex = 18;
-            runCodeButton.Text = "RUN CODE";
-            runCodeButton.UseVisualStyleBackColor = false;
-            runCodeButton.Click += runCodeButton_Click;
-            // 
-            // oppCom
-            // 
-            oppCom.BackColor = Color.FromArgb(0, 0, 64);
-            oppCom.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            oppCom.ForeColor = Color.White;
-            oppCom.FormattingEnabled = true;
-            oppCom.Location = new Point(1, 15);
-            oppCom.Name = "oppCom";
-            oppCom.Size = new Size(224, 32);
-            oppCom.TabIndex = 0;
+            popStackButton.BackColor = Color.Red;
+            popStackButton.Font = new Font("Segoe UI Light", 9F);
+            popStackButton.ForeColor = SystemColors.ActiveCaption;
+            popStackButton.Location = new Point(6, 73);
+            popStackButton.Name = "popStackButton";
+            popStackButton.Size = new Size(79, 26);
+            popStackButton.TabIndex = 12;
+            popStackButton.Text = "POP";
+            popStackButton.UseVisualStyleBackColor = false;
+            popStackButton.Click += popStackButton_Click;
             // 
             // OUTPUT
             // 
             OUTPUT.BackColor = Color.Silver;
+            OUTPUT.Controls.Add(clearOutputRegisterBtn);
             OUTPUT.Controls.Add(clearOutput);
             OUTPUT.Controls.Add(OutputRegister);
             OUTPUT.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             OUTPUT.Location = new Point(489, 22);
             OUTPUT.Name = "OUTPUT";
-            OUTPUT.Size = new Size(442, 262);
+            OUTPUT.Size = new Size(442, 278);
             OUTPUT.TabIndex = 15;
             OUTPUT.TabStop = false;
+            // 
+            // clearOutputRegisterBtn
+            // 
+            clearOutputRegisterBtn.BackColor = Color.FromArgb(255, 192, 128);
+            clearOutputRegisterBtn.ForeColor = SystemColors.ActiveCaptionText;
+            clearOutputRegisterBtn.Location = new Point(12, 249);
+            clearOutputRegisterBtn.Name = "clearOutputRegisterBtn";
+            clearOutputRegisterBtn.Size = new Size(110, 23);
+            clearOutputRegisterBtn.TabIndex = 2;
+            clearOutputRegisterBtn.Text = "CLEAR OUTPUT";
+            clearOutputRegisterBtn.UseVisualStyleBackColor = false;
+            clearOutputRegisterBtn.Click += clearOutputRegisterBtn_Click;
             // 
             // clearOutput
             // 
@@ -578,12 +511,12 @@
             // 
             // OutputRegister
             // 
-            OutputRegister.BackColor = Color.FromArgb(0, 0, 64);
+            OutputRegister.BackColor = Color.Black;
             OutputRegister.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            OutputRegister.ForeColor = Color.White;
+            OutputRegister.ForeColor = Color.Yellow;
             OutputRegister.FormattingEnabled = true;
             OutputRegister.HorizontalScrollbar = true;
-            OutputRegister.Location = new Point(6, 14);
+            OutputRegister.Location = new Point(12, 21);
             OutputRegister.Name = "OutputRegister";
             OutputRegister.ScrollAlwaysVisible = true;
             OutputRegister.Size = new Size(430, 228);
@@ -690,7 +623,7 @@
             groupBox3.ForeColor = SystemColors.Control;
             groupBox3.Location = new Point(237, 17);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(1388, 891);
+            groupBox3.Size = new Size(1398, 897);
             groupBox3.TabIndex = 27;
             groupBox3.TabStop = false;
             groupBox3.Text = "ASSEMBLER EDITOR";
@@ -702,7 +635,7 @@
             groupBox6.Controls.Add(button1);
             groupBox6.Controls.Add(resetScreenButton);
             groupBox6.Controls.Add(videoGrid);
-            groupBox6.Location = new Point(562, 508);
+            groupBox6.Location = new Point(495, 523);
             groupBox6.Name = "groupBox6";
             groupBox6.Size = new Size(289, 362);
             groupBox6.TabIndex = 31;
@@ -783,7 +716,7 @@
             dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
             dataMemoryGrid.DefaultCellStyle = dataGridViewCellStyle6;
             dataMemoryGrid.GridColor = Color.FromArgb(255, 128, 128);
-            dataMemoryGrid.Location = new Point(489, 291);
+            dataMemoryGrid.Location = new Point(495, 306);
             dataMemoryGrid.Name = "dataMemoryGrid";
             dataGridViewCellStyle7.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle7.BackColor = SystemColors.Control;
@@ -832,10 +765,10 @@
             // 
             menuStrip1.BackColor = Color.ForestGreen;
             menuStrip1.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { hELPToolStripMenuItem, architectureToolStripMenuItem, isaReferenceToolStripMenuItem, oppGuideToolStripMenuItem, saveCodeToFileToolStripMenuItem, helpToolStripMenuItem1, lOADFROMFILEToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { hELPToolStripMenuItem, architectureToolStripMenuItem, isaReferenceToolStripMenuItem, oppGuideToolStripMenuItem, saveCodeToFileToolStripMenuItem, lOADFROMFILEToolStripMenuItem, helpToolStripMenuItem1 });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(1663, 27);
+            menuStrip1.Size = new Size(1699, 27);
             menuStrip1.TabIndex = 29;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -890,6 +823,13 @@
             counterToolStripMenuItem.Text = "Counter";
             counterToolStripMenuItem.Click += counterToolStripMenuItem_Click;
             // 
+            // jUMPNOTZEROToolStripMenuItem
+            // 
+            jUMPNOTZEROToolStripMenuItem.Name = "jUMPNOTZEROToolStripMenuItem";
+            jUMPNOTZEROToolStripMenuItem.Size = new Size(375, 24);
+            jUMPNOTZEROToolStripMenuItem.Text = "JUMP If not Zero";
+            jUMPNOTZEROToolStripMenuItem.Click += jUMPNOTZEROToolStripMenuItem_Click;
+            // 
             // architectureToolStripMenuItem
             // 
             architectureToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { hARDWARERESETToolStripMenuItem, cLOCKSPEEDToolStripMenuItem });
@@ -938,7 +878,7 @@
             isaReferenceToolStripMenuItem.ForeColor = Color.Black;
             isaReferenceToolStripMenuItem.Name = "isaReferenceToolStripMenuItem";
             isaReferenceToolStripMenuItem.Size = new Size(138, 23);
-            isaReferenceToolStripMenuItem.Text = "Isa Reference";
+            isaReferenceToolStripMenuItem.Text = "ISA REFERENCE";
             isaReferenceToolStripMenuItem.Click += isaReferenceToolStripMenuItem_Click;
             // 
             // oppGuideToolStripMenuItem
@@ -946,60 +886,64 @@
             oppGuideToolStripMenuItem.ForeColor = Color.Black;
             oppGuideToolStripMenuItem.Name = "oppGuideToolStripMenuItem";
             oppGuideToolStripMenuItem.Size = new Size(93, 23);
-            oppGuideToolStripMenuItem.Text = "OppGuide";
+            oppGuideToolStripMenuItem.Text = "OPPGUIDE";
             oppGuideToolStripMenuItem.Click += oppGuideToolStripMenuItem_Click;
             // 
             // saveCodeToFileToolStripMenuItem
             // 
             saveCodeToFileToolStripMenuItem.ForeColor = Color.Black;
             saveCodeToFileToolStripMenuItem.Name = "saveCodeToFileToolStripMenuItem";
-            saveCodeToFileToolStripMenuItem.Size = new Size(174, 23);
-            saveCodeToFileToolStripMenuItem.Text = "Save Code To File";
+            saveCodeToFileToolStripMenuItem.Size = new Size(66, 23);
+            saveCodeToFileToolStripMenuItem.Text = "SAVE ";
             saveCodeToFileToolStripMenuItem.Click += saveCodeToFileToolStripMenuItem_Click;
+            // 
+            // lOADFROMFILEToolStripMenuItem
+            // 
+            lOADFROMFILEToolStripMenuItem.ForeColor = Color.Black;
+            lOADFROMFILEToolStripMenuItem.Name = "lOADFROMFILEToolStripMenuItem";
+            lOADFROMFILEToolStripMenuItem.Size = new Size(66, 23);
+            lOADFROMFILEToolStripMenuItem.Text = "LOAD ";
+            lOADFROMFILEToolStripMenuItem.Click += lOADFROMFILEToolStripMenuItem_Click;
             // 
             // helpToolStripMenuItem1
             // 
             helpToolStripMenuItem1.ForeColor = Color.Black;
             helpToolStripMenuItem1.Name = "helpToolStripMenuItem1";
             helpToolStripMenuItem1.Size = new Size(66, 23);
-            helpToolStripMenuItem1.Text = "About";
+            helpToolStripMenuItem1.Text = "ABOUT";
             helpToolStripMenuItem1.Click += helpToolStripMenuItem1_Click;
-            // 
-            // lOADFROMFILEToolStripMenuItem
-            // 
-            lOADFROMFILEToolStripMenuItem.ForeColor = Color.Black;
-            lOADFROMFILEToolStripMenuItem.Name = "lOADFROMFILEToolStripMenuItem";
-            lOADFROMFILEToolStripMenuItem.Size = new Size(147, 23);
-            lOADFROMFILEToolStripMenuItem.Text = "LOAD FROM FILE";
-            lOADFROMFILEToolStripMenuItem.Click += lOADFROMFILEToolStripMenuItem_Click;
             // 
             // groupBox5
             // 
             groupBox5.BackColor = Color.FromArgb(128, 64, 64);
+            groupBox5.Controls.Add(cpuSpeedLabel);
             groupBox5.Controls.Add(groupBox3);
-            groupBox5.Controls.Add(oppCommandBox);
             groupBox5.Controls.Add(groupBox1);
             groupBox5.Controls.Add(registersBox);
             groupBox5.ForeColor = Color.Black;
             groupBox5.Location = new Point(0, 30);
             groupBox5.Name = "groupBox5";
-            groupBox5.Size = new Size(1663, 914);
+            groupBox5.Size = new Size(1687, 946);
             groupBox5.TabIndex = 30;
             groupBox5.TabStop = false;
             // 
-            // jUMPNOTZEROToolStripMenuItem
+            // cpuSpeedLabel
             // 
-            jUMPNOTZEROToolStripMenuItem.Name = "jUMPNOTZEROToolStripMenuItem";
-            jUMPNOTZEROToolStripMenuItem.Size = new Size(375, 24);
-            jUMPNOTZEROToolStripMenuItem.Text = "JUMP If not Zero";
-            jUMPNOTZEROToolStripMenuItem.Click += jUMPNOTZEROToolStripMenuItem_Click;
+            cpuSpeedLabel.AutoSize = true;
+            cpuSpeedLabel.BackColor = Color.FromArgb(255, 255, 192);
+            cpuSpeedLabel.Font = new Font("Segoe UI Emoji", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            cpuSpeedLabel.Location = new Point(6, 502);
+            cpuSpeedLabel.Name = "cpuSpeedLabel";
+            cpuSpeedLabel.Size = new Size(93, 21);
+            cpuSpeedLabel.TabIndex = 28;
+            cpuSpeedLabel.Text = "CPU SPEED ";
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.DimGray;
-            ClientSize = new Size(1663, 946);
+            ClientSize = new Size(1699, 979);
             Controls.Add(groupBox5);
             Controls.Add(menuStrip1);
             ForeColor = SystemColors.ButtonFace;
@@ -1013,8 +957,6 @@
             oppcodebox.ResumeLayout(false);
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
-            oppCommandBox.ResumeLayout(false);
-            oppCommandBox.PerformLayout();
             OUTPUT.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)MemoryGrid).EndInit();
             groupBox2.ResumeLayout(false);
@@ -1026,6 +968,7 @@
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             groupBox5.ResumeLayout(false);
+            groupBox5.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -1053,10 +996,7 @@
         private Button bx2;
         private Button bx3;
         private GroupBox registersBox;
-        private Button popStackButton;
         private GroupBox groupBox1;
-        private Button clearStackButton;
-        private Label popedRegister;
         private GroupBox oppcodebox;
         private Button oppResetButton;
         private Button oppPush;
@@ -1064,20 +1004,14 @@
         private Button op1;
         private Button op2;
         private Button op3;
-        private GroupBox oppCommandBox;
-        private ListBox oppCom;
-        private Button executebutton;
         private GroupBox OUTPUT;
         private ListBox OutputRegister;
-        private Label label1;
         private RichTextBox assemblyCodeBox;
-        private Button runCodeButton;
         private Button clearEditorButton;
         private DataGridView MemoryGrid;
         private Button loadToMemoryButton;
         private Button clearOutput;
         private System.Windows.Forms.Timer cpuClock;
-        private Button btnStep;
         private Button btnStartClock;
         private GroupBox groupBox2;
         private GroupBox groupBox3;
@@ -1111,5 +1045,10 @@
         private ToolStripMenuItem counterToolStripMenuItem;
         private Button button1;
         private ToolStripMenuItem jUMPNOTZEROToolStripMenuItem;
+        private Label popedRegister;
+        private Button clearStackButton;
+        private Button popStackButton;
+        private Button clearOutputRegisterBtn;
+        private Label cpuSpeedLabel;
     }
 }
