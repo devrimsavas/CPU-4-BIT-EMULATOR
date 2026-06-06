@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Drawing.Text;
 using System.Media;
 using System.Runtime.Intrinsics.X86;
 using WinFormsApp1.Models;
@@ -6,14 +7,20 @@ namespace WinFormsApp1
 {
     public partial class Form1 : Form
     {
+        //screen and ram instances
+        private ComputerMonitor _screen;
+        //private Ram _ram;
+
 
         public Form1()
         {
+
             InitializeComponent();
             //İnitialize the data memory grid with default values for visualization
             InitializeDataMemoryGrid();
             WinFormsApp1.Models.DataMemory.Initialize();
-
+            //POWER UP SCREEN 
+            PowerUpHardware();
 
             //videoGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
             videoGrid.Rows.Clear();
@@ -43,6 +50,84 @@ namespace WinFormsApp1
 
 
         }
+        //initialize screen and ram instances
+        private void PowerUpHardware()
+        {
+            Debug.WriteLine("Powering up hardware...");
+            _screen = new ComputerMonitor();
+            DataMemory.ScreenHardware = _screen; // Provide the screen reference to the data memory for video output commands
+            //_ram = new Ram(_screen);
+            screenClock.Interval = 16; // Set screen refresh rate (e.g., 100ms for 10 FPS) 
+            screenClock.Tick += screenClock_Tick;
+            screenClock.Start();
+            //test
+            /*
+            for (int i = 0; i < 100; i++)
+            {
+                _screen.ProcessCommand(15, new bool[] { true, true, true, true });
+                _screen.ProcessCommand(16, new bool[] { true, false, true, false });
+            }
+            */
+        }
+
+        //render screen at 60fps
+        private void screenClock_Tick(object sender, EventArgs e)
+        {
+            RenderScreen();
+        }
+        // Convert the hardware pixel buffer and color matrix into a visible Windows image
+        private void RenderScreen()
+        {
+            // Create a 256x256 bitmap surface
+            Bitmap frame = new Bitmap(256, 256);
+
+
+            // Scan horizontal pixels
+            for (int x = 0; x < 256; x++)
+            {
+                // Scan vertical pixels
+                for (int y = 0; y < 256; y++)
+                {
+                    // Retrieve the color code for the 8x8 block this pixel belongs to
+                    ushort colorCode = _screen.GetColorAttribute(x, y);
+
+                    // Decode the hardware color code to a physical screen color
+                    Color blockColor = DecodeHardwareColor(colorCode);
+
+                    // Check if the pixel is turned on
+                    if (_screen.IsPixelActive(x, y))
+                    {
+                        // Draw the pixel using the block's designated foreground color
+                        frame.SetPixel(x, y, blockColor);
+                    }
+                    else
+                    {
+                        // Draw the background color (Black by default)
+                        frame.SetPixel(x, y, Color.Black);
+                    }
+                }
+            }
+
+            // Push the rendered frame to the existing PictureBox on the form
+            monitorBox.Image = frame;
+        }
+
+        // Hardware color lookup table
+        private Color DecodeHardwareColor(ushort code)
+        {
+            // Map 16-bit numeric codes to physical UI colors
+            switch (code)
+            {
+                case 1: return Color.Red;
+                case 2: return Color.Blue;
+                case 3: return Color.Yellow;
+                case 4: return Color.Cyan;
+                case 5: return Color.Magenta;
+                case 6: return Color.White;
+                default: return Color.Lime;
+            }
+        }
+
         // Simulated Program Counter to track current instruction in memory
         private int programCounter = 0;
         // Flag to indicate if the CPU is halted (e.g., after executing a HLT instruction or reaching end of memory)
@@ -616,7 +701,7 @@ namespace WinFormsApp1
 
             isHalted = false;
             cpuClock.Start();
-            
+
 
         }
 
@@ -1007,14 +1092,14 @@ namespace WinFormsApp1
 
         private void tURBOMODEToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            cpuClock.Interval = 20;
+            cpuClock.Interval = 1;
             UpdateCpuSpeedLabel();
         }
 
         //cpu clock speed control menu items slow
         private void hZSLOWToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            cpuClock.Interval = 500;
+            cpuClock.Interval = 1500;
             UpdateCpuSpeedLabel();
         }
 
@@ -1059,6 +1144,11 @@ namespace WinFormsApp1
         private void clearOutputRegisterBtn_Click(object sender, EventArgs e)
         {
             OutputRegister.Items.Clear();
+        }
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            //test for video display update
         }
     }
 }

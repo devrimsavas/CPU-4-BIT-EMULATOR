@@ -8,6 +8,8 @@ namespace WinFormsApp1.Models
 {
     internal class DataMemory
     {
+        //for test screen
+        public static ComputerMonitor ScreenHardware;
         //16 hardware addresses (0x00 to 0x0F) for 4-bit data architecture
         //each address can store a 4-bit value (0 to 15)
         public static Dictionary<int, bool[]> Ram=new Dictionary<int, bool[]>();
@@ -29,6 +31,14 @@ namespace WinFormsApp1.Models
                 //clone the data array to ensure that we are not modifying the original array passed as an argument
                 //Ram[address] = data;
                 Ram[address] = (bool[])data.Clone(); // store a clone of the data to prevent external modification
+                //TEST FOR SCREEN SEGMENT
+
+                if (address >= 10 && address <= 15 && ScreenHardware != null)
+                {
+                    // Fire a copy of the data directly to the monitor's command hub
+                    ScreenHardware.ProcessCommand(address, data);
+                }
+
             }
             else
             {
