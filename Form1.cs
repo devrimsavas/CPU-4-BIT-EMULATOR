@@ -10,6 +10,8 @@ namespace WinFormsApp1
         //screen and ram instances
         private ComputerMonitor _screen;
         //private Ram _ram;
+        //monitor form 
+        private MonitorForm _monitorForm;
 
 
         public Form1()
@@ -56,6 +58,9 @@ namespace WinFormsApp1
             Debug.WriteLine("Powering up hardware...");
             _screen = new ComputerMonitor();
             DataMemory.ScreenHardware = _screen; // Provide the screen reference to the data memory for video output commands
+            _monitorForm = new MonitorForm();
+            _monitorForm.Show();
+
             //_ram = new Ram(_screen);
             screenClock.Interval = 16; // Set screen refresh rate (e.g., 100ms for 10 FPS) 
             screenClock.Tick += screenClock_Tick;
@@ -109,7 +114,8 @@ namespace WinFormsApp1
             }
 
             // Push the rendered frame to the existing PictureBox on the form
-            monitorBox.Image = frame;
+            //monitorBox.Image = frame;
+            _monitorForm.monitorBox.Image = frame;
         }
 
         // Hardware color lookup table
@@ -281,7 +287,7 @@ namespace WinFormsApp1
             }
 
             RefreshDataMemoryGrid(); // Update the data memory grid
-            WinFormsApp1.Models.PlaySound.Play();
+            //WinFormsApp1.Models.PlaySound.Play();
         }
         //end of core cycle
 
@@ -1149,6 +1155,21 @@ namespace WinFormsApp1
         private void button2_Click_1(object sender, EventArgs e)
         {
             //test for video display update
+        }
+
+        private void btnMonitorPower_Click(object sender, EventArgs e)
+        {
+            if (_monitorForm == null) return;
+            if (_monitorForm.Visible)
+            {
+                _monitorForm.Hide();
+                btnMonitorPower.Text = "TURN ON SCREEN";
+            }
+            else
+            {
+                _monitorForm.Show();
+                btnMonitorPower.Text = "TURN OFF SCREEN";
+            }
         }
     }
 }

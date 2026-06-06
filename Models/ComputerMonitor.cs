@@ -6,30 +6,36 @@ namespace WinFormsApp1.Models
     public class ComputerMonitor
     {
         // Define screen dimensions
-        private const int Width = 256;
-        private const int Height = 256;
+        private const int Width = 512;
+        private const int Height = 512;
         private const int PixelScale = 4; // 8x8 pixel blocks for color attributes or 4x4 pixel blocks for drawing
 
         // Pixel layer buffer (Layer 1 - Monochrome shapes)
         private bool[,] _pixelBuffer;
 
         // Color attribute matrix (Layer 2 - 32x32 blocks = 1024 blocks total)
+        // NOTe:  if 512x512 and if  8x8 (PixelScale ) 
+        // 512 / 8 = 64 block  totaly 64 x 64 = 4096 block
+        // ram expended a bit cheat? check architecture
         private ushort[] _attributeMatrix;
 
         // Scanline cursor coordinates
         private int _cursorX;
         private int _cursorY;
 
+        // smart brush active color 6 ? check again maybe black better?
+        private ushort _activeColorCode = 6;
+
         public ComputerMonitor()
         {
             // Initialize the blank pixel screen
             _pixelBuffer = new bool[Width, Height];
 
-            // Initialize the color matrix memory bank
-            _attributeMatrix = new ushort[1024];
+            // Initialize the color matrix memory bank (Genişletildi: 4096)
+            _attributeMatrix = new ushort[4096];
 
             // Fill the screen with default color code (e.g., 2 for Lime Green)
-            for (int i = 0; i < 1024; i++)
+            for (int i = 0; i < 4096; i++)
             {
                 _attributeMatrix[i] = 2;
             }
@@ -45,14 +51,22 @@ namespace WinFormsApp1.Models
             // Safety check
             if (data == null || data.Length != 4) return;
 
-            //pixel size  is 4 now 
-
-            // 0x0F: Draw 4 pixels to the screen or more look ax pixelscale
+            // 0x0F: Draw 4 pixels to the screen
             if (address == 15)
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    // O anki bit true mu false mu?
+                    // 1. Brush 
+                    int blockX = _cursorX / 8;
+                    int blockY = _cursorY / 8;
+                    int index = (blockY * 64) + blockX; // 
+
+                    if (index >= 0 && index < 4096)
+                    {
+                        _attributeMatrix[index] = _activeColorCode;
+                    }
+
+                    // 2. DRAW PIXEL
                     bool bitValue = data[i];
 
                     // pixel block
@@ -60,7 +74,7 @@ namespace WinFormsApp1.Models
                     {
                         for (int dy = 0; dy < PixelScale; dy++)
                         {
-                            // Ekrandan dışarı taşmamak için güvenlik şeridi
+                            // against limit 
                             if (_cursorX + dx < Width && _cursorY + dy < Height)
                             {
                                 _pixelBuffer[_cursorX + dx, _cursorY + dy] = bitValue;
@@ -73,90 +87,71 @@ namespace WinFormsApp1.Models
                 }
             }
 
-
-            // 0x0E: Set the color for the CURRENT 8x8 block
+            // 0x0E: SET THE ACTIVE BRUSH COLOR
             else if (address == 14)
             {
-                // Convert 4-bit bool array to a color code (0-15)
-                ushort colorCode = ConvertBoolArrayToUShort(data);
-
-                // Calculate which 8x8 block the cursor is currently in
-                int blockX = _cursorX / 8;
-                int blockY = _cursorY / 8;
-                int index = (blockY * 32) + blockX;
-
-                // Update the color attribute for this block
-                if (index >= 0 && index < 1024)
-                {
-                    _attributeMatrix[index] = colorCode;
-                }
+                // update brush color 
+                _activeColorCode = ConvertBoolArrayToUShort(data);
             }
-            // Addresses 10, 11, 12, 13 (0x0A to 0x0D) are open for future modules!
-            //RESET CURSOR (0x0D)
+
+            // RESET CURSOR (0x0D)
             else if (address == 13)
             {
                 _cursorX = 0;
                 _cursorY = 0;
             }
+
             // 0x0C: FAST FORWARD X (Skip blank spaces horizontally)
             else if (address == 12)
             {
-                // Read the 4-bit data and multiply by 4 pixels per step
-                int steps = ConvertBoolArrayToUShort(data) * 4;
+                int steps = ConvertBoolArrayToUShort(data) * PixelScale; // PixelScale 
                 _cursorX += steps;
 
-                // Wrap around to the next line if it exceeds screen width
                 if (_cursorX >= Width)
                 {
                     _cursorX %= Width;
-                    _cursorY++;
+                    _cursorY += PixelScale; // jump with pixelscale
                 }
             }
+
             // 0x0B: NEWLINE (Jump Y and reset X)
             else if (address == 11)
             {
-                // Move down by the requested number of lines (0-15)
                 int lines = ConvertBoolArrayToUShort(data);
-                if (lines == 0) lines = 1; // Default to 1 line if 0 is sent
+                if (lines == 0) lines = 1;
 
-                _cursorY += lines;
-                _cursorX = 0; // Return cursor to the far left
+                _cursorY += (lines * PixelScale); // PixelScale 
+                _cursorX = 0;
 
-                // Wrap around to top if it exceeds screen height
                 if (_cursorY >= Height)
                 {
                     _cursorY %= Height;
                 }
             }
+
+            // 0x0A: CLS
             else if (address == 10)
             {
-                Array.Clear(_pixelBuffer, 0, _pixelBuffer.Length); // Clear the pixel buffer;
-                for (int i = 0; i < 1024; i++)
+                Array.Clear(_pixelBuffer, 0, _pixelBuffer.Length);
+                for (int i = 0; i < 4096; i++) // memory extension 
                 {
-                    _attributeMatrix[i] = 2; // Reset all color attributes to default (e.g., 2 for Lime Green)
+                    _attributeMatrix[i] = 2;
                 }
-                    _cursorX = 0; // Reset cursor position
-                    _cursorY = 0;
-            }   
-
+                _cursorX = 0;
+                _cursorY = 0;
+                _activeColorCode = 6; // reset brush 
+            }
         }
 
-        
         // Handle the scanline movement
         private void AdvanceCursor()
         {
-            // right
             _cursorX += PixelScale;
 
-            // if end of row next
             if (_cursorX >= Width)
             {
                 _cursorX = 0;
-
-                // shift vertical
                 _cursorY += PixelScale;
-
-                // if screen is over go home
                 if (_cursorY >= Height) _cursorY = 0;
             }
         }
@@ -183,7 +178,11 @@ namespace WinFormsApp1.Models
         {
             int blockX = x / 8;
             int blockY = y / 8;
-            int index = (blockY * 32) + blockX;
+            int index = (blockY * 64) + blockX; // update to 64
+
+            // return greens if it exceeds limit
+            if (index < 0 || index >= 4096) return 2;
+
             return _attributeMatrix[index];
         }
     }
