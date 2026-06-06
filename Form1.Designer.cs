@@ -616,6 +616,7 @@
             // groupBox3
             // 
             groupBox3.BackColor = Color.FromArgb(0, 192, 192);
+            groupBox3.Controls.Add(monitorBox);
             groupBox3.Controls.Add(groupBox2);
             groupBox3.Controls.Add(dataMemoryGrid);
             groupBox3.Controls.Add(OUTPUT);
@@ -696,7 +697,7 @@
             // monitorBox
             // 
             monitorBox.BackColor = Color.Black;
-            monitorBox.Location = new Point(1657, 22);
+            monitorBox.Location = new Point(495, 523);
             monitorBox.Name = "monitorBox";
             monitorBox.Size = new Size(256, 256);
             monitorBox.SizeMode = PictureBoxSizeMode.Zoom;
@@ -939,7 +940,6 @@
             // groupBox5
             // 
             groupBox5.BackColor = Color.FromArgb(128, 64, 64);
-            groupBox5.Controls.Add(monitorBox);
             groupBox5.Controls.Add(groupBox6);
             groupBox5.Controls.Add(cpuSpeedLabel);
             groupBox5.Controls.Add(groupBox3);

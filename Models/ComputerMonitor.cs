@@ -55,7 +55,7 @@ namespace WinFormsApp1.Models
                     // O anki bit true mu false mu?
                     bool bitValue = data[i];
 
-                    // 1 piksel çizmek yerine, PixelScale x PixelScale boyutunda koca bir tuğla boyuyoruz!
+                    // pixel block
                     for (int dx = 0; dx < PixelScale; dx++)
                     {
                         for (int dy = 0; dy < PixelScale; dy++)
@@ -68,7 +68,7 @@ namespace WinFormsApp1.Models
                         }
                     }
 
-                    // İmleci ilerlet (artık 1'er 1'er değil, tuğla tuğla atlayacak)
+                    // advance cursor
                     AdvanceCursor();
                 }
             }
@@ -145,18 +145,18 @@ namespace WinFormsApp1.Models
         // Handle the scanline movement
         private void AdvanceCursor()
         {
-            // İmleci tuğla boyutu kadar sağa kaydır
+            // right
             _cursorX += PixelScale;
 
-            // Eğer satırın sonuna geldiyse
+            // if end of row next
             if (_cursorX >= Width)
             {
                 _cursorX = 0;
 
-                // Bir alt satıra geçerken de yine tuğlanın boyutu kadar aşağı in!
+                // shift vertical
                 _cursorY += PixelScale;
 
-                // Eğer ekranın en altına geldiyse başa dön
+                // if screen is over go home
                 if (_cursorY >= Height) _cursorY = 0;
             }
         }
