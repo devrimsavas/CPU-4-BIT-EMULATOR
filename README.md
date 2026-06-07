@@ -1,3 +1,45 @@
+
+# HUGE UPDATE 07.06.2026
+![Screenshot 1](Documents/update0706.png)
+Over the last I've implemented several major architecture improvements:
+
+- **Seperated `MOV ` and `PUSH` instructions 
+```assembly
+mov ax,1011
+push ax
+```
+- ** `PUSH` is dedicated to stack operations only
+- **Added direct RAM access instructions
+
+- **Read and write data through dedicated memory operations
+- **Improved overall memory handling and program structure
+- **Implemented control flow instructions
+```bash
+JMP
+JZ (Jump if Zero)
+JNZ (Jump if Not Zero)
+```
+
+This finally enables loops, branching, and more complex programs.
+
+## Added a dedicated video memory segment
+- The CPU can now drive its own display system
+- Graphics output is controlled through memory-mapped video registers
+- A color palette system based on shift registers is now operational
+
+## What started as a simple ALU experiment has gradually evolved into a complete educational CPU architecture featuring:
+
+-**• Custom ISA
+-**• Registers
+-**• Stack
+-**• RAM
+-**• Program Counter
+-**• Labels & branching
+-**• Video memory
+-**• Color palette support
+
+
+
 # Custom 4-Bit Retro Microprocessor Emulator & Assembler
 
 A custom software-simulated 4-Bit Microprocessor Architecture built in C# (WinForms) to emulate early-generation computer hardware behavior. This project bridges high-level software controls with strict hardware logic constraints, featuring a stack-based ALU, discrete registers, and a custom Assembler.
