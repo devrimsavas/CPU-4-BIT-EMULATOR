@@ -1,6 +1,7 @@
 
 # HUGE UPDATE 07.06.2026
 ![Screenshot 1](Documents/update0706.png)
+![Screenshot 2](Documents/diagram.png)
 Over the last I've implemented several major architecture improvements:
 
 - **Seperated `MOV ` and `PUSH` instructions 
