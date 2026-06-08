@@ -196,7 +196,7 @@ namespace WinFormsApp1.Models
                                  (poppedReg.RegArray[3] ? 1 : 0);
 
                     // Fetch pixels directly from the Character ROM
-                    if (CharacterRom.Data.TryGetValue(charId, out bool[][] pattern))
+                    if (CharacterRom.Data1.TryGetValue(charId, out bool[][] pattern)) //ROM 1
                     {
                         // UI update log for successful decoding
                         OnExecutionComplete?.Invoke($"VPU DECODER: Drawing Char ID {charId} to screen via PRINT");
