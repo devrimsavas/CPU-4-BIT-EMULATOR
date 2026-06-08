@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Drawing;
-
+//active color 15
 namespace WinFormsApp1.Models
 {
     public class ComputerMonitor
@@ -24,7 +24,7 @@ namespace WinFormsApp1.Models
         private int _cursorY;
 
         // smart brush active color 6 ? check again maybe black better?
-        private ushort _activeColorCode = 6;
+        private ushort _activeColorCode = 14;
 
         public ComputerMonitor()
         {
@@ -37,7 +37,7 @@ namespace WinFormsApp1.Models
             // Fill the screen with default color code (e.g., 2 for Lime Green)
             for (int i = 0; i < 4096; i++)
             {
-                _attributeMatrix[i] = 2;
+                _attributeMatrix[i] = 0; //black
             }
 
             // Reset cursors
@@ -135,11 +135,11 @@ namespace WinFormsApp1.Models
                 Array.Clear(_pixelBuffer, 0, _pixelBuffer.Length);
                 for (int i = 0; i < 4096; i++) // memory extension 
                 {
-                    _attributeMatrix[i] = 2;
+                    _attributeMatrix[i] = 2; //TO ZERO 
                 }
                 _cursorX = 0;
                 _cursorY = 0;
-                _activeColorCode = 6; // reset brush 
+                _activeColorCode = 14; // reset brush 
             }
         }
 
@@ -155,6 +155,119 @@ namespace WinFormsApp1.Models
                 if (_cursorY >= Height) _cursorY = 0;
             }
         }
+
+        // HARDWARE DECODER: Draws a full character block and advances cursor side-by-side
+        public void DrawCharacterOLD(bool[][] pattern)
+        {
+            int startX = _cursorX;
+            int startY = _cursorY;
+
+            // 1. Draw the character matrix
+            for (int r = 0; r < pattern.Length; r++)
+            {
+                for (int c = 0; c < pattern[r].Length; c++)
+                {
+                    bool bitValue = pattern[r][c];
+
+                    // Draw the pixel block with PixelScale
+                    for (int dx = 0; dx < PixelScale; dx++)
+                    {
+                        for (int dy = 0; dy < PixelScale; dy++)
+                        {
+                            int px = startX + (c * PixelScale) + dx;
+                            int py = startY + (r * PixelScale) + dy;
+
+                            // Screen limit check
+                            if (px < Width && py < Height)
+                            {
+                                _pixelBuffer[px, py] = bitValue;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            // 2. Advance the cursor to the RIGHT for the next character
+            // 4 pixels width + 1 pixel blank space = 5
+            _cursorX = startX + (5 * PixelScale);
+
+            // 3. Wrap to the next line if it hits the right edge of the screen
+            if (_cursorX >= Width)
+            {
+                _cursorX = 0;
+                _cursorY += (6 * PixelScale); // 5 rows height + 1 blank row space
+
+                if (_cursorY >= Height)
+                {
+                    _cursorY = 0;
+                }
+            }
+        }
+
+        //DRAW CHAR NEW
+        // HARDWARE DECODER: Draws a full character block and advances cursor side-by-side
+        public void DrawCharacter(bool[][] pattern)
+        {
+            int startX = _cursorX;
+            int startY = _cursorY;
+
+            // 1. Draw the character matrix
+            for (int r = 0; r < pattern.Length; r++)
+            {
+                for (int c = 0; c < pattern[r].Length; c++)
+                {
+                    // === YENİ DONANIM YAMASI: Renk Matrisini Güncelle ===
+                    int px = startX + (c * PixelScale);
+                    int py = startY + (r * PixelScale);
+                    int blockX = px / 8;
+                    int blockY = py / 8;
+                    int index = (blockY * 64) + blockX;
+
+                    if (index >= 0 && index < 4096)
+                    {
+                        _attributeMatrix[index] = _activeColorCode; // Seçili rengi hafızaya bas
+                    }
+                    // ====================================================
+
+                    bool bitValue = pattern[r][c];
+
+                    // Draw the pixel block with PixelScale
+                    for (int dx = 0; dx < PixelScale; dx++)
+                    {
+                        for (int dy = 0; dy < PixelScale; dy++)
+                        {
+                            int finalX = px + dx;
+                            int finalY = py + dy;
+
+                            // Screen limit check
+                            if (finalX < Width && finalY < Height)
+                            {
+                                _pixelBuffer[finalX, finalY] = bitValue;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 2. Advance the cursor to the RIGHT for the next character
+            _cursorX = startX + (5 * PixelScale);
+
+            // 3. Wrap to the next line if it hits the right edge of the screen
+            if (_cursorX >= Width)
+            {
+                _cursorX = 0;
+                _cursorY += (6 * PixelScale);
+
+                if (_cursorY >= Height)
+                {
+                    _cursorY = 0;
+                }
+            }
+        }
+
+
+
 
         // Helper: Convert bool[4] to a numeric value (0 to 15)
         private ushort ConvertBoolArrayToUShort(bool[] data)

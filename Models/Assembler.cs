@@ -182,6 +182,55 @@ namespace WinFormsApp1.Models
                 return;
             }
 
+            //==PRINT (VIDEO OUT) LOGIC 
+            if (cleanLine.Equals("PRINT", StringComparison.OrdinalIgnoreCase))
+            {
+                var poppedReg = Program.Stack.PopRegister();
+
+                if (poppedReg != null)
+                {
+                    // Convert 4-bit boolean array to an integer ID (0 to 15)
+                    int charId = (poppedReg.RegArray[0] ? 8 : 0) +
+                                 (poppedReg.RegArray[1] ? 4 : 0) +
+                                 (poppedReg.RegArray[2] ? 2 : 0) +
+                                 (poppedReg.RegArray[3] ? 1 : 0);
+
+                    // Fetch pixels directly from the Character ROM
+                    if (CharacterRom.Data.TryGetValue(charId, out bool[][] pattern))
+                    {
+                        // UI update log for successful decoding
+                        OnExecutionComplete?.Invoke($"VPU DECODER: Drawing Char ID {charId} to screen via PRINT");
+
+                        // NOTE: WinForms UI pixel drawing logic will go here
+                        /*
+                        for (int r=0;r<pattern.Length;r++)
+                        {
+                            //1. send 4 bits to screen to draw to row simulates STORE 000F
+                            DataMemory.ScreenHardware.ProcessCommand(15, pattern[r]);
+                            //trigger Y scrolle STORE 000B sim with 0001
+                            DataMemory.ScreenHardware.ProcessCommand(11, new bool[] { false, false, false, true });
+                        }
+                        */
+                        // Send the entire pattern to the monitor's new hardware function
+                        DataMemory.ScreenHardware.DrawCharacter(pattern);
+
+
+
+                    }
+                    else
+                    {
+                        OnExecutionComplete?.Invoke($"VPU ERROR: Unknown Char ID {charId} in ROM");
+                    }
+                }
+                else
+                {
+                    OnExecutionComplete?.Invoke("Hardware Error: Stack Underflow during PRINT!");
+                }
+
+                return;
+            }
+
+
 
 
             // === instructions ===
@@ -343,6 +392,13 @@ namespace WinFormsApp1.Models
             if (cleanLine.StartsWith("JNZ", StringComparison.OrdinalIgnoreCase))
             {
                 return "11111011"; // Special marker for JNZ (Jump if Not Zero) instruction, not actual machine code, but will help us identify it in the UI and handle it properly during execution when we implement conditional jumps
+            }
+            //PRINT (it is a bit cheating but i need special command for chargen)
+            //VPU Print instruction
+            if (cleanLine.Equals("PRINT",StringComparison.OrdinalIgnoreCase))
+            {
+                //check if i used before 
+                return "11110111";
             }
 
 

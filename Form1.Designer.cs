@@ -626,7 +626,7 @@
             groupBox3.ForeColor = SystemColors.Control;
             groupBox3.Location = new Point(237, 17);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(1350, 901);
+            groupBox3.Size = new Size(1350, 910);
             groupBox3.TabIndex = 27;
             groupBox3.TabStop = false;
             groupBox3.Text = "ASSEMBLER EDITOR";
@@ -707,7 +707,7 @@
             dataMemoryGrid.AllowUserToAddRows = false;
             dataMemoryGrid.AllowUserToDeleteRows = false;
             dataMemoryGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dataMemoryGrid.BackgroundColor = Color.White;
+            dataMemoryGrid.BackgroundColor = Color.Black;
             dataMemoryGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataMemoryGrid.Columns.AddRange(new DataGridViewColumn[] { Address, Data });
             dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
@@ -939,7 +939,7 @@
             groupBox5.ForeColor = Color.Black;
             groupBox5.Location = new Point(12, 30);
             groupBox5.Name = "groupBox5";
-            groupBox5.Size = new Size(1624, 940);
+            groupBox5.Size = new Size(1624, 949);
             groupBox5.TabIndex = 30;
             groupBox5.TabStop = false;
             // 

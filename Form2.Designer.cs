@@ -34,11 +34,11 @@
             // 
             // monitorBox
             // 
-            monitorBox.BackColor = Color.Black;
-            monitorBox.Location = new Point(12, 12);
+            monitorBox.BackColor = Color.Transparent;
+            monitorBox.Location = new Point(35, 23);
             monitorBox.Name = "monitorBox";
-            monitorBox.Size = new Size(836, 667);
-            monitorBox.SizeMode = PictureBoxSizeMode.Zoom;
+            monitorBox.Size = new Size(927, 714);
+            monitorBox.SizeMode = PictureBoxSizeMode.AutoSize;
             monitorBox.TabIndex = 31;
             monitorBox.TabStop = false;
             // 
@@ -47,12 +47,13 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(0, 64, 64);
-            ClientSize = new Size(860, 691);
+            ClientSize = new Size(1046, 785);
             Controls.Add(monitorBox);
             Name = "MonitorForm";
             Text = "Form2";
             ((System.ComponentModel.ISupportInitialize)monitorBox).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion

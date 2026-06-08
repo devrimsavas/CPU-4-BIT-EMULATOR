@@ -83,15 +83,16 @@ namespace WinFormsApp1
         // Convert the hardware pixel buffer and color matrix into a visible Windows image
         private void RenderScreen()
         {
+            int testValue = 512;
             // Create a 256x256 bitmap surface
-            Bitmap frame = new Bitmap(256, 256);
+            Bitmap frame = new Bitmap(testValue, testValue); // new Bitmap(256, 256);
 
 
             // Scan horizontal pixels
-            for (int x = 0; x < 256; x++)
+            for (int x = 0; x < testValue; x++) //real 256
             {
                 // Scan vertical pixels
-                for (int y = 0; y < 256; y++)
+                for (int y = 0; y < testValue; y++) //real 256
                 {
                     // Retrieve the color code for the 8x8 block this pixel belongs to
                     ushort colorCode = _screen.GetColorAttribute(x, y);
@@ -122,16 +123,8 @@ namespace WinFormsApp1
         private Color DecodeHardwareColor(ushort code)
         {
             // Map 16-bit numeric codes to physical UI colors
-            switch (code)
-            {
-                case 1: return Color.Red;
-                case 2: return Color.Blue;
-                case 3: return Color.Yellow;
-                case 4: return Color.Cyan;
-                case 5: return Color.Magenta;
-                case 6: return Color.White;
-                default: return Color.Lime;
-            }
+            if (code > 15) return Color.Black;
+            return HardwarePalette.Colors[code];
         }
 
         // Simulated Program Counter to track current instruction in memory
@@ -681,7 +674,13 @@ namespace WinFormsApp1
 
         private void cpuClock_Tick(object sender, EventArgs e)
         {
-            ExecuteNextInstruction();
+            //can be faster? 
+            for (int i=0;i<5;i++)
+            {
+                ExecuteNextInstruction();
+
+            }
+            //ExecuteNextInstruction();
             //RefreshUI();
         }
 
