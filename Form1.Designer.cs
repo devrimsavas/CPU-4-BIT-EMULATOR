@@ -569,7 +569,7 @@
             // 
             // cpuClock
             // 
-            cpuClock.Interval = 2;
+            cpuClock.Interval = 1;
             cpuClock.Tick += cpuClock_Tick;
             // 
             // btnStartClock

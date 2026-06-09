@@ -16,7 +16,7 @@
         private void InitializeComponent()
         {
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 600);
+            this.ClientSize = new System.Drawing.Size(1024,1024);
             this.Text = "BIT4 Monitor";
             this.BackColor = System.Drawing.Color.Black;
         }

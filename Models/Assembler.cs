@@ -182,6 +182,7 @@ namespace WinFormsApp1.Models
             }
 
             // === LOAD ===
+            // === LOAD ===
             if (cleanLine.StartsWith("LOAD ", StringComparison.OrdinalIgnoreCase))
             {
                 string rawAddr = cleanLine.Substring(5).Trim();
@@ -194,11 +195,26 @@ namespace WinFormsApp1.Models
                     // Ensure the address is within the 16-address limit
                     if (address >= 0 && address < 16)
                     {
+                        // HARDWARE INTERCEPT: Keyboard input port at address 0x08
+                        // If the read address is 8, read directly from the InputPort instead of RAM
+                        if (address == 8)
+                        {
+                            bool[] keyData = WinFormsApp1.Models.InputPort.ReadKey();
+                            Program.Stack.AddRegister(new Register("KEY", (bool[])keyData.Clone()));
+
+                            string bitString = string.Join("", keyData.Select(b => b ? "1" : "0"));
+                            OnExecutionComplete?.Invoke($"INPUT: Key state {bitString} loaded from port 0x08");
+
+                            // Terminate the execution block to prevent normal RAM read
+                            return;
+                        }
+
+                        // Normal RAM read for all other addresses (0x00 - 0x07, 0x09 - 0x0F)
                         bool[] ramData = DataMemory.Read(address);
                         Program.Stack.AddRegister(new Register("RAM", (bool[])ramData.Clone()));
 
-                        string bitString = string.Join("", ramData.Select(b => b ? "1" : "0"));
-                        OnExecutionComplete?.Invoke($"LOAD: Fetched {bitString} from RAM[0x{address:X2}]");
+                        string bitString2 = string.Join("", ramData.Select(b => b ? "1" : "0"));
+                        OnExecutionComplete?.Invoke($"LOAD: Fetched {bitString2} from RAM[0x{address:X2}]");
                     }
                     else
                     {
@@ -212,6 +228,8 @@ namespace WinFormsApp1.Models
 
                 return;
             }
+            //==END LOAD===============
+
 
             //==PRINT (VIDEO OUT) LOGIC 
             if (cleanLine.Equals("PRINT", StringComparison.OrdinalIgnoreCase))

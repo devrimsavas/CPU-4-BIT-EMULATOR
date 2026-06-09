@@ -260,11 +260,11 @@ namespace WinFormsApp1.Models
             // ID 9 - Z Pattern
             {9, new bool[][]
             {
-                new bool[] { false, true,  true,  true  }, // 0111
-                new bool[] { false, false, false, true  }, // 0001
-                new bool[] { false, false, true,  false }, // 0010
-                new bool[] { false, true,  false, false }, // 0100
-                new bool[] { false, true,  true,  true  }  // 0111
+                new bool[] {  true,  true,  true ,false }, // 1110
+                new bool[] { false, false, true,false  }, // 0010
+                new bool[] { false, true,false,  false }, // 0100
+                new bool[] {  true,  false, false,false }, // 1000
+                new bool[] {  true,  true,  true ,false }  // 1110
             }},
 
             // ID 10 - [ Pattern (Mapped as '(' in original prompt)
@@ -628,22 +628,22 @@ namespace WinFormsApp1.Models
                 new bool[] { true,true,true, false }, // 1110
                 new bool[] { false, false, false, false }  // 0000
             }},
-            // ID 14 - Symbol =
+            // ID 14 - Symbol >
             {14, new bool[][]
-            {
-                new bool[] { false,false,false,false }, // 0000
-                new bool[] { true,true,true, false }, // 1110
-                new bool[] { false,false,false,false }, // 0000
-                new bool[] { true,true,true, false }, // 1110
-                new bool[] { false, false, false, false }  // 0000
-            }},
-            // ID 15 - Symbol >
-            {15, new bool[][]
             {
                 new bool[] { false,true,false,false }, // 0100
                 new bool[] { false,false,true,false }, // 0010
-                new bool[] { false,false,false,true }, // 0001
-                new bool[] { false,false,true,false}, // 0010
+                new bool[] { false,false,false,true  }, // 0001
+                new bool[] { false,false,true,false }, // 0010
+                new bool[] { false, true, false, false }  // 0100
+            }},
+            // ID 15 - Symbol ?
+            {15, new bool[][]
+            {
+                new bool[] { false,true,false,false }, // 0100
+                new bool[] { false,false,true,false }, // 1010
+                new bool[] { false,false,true,false }, // 0010
+                new bool[] { false,true,false,false}, // 0100
                 new bool[] { false, true, false, false }  // 0100
             }},
 

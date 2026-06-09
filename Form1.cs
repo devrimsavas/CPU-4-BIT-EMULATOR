@@ -14,6 +14,9 @@ namespace WinFormsApp1
         //monitor form 
         private MonitorForm _monitorForm;
 
+        
+
+
 
         public Form1()
         {
@@ -79,7 +82,11 @@ namespace WinFormsApp1
         //render screen at 60fps
         private void screenClock_Tick(object sender, EventArgs e)
         {
+            //renderscreen is for monitor 
             RenderScreen();
+            //UpdateVideoDisplay();
+            //RefreshUI();
+            //RefreshDataMemoryGrid();
         }
         // Convert the hardware pixel buffer and color matrix into a visible Windows image
         //RENDER SCREEN
@@ -453,6 +460,8 @@ namespace WinFormsApp1
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            //key
+            this.KeyPreview = true;
 
             //memory grid 
             MemoryGrid.BackgroundColor = Color.LightGray;
@@ -471,15 +480,61 @@ namespace WinFormsApp1
 
             //Assembler 
             Assembler.OnExecutionComplete += (resultText) =>
-            {
-                OutputRegister.Items.Add(resultText);
-                RefreshUI();
-                RefreshDataMemoryGrid();
+            {   //later add some button on debug texts 
+                //
+                //OutputRegister.Items.Add(resultText);
+                //RefreshUI();
+                //RefreshDataMemoryGrid();
                 //video 
-                UpdateVideoDisplay();
+                //UpdateVideoDisplay();
 
             };
         }
+
+        //KEYBOARD 
+        //disabled form2 has kontrol 
+        /*
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            switch (e.KeyCode)
+            {
+                case Keys.W: // UP
+                    _keyBuffer = new bool[] { false, false, false, true }; // 0001
+                    break;
+                case Keys.S: // DOWN
+                    _keyBuffer = new bool[] { false, false, true, false }; // 0010
+                    break;
+                case Keys.A: // LEFT
+                    _keyBuffer = new bool[] { false, false, true, true }; // 0011
+                    break;
+                case Keys.D: // RIGHT
+                    _keyBuffer = new bool[] { false, true, false, false }; // 0100
+                    break;
+                case Keys.Space: // FIRE
+                    _keyBuffer = new bool[] { false, true, false, true }; // 0101
+                    break;
+                default:
+                    // Unmapped key, send 0000
+                    _keyBuffer = new bool[] { false, false, false, false };
+                    break;
+            }
+            //WinFormsApp1.Models.InputPort.SetKey(_keyBuffer);
+            //or ?
+            InputPort.SetKey(_keyBuffer);   
+
+        }
+        //stop keyboard input 
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            base.OnKeyUp(e);
+            //WinFormsApp1.Models.InputPort.SetKey(new bool[] { false, false, false, false });
+            //or 
+            InputPort.SetKey(new bool[] { false, false, false, false });
+        }
+        */
+
+        //KEYBOARD END 
 
         private void oppResetButton_Click(object sender, EventArgs e)
         {
@@ -670,8 +725,9 @@ namespace WinFormsApp1
         private void cpuClock_Tick(object sender, EventArgs e)
         {
             //can be faster? 
-            for (int i=0;i<5;i++)
+            for (int i=0;i<10;i++)
             {
+                if (isHalted) break;
                 ExecuteNextInstruction();
 
             }
