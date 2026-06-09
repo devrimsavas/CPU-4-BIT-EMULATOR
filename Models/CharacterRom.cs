@@ -8,6 +8,7 @@ namespace WinFormsApp1.Models
 {
     public static class CharacterRom
     {
+        
         //Data, Data1, DataArithSymbols,DataDigits
         //CHARSET A-P
         public static readonly Dictionary<int, bool[][]> Data = new()
@@ -646,13 +647,15 @@ namespace WinFormsApp1.Models
                 new bool[] { false, true, false, false }  // 0100
             }},
 
-
-
-
-
-
-
         }; //digit end 
+
+        public static readonly List<Dictionary<int, bool[][]>> RomPages = new()
+        {
+            Data,
+            Data1,
+            DataArithSymbols,
+            DataDigits,
+        };
 
 
 

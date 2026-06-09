@@ -135,7 +135,7 @@ namespace WinFormsApp1.Models
                 Array.Clear(_pixelBuffer, 0, _pixelBuffer.Length);
                 for (int i = 0; i < 4096; i++) // memory extension 
                 {
-                    _attributeMatrix[i] = 2; //TO ZERO 
+                    _attributeMatrix[i] = 0; //TO ZERO 
                 }
                 _cursorX = 0;
                 _cursorY = 0;

@@ -9,6 +9,8 @@ namespace WinFormsApp1.Models
 {
     public static class Assembler
     {
+        //active rom
+        public static int ActiveRomPage = 0;
         //program counter and label memory 
         public static int PC { get;private set; } = 0; //line number tracker for execution flow control, can be used for future jump instructions and loops
         public static Dictionary<string,int> Labels=new(StringComparer.OrdinalIgnoreCase); // Label memory to store line numbers for jump instructions, currently unused but essential for future control flow features
@@ -111,6 +113,10 @@ namespace WinFormsApp1.Models
             //Handle Store "STORE 1111" to store AX value into RAM address 0x0F (15 in decimal)
             // === STORE  ===
 
+            //=== Ram Operations ===
+            //Handle Store "STORE 1111" to store AX value into RAM address 0x0F (15 in decimal)
+            // === STORE  ===
+
             if (cleanLine.StartsWith("STORE ", StringComparison.OrdinalIgnoreCase))
             {
                 string rawAddr = cleanLine.Substring(6).Trim();
@@ -127,6 +133,31 @@ namespace WinFormsApp1.Models
 
                         if (poppedReg != null)
                         {
+                            // HARDWARE INTERCEPT: ROM Page Selector triggered at address 0x09
+                            if (address == 9)
+                            {
+                                // Convert 4-bit boolean array to page index (0 to 15)
+                                int pageIndex = (poppedReg.RegArray[0] ? 8 : 0) +
+                                                (poppedReg.RegArray[1] ? 4 : 0) +
+                                                (poppedReg.RegArray[2] ? 2 : 0) +
+                                                (poppedReg.RegArray[3] ? 1 : 0);
+
+                                // Validate if the requested page exists in our ROM List
+                                if (pageIndex >= 0 && pageIndex < CharacterRom.RomPages.Count)
+                                {
+                                    ActiveRomPage = pageIndex;
+                                    OnExecutionComplete?.Invoke($"VPU SYSTEM: Switched to ROM Page {pageIndex}");
+                                }
+                                else
+                                {
+                                    OnExecutionComplete?.Invoke($"Hardware Error: Invalid ROM Page {pageIndex}. Max is {CharacterRom.RomPages.Count - 1}");
+                                }
+
+                                // Exit the block so it doesn't write to normal RAM
+                                return;
+                            }
+
+                            // Standard RAM write for all other addresses
                             DataMemory.Write(address, poppedReg.RegArray);
 
                             string bitString = string.Join("", poppedReg.RegArray.Select(b => b ? "1" : "0"));
@@ -195,8 +226,12 @@ namespace WinFormsApp1.Models
                                  (poppedReg.RegArray[2] ? 2 : 0) +
                                  (poppedReg.RegArray[3] ? 1 : 0);
 
+                    //select active rom page 
+                    var currentRomPage = CharacterRom.RomPages[ActiveRomPage];
+
+
                     // Fetch pixels directly from the Character ROM
-                    if (CharacterRom.Data1.TryGetValue(charId, out bool[][] pattern)) //ROM 1
+                    if (currentRomPage.TryGetValue(charId, out bool[][] pattern)) //ROM 1
                     {
                         // UI update log for successful decoding
                         OnExecutionComplete?.Invoke($"VPU DECODER: Drawing Char ID {charId} to screen via PRINT");
@@ -491,6 +526,96 @@ namespace WinFormsApp1.Models
                 }
                 return true;
             }
+
+            // === JZ (JUMP IF ZERO) ===
+            if (cleanLine.StartsWith("JZ ", StringComparison.OrdinalIgnoreCase))
+            {
+                //debug line
+                OnExecutionComplete?.Invoke($"JZ DEBUG: ZeroFlag={ZeroFlag}");
+                string targetLabel = cleanLine.Substring(3).Trim();
+
+                if (ZeroFlag)
+                {
+                    if (Labels.TryGetValue(targetLabel, out int targetLine))
+                    {
+                        PC = targetLine;
+                        OnExecutionComplete?.Invoke($"JZ: Zero flag set, jumped to {targetLabel}");
+                    }
+                    else
+                    {
+                        OnExecutionComplete?.Invoke($"Syntax Error: Label '{targetLabel}' not found.");
+                        PC = LoadedCode.Length;
+                    }
+                }
+                else
+                {
+                    OnExecutionComplete?.Invoke($"JZ: Zero flag not set, continuing.");
+                    PC++; // don't jump, just move to next line
+                }
+                return true;
+            }
+            // === JNZ (JUMP IF NOT ZERO) ===
+            if (cleanLine.StartsWith("JNZ ", StringComparison.OrdinalIgnoreCase))
+            {
+                string targetLabel = cleanLine.Substring(4).Trim();
+
+                if (!ZeroFlag)
+                {
+                    if (Labels.TryGetValue(targetLabel, out int targetLine))
+                    {
+                        PC = targetLine;
+                        OnExecutionComplete?.Invoke($"JNZ: Zero flag not set, jumped to {targetLabel}");
+                    }
+                    else
+                    {
+                        OnExecutionComplete?.Invoke($"Syntax Error: Label '{targetLabel}' not found.");
+                        PC = LoadedCode.Length;
+                    }
+                }
+                else
+                {
+                    OnExecutionComplete?.Invoke($"JNZ: Zero flag set, continuing.");
+                    PC++;
+                }
+                return true;
+            }
+
+            // === CALL ===
+            if (cleanLine.StartsWith("CALL ", StringComparison.OrdinalIgnoreCase))
+            {
+                string targetLabel = cleanLine.Substring(5).Trim();
+                if (Labels.TryGetValue(targetLabel, out int targetLine))
+                {
+                    CallStack.Push(PC + 1); // save return address
+                    PC = targetLine;
+                    OnExecutionComplete?.Invoke($"CALL: Jumped to {targetLabel}, return address saved as {PC}");
+                }
+                else
+                {
+                    OnExecutionComplete?.Invoke($"Syntax Error: Label '{targetLabel}' not found.");
+                    PC = LoadedCode.Length;
+                }
+                return true;
+            }
+
+            // === RET ===
+            if (cleanLine.Equals("RET", StringComparison.OrdinalIgnoreCase))
+            {
+                if (CallStack.Count > 0)
+                {
+                    PC = CallStack.Pop(); // jump back to return address
+                    OnExecutionComplete?.Invoke($"RET: Returned to line {PC}");
+                }
+                else
+                {
+                    OnExecutionComplete?.Invoke("Hardware Error: CallStack underflow on RET!");
+                    PC = LoadedCode.Length;
+                }
+                return true;
+            }
+
+
+
 
             // if not a jump, run normally
             RunCode(cleanLine);
