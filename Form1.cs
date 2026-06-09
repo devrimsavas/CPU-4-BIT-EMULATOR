@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System.Media;
 using System.Runtime.Intrinsics.X86;
@@ -81,42 +82,36 @@ namespace WinFormsApp1
             RenderScreen();
         }
         // Convert the hardware pixel buffer and color matrix into a visible Windows image
+        //RENDER SCREEN
         private void RenderScreen()
         {
-            int testValue = 512;
-            // Create a 256x256 bitmap surface
-            Bitmap frame = new Bitmap(testValue, testValue); // new Bitmap(256, 256);
+            Bitmap frame = new Bitmap(512, 512, PixelFormat.Format32bppArgb);
 
+            BitmapData bmpData = frame.LockBits(
+                new Rectangle(0, 0, 512, 512),
+                ImageLockMode.WriteOnly,
+                PixelFormat.Format32bppArgb);
 
-            // Scan horizontal pixels
-            for (int x = 0; x < testValue; x++) //real 256
+            unsafe
             {
-                // Scan vertical pixels
-                for (int y = 0; y < testValue; y++) //real 256
+                int* ptr = (int*)bmpData.Scan0;
+
+                for (int y = 0; y < 512; y++)
                 {
-                    // Retrieve the color code for the 8x8 block this pixel belongs to
-                    ushort colorCode = _screen.GetColorAttribute(x, y);
-
-                    // Decode the hardware color code to a physical screen color
-                    Color blockColor = DecodeHardwareColor(colorCode);
-
-                    // Check if the pixel is turned on
-                    if (_screen.IsPixelActive(x, y))
+                    for (int x = 0; x < 512; x++)
                     {
-                        // Draw the pixel using the block's designated foreground color
-                        frame.SetPixel(x, y, blockColor);
-                    }
-                    else
-                    {
-                        // Draw the background color (Black by default)
-                        frame.SetPixel(x, y, Color.Black);
+                        ushort colorCode = _screen.GetColorAttribute(x, y);
+                        Color c = _screen.IsPixelActive(x, y)
+                            ? HardwarePalette.Colors[colorCode]
+                            : Color.Black;
+
+                        ptr[y * 512 + x] = c.ToArgb();
                     }
                 }
             }
 
-            // Push the rendered frame to the existing PictureBox on the form
-            //monitorBox.Image = frame;
-            _monitorForm.monitorBox.Image = frame;
+            frame.UnlockBits(bmpData);
+            _monitorForm.UpdateFrame(frame);
         }
 
         // Hardware color lookup table
