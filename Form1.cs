@@ -14,15 +14,19 @@ namespace WinFormsApp1
         //monitor form 
         private MonitorForm _monitorForm;
 
-        
-
-
+        //debugger flag slow /fast
+        private bool isDebugMode = true;
 
         public Form1()
         {
 
             InitializeComponent();
             //İnitialize the data memory grid with default values for visualization
+            this.BackColor = SystemColors.Window;
+            this.ForeColor = SystemColors.ControlDark;
+            MemoryGrid.BackgroundColor = SystemColors.Window;
+            MemoryGrid.DefaultCellStyle.BackColor = Color.FromArgb(30, 30, 30); // Soft dark gray
+            MemoryGrid.DefaultCellStyle.ForeColor = Color.White;
             InitializeDataMemoryGrid();
             WinFormsApp1.Models.DataMemory.Initialize();
             //POWER UP SCREEN 
@@ -30,7 +34,7 @@ namespace WinFormsApp1
 
             //videoGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
             videoGrid.Rows.Clear();
-            videoGrid.Columns.Clear(); // Önce eski sütunları da temizle
+            videoGrid.Columns.Clear(); // 
 
             // add 8 columns
             for (int i = 0; i < 8; i++)
@@ -69,14 +73,7 @@ namespace WinFormsApp1
             screenClock.Interval = 16; // Set screen refresh rate (e.g., 100ms for 10 FPS) 
             screenClock.Tick += screenClock_Tick;
             screenClock.Start();
-            //test
-            /*
-            for (int i = 0; i < 100; i++)
-            {
-                _screen.ProcessCommand(15, new bool[] { true, true, true, true });
-                _screen.ProcessCommand(16, new bool[] { true, false, true, false });
-            }
-            */
+           
         }
 
         //render screen at 60fps
@@ -85,8 +82,14 @@ namespace WinFormsApp1
             //renderscreen is for monitor 
             RenderScreen();
             //UpdateVideoDisplay();
-            //RefreshUI();
-            //RefreshDataMemoryGrid();
+            if (isDebugMode)
+            {
+                RefreshUI();
+                RefreshDataMemoryGrid();
+                UpdateVideoDisplay();
+
+            }
+
         }
         // Convert the hardware pixel buffer and color matrix into a visible Windows image
         //RENDER SCREEN
@@ -111,6 +114,11 @@ namespace WinFormsApp1
                         Color c = _screen.IsPixelActive(x, y)
                             ? HardwarePalette.Colors[colorCode]
                             : Color.Black;
+                        //retro??
+                        if (y%2 !=0)
+                        {
+                            c = Color.FromArgb(c.A, c.R / 2, c.G / 2, c.B / 2);
+                        }
 
                         ptr[y * 512 + x] = c.ToArgb();
                     }
@@ -486,55 +494,24 @@ namespace WinFormsApp1
                 //RefreshUI();
                 //RefreshDataMemoryGrid();
                 //video 
-                //UpdateVideoDisplay();
+                
+                
+                if (isDebugMode)
+                {
+                    OutputRegister.Items.Add(resultText);
+                    // Optional: Auto-scroll to the last item
+                    OutputRegister.TopIndex = OutputRegister.Items.Count - 1;
+                    //RefreshDataMemoryGrid();
+                    //UpdateVideoDisplay();
+
+
+                }
+                
 
             };
         }
 
-        //KEYBOARD 
-        //disabled form2 has kontrol 
-        /*
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-            switch (e.KeyCode)
-            {
-                case Keys.W: // UP
-                    _keyBuffer = new bool[] { false, false, false, true }; // 0001
-                    break;
-                case Keys.S: // DOWN
-                    _keyBuffer = new bool[] { false, false, true, false }; // 0010
-                    break;
-                case Keys.A: // LEFT
-                    _keyBuffer = new bool[] { false, false, true, true }; // 0011
-                    break;
-                case Keys.D: // RIGHT
-                    _keyBuffer = new bool[] { false, true, false, false }; // 0100
-                    break;
-                case Keys.Space: // FIRE
-                    _keyBuffer = new bool[] { false, true, false, true }; // 0101
-                    break;
-                default:
-                    // Unmapped key, send 0000
-                    _keyBuffer = new bool[] { false, false, false, false };
-                    break;
-            }
-            //WinFormsApp1.Models.InputPort.SetKey(_keyBuffer);
-            //or ?
-            InputPort.SetKey(_keyBuffer);   
-
-        }
-        //stop keyboard input 
-        protected override void OnKeyUp(KeyEventArgs e)
-        {
-            base.OnKeyUp(e);
-            //WinFormsApp1.Models.InputPort.SetKey(new bool[] { false, false, false, false });
-            //or 
-            InputPort.SetKey(new bool[] { false, false, false, false });
-        }
-        */
-
-        //KEYBOARD END 
+        
 
         private void oppResetButton_Click(object sender, EventArgs e)
         {
@@ -724,8 +701,11 @@ namespace WinFormsApp1
 
         private void cpuClock_Tick(object sender, EventArgs e)
         {
+            // Set execution speed based on the current mode
+            int instructionsPerTick = isDebugMode ? 1 : 50;
+
             //can be faster? 
-            for (int i=0;i<10;i++)
+            for (int i = 0; i < instructionsPerTick; i++)
             {
                 if (isHalted) break;
                 ExecuteNextInstruction();
@@ -737,8 +717,10 @@ namespace WinFormsApp1
 
         private void btnStep_Click(object sender, EventArgs e)
         {
+            
             ExecuteNextInstruction();
             RefreshUI();
+            
         }
 
         private void btnStartClock_Click(object sender, EventArgs e)
@@ -982,13 +964,16 @@ namespace WinFormsApp1
 
         private void InitializeDataMemoryGrid()
         {
+            //dataMemoryGrid.BackgroundColor = SystemColors.Window;
             if (dataMemoryGrid.Rows.Count >= 16) return;
             dataMemoryGrid.Rows.Clear();
             for (int i = 0; i < 16; i++)
             {
                 string hexAddress = "0x" + i.ToString("X2");
                 //inject current data memory values into the grid for visualization
+                
                 dataMemoryGrid.Rows.Add(hexAddress, "0000");
+                dataMemoryGrid.BackgroundColor=SystemColors.Window;
             }
         }
 
@@ -1220,6 +1205,27 @@ namespace WinFormsApp1
                 _monitorForm.Show();
                 btnMonitorPower.Text = "TURN OFF SCREEN";
             }
+        }
+
+        //toggle debug slow/fast
+        private void debugToggleButton_Click(object sender, EventArgs e)
+        {
+            // Toggle the flag
+            isDebugMode = !isDebugMode;
+
+            if (isDebugMode)
+            {
+                // Debug Mode: UI updates active, CPU slow
+                debugToggleButton.Text = "Debug Mode: ON";
+                debugToggleButton.BackColor = Color.Orange;
+            }
+            else
+            {
+                // Turbo Mode: UI updates disabled, CPU fast
+                debugToggleButton.Text = "Turbo Mode: ON";
+                debugToggleButton.BackColor = Color.LightGreen;
+            }
+
         }
     }
 }

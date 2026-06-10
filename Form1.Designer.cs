@@ -82,8 +82,6 @@
             resetScreenButton = new Button();
             videoGrid = new DataGridView();
             dataMemoryGrid = new DataGridView();
-            Address = new DataGridViewTextBoxColumn();
-            Data = new DataGridViewTextBoxColumn();
             groupBox4 = new GroupBox();
             cpuSpeedLabel = new Label();
             menuStrip1 = new MenuStrip();
@@ -107,8 +105,11 @@
             lOADFROMFILEToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem1 = new ToolStripMenuItem();
             groupBox5 = new GroupBox();
+            debugToggleButton = new Button();
             btnMonitorPower = new Button();
             screenClock = new System.Windows.Forms.Timer(components);
+            Address = new DataGridViewTextBoxColumn();
+            Data = new DataGridViewTextBoxColumn();
             RegisterAxBox.SuspendLayout();
             RegisterBxBox.SuspendLayout();
             registersBox.SuspendLayout();
@@ -136,6 +137,7 @@
             RegisterAxBox.Controls.Add(ax2);
             RegisterAxBox.Controls.Add(ax3);
             RegisterAxBox.Font = new Font("Consolas", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            RegisterAxBox.ForeColor = SystemColors.ActiveCaptionText;
             RegisterAxBox.Location = new Point(6, 22);
             RegisterAxBox.Name = "RegisterAxBox";
             RegisterAxBox.Size = new Size(207, 96);
@@ -218,7 +220,7 @@
             // 
             // stackList
             // 
-            stackList.BackColor = Color.FromArgb(0, 0, 64);
+            stackList.BackColor = Color.Black;
             stackList.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             stackList.ForeColor = SystemColors.HighlightText;
             stackList.FormattingEnabled = true;
@@ -319,12 +321,12 @@
             // 
             // registersBox
             // 
-            registersBox.BackColor = Color.Silver;
+            registersBox.BackColor = SystemColors.ControlDarkDark;
             registersBox.Controls.Add(oppcodebox);
             registersBox.Controls.Add(RegisterBxBox);
             registersBox.Controls.Add(RegisterAxBox);
             registersBox.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            registersBox.ForeColor = Color.FromArgb(192, 64, 0);
+            registersBox.ForeColor = Color.Black;
             registersBox.Location = new Point(7, 17);
             registersBox.Name = "registersBox";
             registersBox.Size = new Size(224, 340);
@@ -477,7 +479,7 @@
             // 
             // OUTPUT
             // 
-            OUTPUT.BackColor = Color.Silver;
+            OUTPUT.BackColor = SystemColors.WindowFrame;
             OUTPUT.Controls.Add(clearOutputRegisterBtn);
             OUTPUT.Controls.Add(OutputRegister);
             OUTPUT.Controls.Add(clearOutput);
@@ -526,8 +528,8 @@
             // 
             // assemblyCodeBox
             // 
-            assemblyCodeBox.BackColor = Color.FromArgb(0, 0, 64);
-            assemblyCodeBox.Font = new Font("Ubuntu Mono", 11.9999981F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            assemblyCodeBox.BackColor = SystemColors.InfoText;
+            assemblyCodeBox.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             assemblyCodeBox.ForeColor = Color.Lime;
             assemblyCodeBox.Location = new Point(6, 22);
             assemblyCodeBox.Name = "assemblyCodeBox";
@@ -549,10 +551,11 @@
             // 
             // MemoryGrid
             // 
+            MemoryGrid.BackgroundColor = SystemColors.Desktop;
             MemoryGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            MemoryGrid.Location = new Point(6, 23);
+            MemoryGrid.Location = new Point(24, 21);
             MemoryGrid.Name = "MemoryGrid";
-            MemoryGrid.Size = new Size(372, 713);
+            MemoryGrid.Size = new Size(340, 682);
             MemoryGrid.TabIndex = 20;
             // 
             // loadToMemoryButton
@@ -563,7 +566,7 @@
             loadToMemoryButton.Name = "loadToMemoryButton";
             loadToMemoryButton.Size = new Size(162, 40);
             loadToMemoryButton.TabIndex = 21;
-            loadToMemoryButton.Text = "LOAD TO MEMORY";
+            loadToMemoryButton.Text = "&LOAD TO MEMORY";
             loadToMemoryButton.UseVisualStyleBackColor = false;
             loadToMemoryButton.Click += loadToMemoryButton_Click;
             // 
@@ -580,13 +583,13 @@
             btnStartClock.Name = "btnStartClock";
             btnStartClock.Size = new Size(128, 39);
             btnStartClock.TabIndex = 24;
-            btnStartClock.Text = "AUTO RUN";
+            btnStartClock.Text = "&AUTO RUN";
             btnStartClock.UseVisualStyleBackColor = false;
             btnStartClock.Click += btnStartClock_Click;
             // 
             // groupBox2
             // 
-            groupBox2.BackColor = Color.Olive;
+            groupBox2.BackColor = SystemColors.Desktop;
             groupBox2.Controls.Add(resetButton);
             groupBox2.Controls.Add(clearEditorButton);
             groupBox2.Controls.Add(loadToMemoryButton);
@@ -615,7 +618,7 @@
             // groupBox3
             // 
             groupBox3.AutoSize = true;
-            groupBox3.BackColor = Color.FromArgb(0, 192, 192);
+            groupBox3.BackColor = Color.Black;
             groupBox3.Controls.Add(groupBox6);
             groupBox3.Controls.Add(groupBox2);
             groupBox3.Controls.Add(dataMemoryGrid);
@@ -623,10 +626,10 @@
             groupBox3.Controls.Add(assemblyCodeBox);
             groupBox3.Controls.Add(groupBox4);
             groupBox3.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            groupBox3.ForeColor = SystemColors.Control;
+            groupBox3.ForeColor = Color.Transparent;
             groupBox3.Location = new Point(237, 17);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(1350, 910);
+            groupBox3.Size = new Size(1371, 910);
             groupBox3.TabIndex = 27;
             groupBox3.TabStop = false;
             groupBox3.Text = "ASSEMBLER EDITOR";
@@ -634,11 +637,12 @@
             // 
             // groupBox6
             // 
-            groupBox6.BackColor = Color.LightGray;
+            groupBox6.BackColor = SystemColors.WindowFrame;
             groupBox6.Controls.Add(button1);
             groupBox6.Controls.Add(resetScreenButton);
             groupBox6.Controls.Add(videoGrid);
-            groupBox6.Location = new Point(501, 523);
+            groupBox6.ForeColor = Color.Black;
+            groupBox6.Location = new Point(495, 523);
             groupBox6.Name = "groupBox6";
             groupBox6.Size = new Size(289, 362);
             groupBox6.TabIndex = 31;
@@ -649,7 +653,7 @@
             // 
             button1.BackColor = Color.FromArgb(255, 192, 128);
             button1.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button1.Location = new Point(176, 298);
+            button1.Location = new Point(161, 292);
             button1.Name = "button1";
             button1.Size = new Size(95, 47);
             button1.TabIndex = 31;
@@ -661,7 +665,7 @@
             // 
             resetScreenButton.BackColor = Color.FromArgb(255, 192, 128);
             resetScreenButton.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            resetScreenButton.Location = new Point(28, 298);
+            resetScreenButton.Location = new Point(13, 292);
             resetScreenButton.Name = "resetScreenButton";
             resetScreenButton.Size = new Size(142, 47);
             resetScreenButton.TabIndex = 30;
@@ -678,18 +682,18 @@
             videoGrid.ColumnHeadersVisible = false;
             dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = Color.Black;
-            dataGridViewCellStyle1.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle1.ForeColor = SystemColors.Control;
+            dataGridViewCellStyle1.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle1.ForeColor = Color.Black;
             dataGridViewCellStyle1.SelectionBackColor = Color.Black;
             dataGridViewCellStyle1.SelectionForeColor = Color.Black;
             dataGridViewCellStyle1.WrapMode = DataGridViewTriState.False;
             videoGrid.DefaultCellStyle = dataGridViewCellStyle1;
-            videoGrid.GridColor = Color.DimGray;
+            videoGrid.GridColor = Color.DarkOrange;
             videoGrid.Location = new Point(13, 25);
             videoGrid.Name = "videoGrid";
             dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = Color.Black;
-            dataGridViewCellStyle2.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle2.Font = new Font("Segoe UI", 9F);
             dataGridViewCellStyle2.ForeColor = SystemColors.WindowText;
             dataGridViewCellStyle2.SelectionBackColor = Color.Black;
             dataGridViewCellStyle2.SelectionForeColor = Color.Black;
@@ -713,7 +717,7 @@
             dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle6.BackColor = SystemColors.Control;
             dataGridViewCellStyle6.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle6.ForeColor = SystemColors.Control;
+            dataGridViewCellStyle6.ForeColor = Color.Transparent;
             dataGridViewCellStyle6.SelectionBackColor = SystemColors.Highlight;
             dataGridViewCellStyle6.SelectionForeColor = SystemColors.HighlightText;
             dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
@@ -733,28 +737,9 @@
             dataMemoryGrid.Size = new Size(442, 211);
             dataMemoryGrid.TabIndex = 29;
             // 
-            // Address
-            // 
-            dataGridViewCellStyle4.BackColor = SystemColors.Control;
-            dataGridViewCellStyle4.ForeColor = Color.Black;
-            dataGridViewCellStyle4.SelectionBackColor = SystemColors.Control;
-            dataGridViewCellStyle4.SelectionForeColor = Color.Black;
-            Address.DefaultCellStyle = dataGridViewCellStyle4;
-            Address.HeaderText = "Address";
-            Address.Name = "Address";
-            // 
-            // Data
-            // 
-            dataGridViewCellStyle5.BackColor = SystemColors.Control;
-            dataGridViewCellStyle5.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle5.ForeColor = Color.Black;
-            Data.DefaultCellStyle = dataGridViewCellStyle5;
-            Data.HeaderText = "Data";
-            Data.Name = "Data";
-            // 
             // groupBox4
             // 
-            groupBox4.BackColor = Color.FromArgb(224, 224, 224);
+            groupBox4.BackColor = SystemColors.ControlDarkDark;
             groupBox4.Controls.Add(MemoryGrid);
             groupBox4.Font = new Font("Consolas", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             groupBox4.Location = new Point(943, 22);
@@ -777,12 +762,12 @@
             // 
             // menuStrip1
             // 
-            menuStrip1.BackColor = Color.ForestGreen;
+            menuStrip1.BackColor = Color.DarkSlateGray;
             menuStrip1.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             menuStrip1.Items.AddRange(new ToolStripItem[] { hELPToolStripMenuItem, architectureToolStripMenuItem, isaReferenceToolStripMenuItem, oppGuideToolStripMenuItem, saveCodeToFileToolStripMenuItem, lOADFROMFILEToolStripMenuItem, helpToolStripMenuItem1 });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(1670, 27);
+            menuStrip1.Size = new Size(1648, 27);
             menuStrip1.TabIndex = 29;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -930,7 +915,8 @@
             // groupBox5
             // 
             groupBox5.AutoSize = true;
-            groupBox5.BackColor = Color.FromArgb(128, 64, 64);
+            groupBox5.BackColor = SystemColors.Desktop;
+            groupBox5.Controls.Add(debugToggleButton);
             groupBox5.Controls.Add(btnMonitorPower);
             groupBox5.Controls.Add(cpuSpeedLabel);
             groupBox5.Controls.Add(groupBox3);
@@ -943,13 +929,26 @@
             groupBox5.TabIndex = 30;
             groupBox5.TabStop = false;
             // 
+            // debugToggleButton
+            // 
+            debugToggleButton.BackColor = SystemColors.ControlDarkDark;
+            debugToggleButton.ForeColor = Color.WhiteSmoke;
+            debugToggleButton.Location = new Point(6, 854);
+            debugToggleButton.Name = "debugToggleButton";
+            debugToggleButton.Size = new Size(185, 33);
+            debugToggleButton.TabIndex = 30;
+            debugToggleButton.Text = "DEBUG TOGGLE";
+            debugToggleButton.UseVisualStyleBackColor = false;
+            debugToggleButton.Click += debugToggleButton_Click;
+            // 
             // btnMonitorPower
             // 
-            btnMonitorPower.BackColor = Color.Yellow;
+            btnMonitorPower.BackColor = SystemColors.ControlDarkDark;
+            btnMonitorPower.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             btnMonitorPower.ForeColor = Color.Black;
-            btnMonitorPower.Location = new Point(28, 887);
+            btnMonitorPower.Location = new Point(7, 896);
             btnMonitorPower.Name = "btnMonitorPower";
-            btnMonitorPower.Size = new Size(140, 31);
+            btnMonitorPower.Size = new Size(185, 31);
             btnMonitorPower.TabIndex = 29;
             btnMonitorPower.Text = "Turn On Monitor";
             btnMonitorPower.UseVisualStyleBackColor = false;
@@ -957,16 +956,36 @@
             // 
             // screenClock
             // 
+            screenClock.Enabled = true;
             screenClock.Interval = 1;
             screenClock.Tick += screenClock_Tick;
+            // 
+            // Address
+            // 
+            dataGridViewCellStyle4.BackColor = SystemColors.Desktop;
+            dataGridViewCellStyle4.ForeColor = SystemColors.Control;
+            dataGridViewCellStyle4.SelectionBackColor = SystemColors.Control;
+            dataGridViewCellStyle4.SelectionForeColor = SystemColors.Control;
+            Address.DefaultCellStyle = dataGridViewCellStyle4;
+            Address.HeaderText = "Address";
+            Address.Name = "Address";
+            // 
+            // Data
+            // 
+            dataGridViewCellStyle5.BackColor = SystemColors.ControlDarkDark;
+            dataGridViewCellStyle5.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle5.ForeColor = SystemColors.HighlightText;
+            Data.DefaultCellStyle = dataGridViewCellStyle5;
+            Data.HeaderText = "Data";
+            Data.Name = "Data";
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSize = true;
-            BackColor = Color.DimGray;
-            ClientSize = new Size(1670, 965);
+            BackColor = Color.Black;
+            ClientSize = new Size(1648, 979);
             Controls.Add(groupBox5);
             Controls.Add(menuStrip1);
             ForeColor = SystemColors.ButtonFace;
@@ -1061,8 +1080,6 @@
         private ToolStripMenuItem xorSwapTestToolStripMenuItem;
         private DataGridView videoGrid;
         private Button resetScreenButton;
-        private DataGridViewTextBoxColumn Address;
-        private DataGridViewTextBoxColumn Data;
         private GroupBox groupBox6;
         private ToolStripMenuItem counterToolStripMenuItem;
         private Button button1;
@@ -1075,5 +1092,8 @@
         private Button oppResetButton;
         private System.Windows.Forms.Timer screenClock;
         private Button btnMonitorPower;
+        private Button debugToggleButton;
+        private DataGridViewTextBoxColumn Address;
+        private DataGridViewTextBoxColumn Data;
     }
 }
