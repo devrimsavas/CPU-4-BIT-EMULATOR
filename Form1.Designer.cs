@@ -80,6 +80,7 @@
             pauseButton = new Button();
             resetButton = new Button();
             groupBox3 = new GroupBox();
+            fileNameLabel = new Label();
             groupBox6 = new GroupBox();
             button1 = new Button();
             resetScreenButton = new Button();
@@ -109,11 +110,17 @@
             saveCodeToFileToolStripMenuItem = new ToolStripMenuItem();
             lOADFROMFILEToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem1 = new ToolStripMenuItem();
+            rETROEFFECTSToolStripMenuItem = new ToolStripMenuItem();
+            activeEffectToolStripMenuItem = new ToolStripMenuItem();
+            scanlineToolStripMenuItem = new ToolStripMenuItem();
+            phosphorGlowToolStripMenuItem = new ToolStripMenuItem();
+            rGBMaskToolStripMenuItem = new ToolStripMenuItem();
+            vignetteToolStripMenuItem = new ToolStripMenuItem();
+            cRTFullToolStripMenuItem = new ToolStripMenuItem();
             groupBox5 = new GroupBox();
             debugToggleButton = new Button();
             btnMonitorPower = new Button();
             screenClock = new System.Windows.Forms.Timer(components);
-            fileNameLabel = new Label();
             RegisterAxBox.SuspendLayout();
             RegisterBxBox.SuspendLayout();
             registersBox.SuspendLayout();
@@ -668,6 +675,15 @@
             groupBox3.Text = "ASSEMBLER EDITOR";
             groupBox3.Enter += groupBox3_Enter;
             // 
+            // fileNameLabel
+            // 
+            fileNameLabel.AutoSize = true;
+            fileNameLabel.Location = new Point(174, 0);
+            fileNameLabel.Name = "fileNameLabel";
+            fileNameLabel.Size = new Size(72, 19);
+            fileNameLabel.TabIndex = 32;
+            fileNameLabel.Text = "FILE : ";
+            // 
             // groupBox6
             // 
             groupBox6.BackColor = SystemColors.WindowFrame;
@@ -818,7 +834,7 @@
             // 
             menuStrip1.BackColor = Color.DarkSlateGray;
             menuStrip1.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { hELPToolStripMenuItem, architectureToolStripMenuItem, isaReferenceToolStripMenuItem, oppGuideToolStripMenuItem, saveCodeToFileToolStripMenuItem, lOADFROMFILEToolStripMenuItem, helpToolStripMenuItem1 });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { hELPToolStripMenuItem, architectureToolStripMenuItem, isaReferenceToolStripMenuItem, oppGuideToolStripMenuItem, saveCodeToFileToolStripMenuItem, lOADFROMFILEToolStripMenuItem, helpToolStripMenuItem1, rETROEFFECTSToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1648, 27);
@@ -966,6 +982,55 @@
             helpToolStripMenuItem1.Text = "ABOUT";
             helpToolStripMenuItem1.Click += helpToolStripMenuItem1_Click;
             // 
+            // rETROEFFECTSToolStripMenuItem
+            // 
+            rETROEFFECTSToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { activeEffectToolStripMenuItem, scanlineToolStripMenuItem, phosphorGlowToolStripMenuItem, rGBMaskToolStripMenuItem, vignetteToolStripMenuItem, cRTFullToolStripMenuItem });
+            rETROEFFECTSToolStripMenuItem.Name = "rETROEFFECTSToolStripMenuItem";
+            rETROEFFECTSToolStripMenuItem.Size = new Size(138, 23);
+            rETROEFFECTSToolStripMenuItem.Text = "RETRO EFFECTS";
+            // 
+            // activeEffectToolStripMenuItem
+            // 
+            activeEffectToolStripMenuItem.Name = "activeEffectToolStripMenuItem";
+            activeEffectToolStripMenuItem.Size = new Size(195, 24);
+            activeEffectToolStripMenuItem.Text = "Active Effect";
+            activeEffectToolStripMenuItem.Click += activeEffectToolStripMenuItem_Click;
+            // 
+            // scanlineToolStripMenuItem
+            // 
+            scanlineToolStripMenuItem.Name = "scanlineToolStripMenuItem";
+            scanlineToolStripMenuItem.Size = new Size(195, 24);
+            scanlineToolStripMenuItem.Text = "Scanline";
+            scanlineToolStripMenuItem.Click += scanlineToolStripMenuItem_Click;
+            // 
+            // phosphorGlowToolStripMenuItem
+            // 
+            phosphorGlowToolStripMenuItem.Name = "phosphorGlowToolStripMenuItem";
+            phosphorGlowToolStripMenuItem.Size = new Size(195, 24);
+            phosphorGlowToolStripMenuItem.Text = "Phosphor Glow";
+            phosphorGlowToolStripMenuItem.Click += phosphorGlowToolStripMenuItem_Click;
+            // 
+            // rGBMaskToolStripMenuItem
+            // 
+            rGBMaskToolStripMenuItem.Name = "rGBMaskToolStripMenuItem";
+            rGBMaskToolStripMenuItem.Size = new Size(195, 24);
+            rGBMaskToolStripMenuItem.Text = "RGB Mask";
+            rGBMaskToolStripMenuItem.Click += rGBMaskToolStripMenuItem_Click;
+            // 
+            // vignetteToolStripMenuItem
+            // 
+            vignetteToolStripMenuItem.Name = "vignetteToolStripMenuItem";
+            vignetteToolStripMenuItem.Size = new Size(195, 24);
+            vignetteToolStripMenuItem.Text = "Vignette";
+            vignetteToolStripMenuItem.Click += vignetteToolStripMenuItem_Click;
+            // 
+            // cRTFullToolStripMenuItem
+            // 
+            cRTFullToolStripMenuItem.Name = "cRTFullToolStripMenuItem";
+            cRTFullToolStripMenuItem.Size = new Size(195, 24);
+            cRTFullToolStripMenuItem.Text = "CRT Full";
+            cRTFullToolStripMenuItem.Click += cRTFullToolStripMenuItem_Click;
+            // 
             // groupBox5
             // 
             groupBox5.AutoSize = true;
@@ -1013,15 +1078,6 @@
             screenClock.Enabled = true;
             screenClock.Interval = 1;
             screenClock.Tick += screenClock_Tick;
-            // 
-            // fileNameLabel
-            // 
-            fileNameLabel.AutoSize = true;
-            fileNameLabel.Location = new Point(174, 0);
-            fileNameLabel.Name = "fileNameLabel";
-            fileNameLabel.Size = new Size(72, 19);
-            fileNameLabel.TabIndex = 32;
-            fileNameLabel.Text = "FILE : ";
             // 
             // Form1
             // 
@@ -1142,5 +1198,12 @@
         private DataGridViewTextBoxColumn Data;
         private Button pauseButton;
         private Label fileNameLabel;
+        private ToolStripMenuItem rETROEFFECTSToolStripMenuItem;
+        private ToolStripMenuItem activeEffectToolStripMenuItem;
+        private ToolStripMenuItem scanlineToolStripMenuItem;
+        private ToolStripMenuItem phosphorGlowToolStripMenuItem;
+        private ToolStripMenuItem rGBMaskToolStripMenuItem;
+        private ToolStripMenuItem vignetteToolStripMenuItem;
+        private ToolStripMenuItem cRTFullToolStripMenuItem;
     }
 }

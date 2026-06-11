@@ -99,7 +99,6 @@ namespace WinFormsApp1
         private void RenderScreen()
         {
             Bitmap frame = new Bitmap(512, 512, PixelFormat.Format32bppArgb);
-
             BitmapData bmpData = frame.LockBits(
                 new Rectangle(0, 0, 512, 512),
                 ImageLockMode.WriteOnly,
@@ -108,7 +107,6 @@ namespace WinFormsApp1
             unsafe
             {
                 int* ptr = (int*)bmpData.Scan0;
-
                 for (int y = 0; y < 512; y++)
                 {
                     for (int x = 0; x < 512; x++)
@@ -117,12 +115,8 @@ namespace WinFormsApp1
                         Color c = _screen.IsPixelActive(x, y)
                             ? HardwarePalette.Colors[colorCode]
                             : Color.Black;
-                        //retro??
-                        if (y % 2 != 0)
-                        {
-                            c = Color.FromArgb(c.A, c.R / 2, c.G / 2, c.B / 2);
-                        }
 
+                        c = RenderEffects.Apply(c, x, y);
                         ptr[y * 512 + x] = c.ToArgb();
                     }
                 }
@@ -131,6 +125,7 @@ namespace WinFormsApp1
             frame.UnlockBits(bmpData);
             _monitorForm.UpdateFrame(frame);
         }
+        //render screen end
 
         // Hardware color lookup table
         private Color DecodeHardwareColor(ushort code)
@@ -600,7 +595,7 @@ namespace WinFormsApp1
                 {
                     // The user typed a standard text mnemonic command
                     assemblyText = trimmedLine;
-                    
+
                     machineCode = Assembler.GetMachineCode(trimmedLine);
                 }
 
@@ -781,7 +776,7 @@ namespace WinFormsApp1
             assemblyCodeBox.Clear();
             assemblyCodeBox.AppendText("MOV AX,0111\r\n");
             assemblyCodeBox.AppendText("PUSH AX\r\n");
-            
+
         }
 
         private void helpToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -861,7 +856,7 @@ namespace WinFormsApp1
                 MemoryGrid.ClearSelection();
             }
 
-            
+
 
             MessageBox.Show("CPU hardware cold boot sequence completed. All buffers and registers reset.", "Hardware Reset", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -1026,7 +1021,7 @@ namespace WinFormsApp1
             //Xor Swap example: Swapping values in AX and BX without a temporary register using XOR
             assemblyCodeBox.Clear();
             assemblyCodeBox.AppendText("will be updated\r\n");
-            
+
         }
 
         //will delete later, just for testing stack pop visualization
@@ -1048,8 +1043,8 @@ namespace WinFormsApp1
             {
                 // 8 bit data for each row is stored in 2 consecutive RAM addresses (4 bits per address)
                 // i*2 address for the first 4 bits of the row, i*2+1 for the next 4 bits
-                bool[] firstPart = WinFormsApp1.Models.DataMemory.Read(i * 2,0);
-                bool[] secondPart = WinFormsApp1.Models.DataMemory.Read(i * 2 + 1,0);
+                bool[] firstPart = WinFormsApp1.Models.DataMemory.Read(i * 2, 0);
+                bool[] secondPart = WinFormsApp1.Models.DataMemory.Read(i * 2 + 1, 0);
 
                 for (int j = 0; j < 8; j++)
                 {
@@ -1148,7 +1143,7 @@ namespace WinFormsApp1
         {
             assemblyCodeBox.Clear();
             assemblyCodeBox.AppendText("will be updated\r\n");
-            
+
 
         }
 
@@ -1232,7 +1227,39 @@ namespace WinFormsApp1
                 cpuClock.Stop();
                 pauseButton.Text = "PAUSED";
             }
-            
+
+        }
+
+        //RETRO EFFECTS 
+        private void activeEffectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RenderEffects.ActiveEffect = RenderEffects.Effect.None;
+        }
+
+        private void scanlineToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RenderEffects.ActiveEffect = RenderEffects.Effect.Scanline;
+        }
+
+        private void phosphorGlowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RenderEffects.ActiveEffect = RenderEffects.Effect.PhosphorGlow;
+
+        }
+
+        private void rGBMaskToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RenderEffects.ActiveEffect = RenderEffects.Effect.RGBMask;
+        }
+
+        private void vignetteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RenderEffects.ActiveEffect = RenderEffects.Effect.Vignette;
+        }
+
+        private void cRTFullToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RenderEffects.ActiveEffect = RenderEffects.Effect.CRTFull;
         }
     }
 }
