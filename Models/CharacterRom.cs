@@ -649,12 +649,37 @@ namespace WinFormsApp1.Models
 
         }; //digit end 
 
+        public static Dictionary<int, bool[][]> DataSpecial = new()
+        {
+            // ID 5 - Space (keyboard page 0, code 5)
+    {5, new bool[][]
+    {
+        new bool[] { true, true, true, true },
+        new bool[] { true, true, true, true },
+        new bool[] { true, true, true, true },
+        new bool[] { true, true, true, true },
+        new bool[] { true, true, true, true }
+    }},
+
+    // ID 6 - Enter arrow (keyboard page 0, code 6)
+    {6, new bool[][]
+    {
+        new bool[] { false, false, false, true },
+        new bool[] { false, false, true, true },
+        new bool[] { false, true, true, false },
+        new bool[] { true, true, false, false },
+        new bool[] { false, false, false, false }
+    }},
+
+        };
+
         public static readonly List<Dictionary<int, bool[][]>> RomPages = new()
         {
             Data,
             Data1,
             DataArithSymbols,
             DataDigits,
+            DataSpecial,
         };
 
 

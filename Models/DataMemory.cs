@@ -1,60 +1,71 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-//Data memory chip 
+
 namespace WinFormsApp1.Models
 {
     internal class DataMemory
     {
-        //for test screen
         public static ComputerMonitor ScreenHardware;
-        //16 hardware addresses (0x00 to 0x0F) for 4-bit data architecture
-        //each address can store a 4-bit value (0 to 15)
-        public static Dictionary<int, bool[]> Ram=new Dictionary<int, bool[]>();
-        //Initialize the data memory with default values (0)
+
+        // === BANK SYSTEM ===
+        // Bank 0 = default 
+        // Bank 1,2,3 = extra ram 
+        private static int _activeBank = 0;
+        private static Dictionary<int, bool[]>[] _banks = new Dictionary<int, bool[]>[16];
+
+        // Bank 0 to keep existed code selected default bank 0
+        public static Dictionary<int, bool[]> Ram => _banks[0];
+
         public static void Initialize()
         {
-            Ram.Clear();
-            //format for each address, we create a bool array of size 4 to represent the 4 bits
-            for (int i = 0; i < 16; i++)
+            // create 4 bank 
+            for (int b = 0; b < 16; b++)
             {
-                Ram[i] = new bool[4]; // 4 bits initialized to false (0)
+                _banks[b] = new Dictionary<int, bool[]>();
+                for (int i = 0; i < 16; i++)
+                {
+                    _banks[b][i] = new bool[4];
+                }
+            }
+            _activeBank = 0;
+        }
+
+        public static void SwitchBank(int bank)
+        {
+            if (bank >= 0 && bank < 16)
+            {
+                _activeBank = bank;
             }
         }
-        //write data to a specific address in the data memory (0x00 to 0x0F)    
+
+        public static int ActiveBank => _activeBank;
+
         public static void Write(int address, bool[] data)
         {
-            if (address>=0 && address < 16 && data.Length == 4)
+            if (address >= 0 && address < 16 && data.Length == 4)
             {
-                //clone the data array to ensure that we are not modifying the original array passed as an argument
-                //Ram[address] = data;
-                Ram[address] = (bool[])data.Clone(); // store a clone of the data to prevent external modification
-                //TEST FOR SCREEN SEGMENT
+                _banks[_activeBank][address] = (bool[])data.Clone();
 
-                if (address >= 10 && address <= 15 && ScreenHardware != null)
+                // hardware ports work only data memory 0 default 
+                if (_activeBank == 0 && address >= 10 && address <= 15 && ScreenHardware != null)
                 {
-                    // Fire a copy of the data directly to the monitor's command hub
                     ScreenHardware.ProcessCommand(address, data);
                 }
-
             }
             else
             {
-                throw new ArgumentException("Invalid address or data length. Address must be between 0 and 15, and data must be a 4-bit array.");
+                throw new ArgumentException("Invalid address or data length.");
             }
         }
-        //read data from a specific address in the data memory (0x00 to 0x0F)
-        public static bool[] Read(int address)
+
+        public static bool[] Read(int address, int bank=-1)
         {
+            int targetBank=bank==-1 ? _activeBank : bank;   
             if (address >= 0 && address < 16)
             {
-                return (bool[])Ram[address].Clone(); // return a clone of the data to prevent external modification 
+                return (bool[])_banks[targetBank][address].Clone();
             }
-            
-            //hardware fallback 
-            return new bool[4] { false, false, false, false }; // return default value (0) if address is invalid   
+            return new bool[4] { false, false, false, false };
         }
     }
 }

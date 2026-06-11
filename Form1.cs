@@ -16,6 +16,8 @@ namespace WinFormsApp1
 
         //debugger flag slow /fast
         private bool isDebugMode = true;
+        //pause flag 
+        private bool isRunning = true;
 
         public Form1()
         {
@@ -73,7 +75,7 @@ namespace WinFormsApp1
             screenClock.Interval = 16; // Set screen refresh rate (e.g., 100ms for 10 FPS) 
             screenClock.Tick += screenClock_Tick;
             screenClock.Start();
-           
+
         }
 
         //render screen at 60fps
@@ -87,6 +89,7 @@ namespace WinFormsApp1
                 RefreshUI();
                 RefreshDataMemoryGrid();
                 UpdateVideoDisplay();
+
 
             }
 
@@ -115,7 +118,7 @@ namespace WinFormsApp1
                             ? HardwarePalette.Colors[colorCode]
                             : Color.Black;
                         //retro??
-                        if (y%2 !=0)
+                        if (y % 2 != 0)
                         {
                             c = Color.FromArgb(c.A, c.R / 2, c.G / 2, c.B / 2);
                         }
@@ -494,24 +497,26 @@ namespace WinFormsApp1
                 //RefreshUI();
                 //RefreshDataMemoryGrid();
                 //video 
-                
-                
+
+
                 if (isDebugMode)
                 {
                     OutputRegister.Items.Add(resultText);
                     // Optional: Auto-scroll to the last item
                     OutputRegister.TopIndex = OutputRegister.Items.Count - 1;
+                    DebugLogger.Log(resultText);
                     //RefreshDataMemoryGrid();
                     //UpdateVideoDisplay();
 
 
+
                 }
-                
+
 
             };
         }
 
-        
+
 
         private void oppResetButton_Click(object sender, EventArgs e)
         {
@@ -595,7 +600,7 @@ namespace WinFormsApp1
                 {
                     // The user typed a standard text mnemonic command
                     assemblyText = trimmedLine;
-                    // NOTE: Replace with your actual dictionary/parser lookup method if named differently
+                    
                     machineCode = Assembler.GetMachineCode(trimmedLine);
                 }
 
@@ -717,10 +722,10 @@ namespace WinFormsApp1
 
         private void btnStep_Click(object sender, EventArgs e)
         {
-            
+
             ExecuteNextInstruction();
             RefreshUI();
-            
+
         }
 
         private void btnStartClock_Click(object sender, EventArgs e)
@@ -767,6 +772,7 @@ namespace WinFormsApp1
 
         private void hELPToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            //must be deleted
 
         }
 
@@ -775,16 +781,7 @@ namespace WinFormsApp1
             assemblyCodeBox.Clear();
             assemblyCodeBox.AppendText("MOV AX,0111\r\n");
             assemblyCodeBox.AppendText("PUSH AX\r\n");
-            assemblyCodeBox.AppendText("MOV AX,0111\r\n");
-            assemblyCodeBox.AppendText("PUSH BX\r\n");
-            assemblyCodeBox.AppendText("SUB\r\n");
-            assemblyCodeBox.AppendText("MOV AX,0111\r\n");
-            assemblyCodeBox.AppendText("PUSH AX\r\n");
-            assemblyCodeBox.AppendText("MOV BX,0011\r\n");
-            assemblyCodeBox.AppendText("PUSH BX\r\n");
-            assemblyCodeBox.AppendText("ADD\r\n");
-            assemblyCodeBox.AppendText("POP AX\r\n");
-            assemblyCodeBox.AppendText("POP BX\r\n");
+            
         }
 
         private void helpToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -864,9 +861,7 @@ namespace WinFormsApp1
                 MemoryGrid.ClearSelection();
             }
 
-            // NOTE: Reset your AX/BX register variables and Stack list here
-            // Example: RegisterAX = new bool[4]; RegisterBX = new bool[4];
-            // Example: StackList.Items.Clear();
+            
 
             MessageBox.Show("CPU hardware cold boot sequence completed. All buffers and registers reset.", "Hardware Reset", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -940,6 +935,8 @@ namespace WinFormsApp1
 
                         // Assign the entire text to the editor in one single UI operation
                         assemblyCodeBox.Text = fileContent;
+                        //file label
+                        fileNameLabel.Text = "📄 " + System.IO.Path.GetFileName(openFileDialog.FileName);
 
                         // Show a success confirmation
                         MessageBox.Show("Source code loaded into the editor successfully!", "Load Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -971,9 +968,9 @@ namespace WinFormsApp1
             {
                 string hexAddress = "0x" + i.ToString("X2");
                 //inject current data memory values into the grid for visualization
-                
+
                 dataMemoryGrid.Rows.Add(hexAddress, "0000");
-                dataMemoryGrid.BackgroundColor=SystemColors.Window;
+                dataMemoryGrid.BackgroundColor = SystemColors.Window;
             }
         }
 
@@ -1022,36 +1019,14 @@ namespace WinFormsApp1
             //store AX to memory address 0x00 example
             assemblyCodeBox.Clear();
             assemblyCodeBox.AppendText("MOV AX,1010\r\n");
-            assemblyCodeBox.AppendText("PUSH AX\r\n"); // Load AX with some value (e.g., 1010))            
-            assemblyCodeBox.AppendText("STORE 0000\r\n"); // Push AX onto the stack
-            assemblyCodeBox.AppendText("MOV AX,0101\r\n");
-            assemblyCodeBox.AppendText("PUSH AX\r\n"); // Pop the value back into AX to simulate a memory store operation
-            assemblyCodeBox.AppendText("STORE 1111\r\n"); // 
-            assemblyCodeBox.AppendText("LOAD 0000\r\n"); // Load AX with the value from memory address 0x00
-            assemblyCodeBox.AppendText("LOAD 1111\r\n"); // Load AX with the value from memory address 0x0F (for demonstration)
-            assemblyCodeBox.AppendText("ADD\r\n"); // Push the loaded value onto the stack to view in output
-
         }
 
         private void xorSwapTestToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //Xor Swap example: Swapping values in AX and BX without a temporary register using XOR
             assemblyCodeBox.Clear();
-            assemblyCodeBox.AppendText("MOV AX,1010\r\n");
-            assemblyCodeBox.AppendText("PUSH AX\r\n"); // Load AX with value 1010 (13 in decimal) 
-            assemblyCodeBox.AppendText("MOV BX,0101\r\n");
-            assemblyCodeBox.AppendText("PUSH BX\r\n"); // Load BX with value 0101 (5 in decimal)
-            assemblyCodeBox.AppendText("PUSH AX\r\n"); // Push AX onto the stack to save its value Ax=AX XOR BX
-            assemblyCodeBox.AppendText("PUSH BX\r\n"); // Push BX onto the stack to save its value BX=AX XOR BX (BX now holds original AX value)
-            assemblyCodeBox.AppendText("XOR\r\n"); // AX now holds the result of AX XOR BX
-            assemblyCodeBox.AppendText("POP AX\r\n");
-            assemblyCodeBox.AppendText("PUSH AX\r\n"); // BX now holds the result of AX XOR BX (original AX value)   
-            assemblyCodeBox.AppendText("PUSH BX\r\n"); // AX now holds the original BX value, completing the swap
-            assemblyCodeBox.AppendText("XOR\r\n"); // Finalize the swap by XORing again to restore original values
-            assemblyCodeBox.AppendText("POP BX\r\n"); // AX now holds the original BX value, and BX holds the original AX value
-            assemblyCodeBox.AppendText("PUSH AX\r\n"); // Clean up the stack by popping the saved values (optional, depending on your stack management)
-            assemblyCodeBox.AppendText("PUSH BX\r\n"); // Clean up the stack by popping the saved values (optional, depending on your stack management)
-            assemblyCodeBox.AppendText("XOR\r\n"); // Push the final swapped value onto the stack to view in output
+            assemblyCodeBox.AppendText("will be updated\r\n");
+            
         }
 
         //will delete later, just for testing stack pop visualization
@@ -1073,8 +1048,8 @@ namespace WinFormsApp1
             {
                 // 8 bit data for each row is stored in 2 consecutive RAM addresses (4 bits per address)
                 // i*2 address for the first 4 bits of the row, i*2+1 for the next 4 bits
-                bool[] firstPart = WinFormsApp1.Models.DataMemory.Read(i * 2);
-                bool[] secondPart = WinFormsApp1.Models.DataMemory.Read(i * 2 + 1);
+                bool[] firstPart = WinFormsApp1.Models.DataMemory.Read(i * 2,0);
+                bool[] secondPart = WinFormsApp1.Models.DataMemory.Read(i * 2 + 1,0);
 
                 for (int j = 0; j < 8; j++)
                 {
@@ -1163,6 +1138,7 @@ namespace WinFormsApp1
         //TO CHANGE BACKGROUND COLOR OF THE VIDEO GRID FOR TESTING PURPOSES
         private void button1_Click(object sender, EventArgs e)
         {
+
             videoGrid.BackgroundColor = Color.Blue;
         }
 
@@ -1171,14 +1147,8 @@ namespace WinFormsApp1
         private void jUMPNOTZEROToolStripMenuItem_Click(object sender, EventArgs e)
         {
             assemblyCodeBox.Clear();
-            assemblyCodeBox.AppendText("MOV AX,1111\r\n");
-            assemblyCodeBox.AppendText("PUSH AX,1111\r\n");
-            assemblyCodeBox.AppendText("STORE 0000\r\n");
-            assemblyCodeBox.AppendText("COUNTDOWN:\r\n");
-            assemblyCodeBox.AppendText("LOAD 0000\r\n");
-            assemblyCodeBox.AppendText("DEC\r\n");
-            assemblyCodeBox.AppendText("STORE 0000\r\n");
-            assemblyCodeBox.AppendText("JNZ COUNTDOWN\r\n");
+            assemblyCodeBox.AppendText("will be updated\r\n");
+            
 
         }
 
@@ -1194,6 +1164,24 @@ namespace WinFormsApp1
 
         private void btnMonitorPower_Click(object sender, EventArgs e)
         {
+            // if form is dead recreate it
+            if (_monitorForm == null || _monitorForm.IsDisposed)
+            {
+                _monitorForm = new MonitorForm();
+                DataMemory.ScreenHardware = _screen;
+            }
+
+            if (_monitorForm.Visible)
+            {
+                _monitorForm.Hide();
+                btnMonitorPower.Text = "TURN ON SCREEN";
+            }
+            else
+            {
+                _monitorForm.Show();
+                btnMonitorPower.Text = "TURN OFF SCREEN";
+            }
+            /*
             if (_monitorForm == null) return;
             if (_monitorForm.Visible)
             {
@@ -1205,6 +1193,8 @@ namespace WinFormsApp1
                 _monitorForm.Show();
                 btnMonitorPower.Text = "TURN OFF SCREEN";
             }
+            */
+
         }
 
         //toggle debug slow/fast
@@ -1218,6 +1208,7 @@ namespace WinFormsApp1
                 // Debug Mode: UI updates active, CPU slow
                 debugToggleButton.Text = "Debug Mode: ON";
                 debugToggleButton.BackColor = Color.Orange;
+                debugToggleButton.ForeColor = Color.Black;
             }
             else
             {
@@ -1226,6 +1217,22 @@ namespace WinFormsApp1
                 debugToggleButton.BackColor = Color.LightGreen;
             }
 
+        }
+
+        private void pauseButton_Click(object sender, EventArgs e)
+        {
+            isRunning = !isRunning;
+            if (isRunning)
+            {
+                cpuClock.Start();
+                pauseButton.Text = "PAUSE/RUN";
+            }
+            else
+            {
+                cpuClock.Stop();
+                pauseButton.Text = "PAUSED";
+            }
+            
         }
     }
 }

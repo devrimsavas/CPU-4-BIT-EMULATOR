@@ -1,23 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WinFormsApp1.Models
+﻿namespace WinFormsApp1.Models
 {
     public static class InputPort
     {
-        //Current key state as 4-bit value 
-        private static bool[] _currentKey = new bool[] { false, false, false, false };
-        public static void SetKey(bool[] keyCode)
+        private static bool[] _currentCode = new bool[4];
+        private static bool[] _currentPage = new bool[4];
+
+        public static void SetKey(bool[] page, bool[] code)
         {
-            _currentKey = ((bool[])keyCode.Clone());
+            _currentPage = (bool[])page.Clone();
+            _currentCode = (bool[])code.Clone();
         }
 
-        public static bool[] ReadKey()
+        public static void ClearKey()
         {
-            return (bool[])_currentKey.Clone(); 
+            _currentCode = new bool[] { false, false, false, false };
+            _currentPage = new bool[] { false, false, false, false };
         }
+
+        public static bool[] ReadCode() => (bool[])_currentCode.Clone();
+        public static bool[] ReadPage() => (bool[])_currentPage.Clone();
     }
 }

@@ -35,24 +35,38 @@ namespace WinFormsApp1
                 monitorBox.Image.Dispose();
             }
             monitorBox.Image = newFrame;
+            //focus 
+            /*
+            if (!this.ContainsFocus)
+            {
+                this.Focus();
+            }
+            */
         }
         // 1. KEY PRESSED
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-
-            bool[] signal=KeyMapper.GetHardwareSignal(e.KeyCode);
-
-            // Write directly to the shared hardware port
-            WinFormsApp1.Models.InputPort.SetKey(signal);
+            var (page, code) = KeyMapper.GetHardwareSignal(e.KeyCode);
+            InputPort.SetKey(page, code);
         }
 
         // 2. KEY RELEASED
         protected override void OnKeyUp(KeyEventArgs e)
         {
             base.OnKeyUp(e);
-            // Cut the power to the port
-            WinFormsApp1.Models.InputPort.SetKey(new bool[] { false, false, false, false });
+            InputPort.ClearKey();
+        }
+
+        // CLOSE STATE
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (e.CloseReason==CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                this.Hide();
+            }
+            base.OnFormClosing(e);
         }
 
     }

@@ -217,7 +217,7 @@ namespace WinFormsApp1.Models
             {
                 for (int c = 0; c < pattern[r].Length; c++)
                 {
-                    // === YENİ DONANIM YAMASI: Renk Matrisini Güncelle ===
+                    // === color matrix ===
                     int px = startX + (c * PixelScale);
                     int py = startY + (r * PixelScale);
                     int blockX = px / 8;
@@ -226,7 +226,7 @@ namespace WinFormsApp1.Models
 
                     if (index >= 0 && index < 4096)
                     {
-                        _attributeMatrix[index] = _activeColorCode; // Seçili rengi hafızaya bas
+                        _attributeMatrix[index] = _activeColorCode; 
                     }
                     // ====================================================
 
@@ -298,5 +298,7 @@ namespace WinFormsApp1.Models
 
             return _attributeMatrix[index];
         }
+
+        
     }
 }

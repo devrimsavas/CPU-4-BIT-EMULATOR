@@ -108,10 +108,7 @@ namespace WinFormsApp1.Models
                     OnExecutionComplete?.Invoke($"Syntax Error: Invalid 4-bit binary value '{binaryPart}'");
                     return;
                 }
-            }
-            //=== Ram Operations ===
-            //Handle Store "STORE 1111" to store AX value into RAM address 0x0F (15 in decimal)
-            // === STORE  ===
+            }            
 
             //=== Ram Operations ===
             //Handle Store "STORE 1111" to store AX value into RAM address 0x0F (15 in decimal)
@@ -156,6 +153,18 @@ namespace WinFormsApp1.Models
                                 // Exit the block so it doesn't write to normal RAM
                                 return;
                             }
+                            //HARDWRE SWITCH RAM BANK SWITCH 0x05
+                            if (address==5)
+                            {
+                                int bankIndex = (poppedReg.RegArray[0] ? 8 : 0) +
+                               (poppedReg.RegArray[1] ? 4 : 0) +
+                               (poppedReg.RegArray[2] ? 2 : 0) +
+                               (poppedReg.RegArray[3] ? 1 : 0);
+                                DataMemory.SwitchBank(bankIndex);
+                                OnExecutionComplete?.Invoke($"RAM: Switched to bank {bankIndex}");
+                                return; // critical — prevent normal RAM write
+
+                            } //ADDRESS 5 END 
 
                             // Standard RAM write for all other addresses
                             DataMemory.Write(address, poppedReg.RegArray);
@@ -179,9 +188,9 @@ namespace WinFormsApp1.Models
                 }
 
                 return;
-            }
-
-            // === LOAD ===
+            } 
+            //STORE END 
+            
             // === LOAD ===
             if (cleanLine.StartsWith("LOAD ", StringComparison.OrdinalIgnoreCase))
             {
@@ -196,18 +205,30 @@ namespace WinFormsApp1.Models
                     if (address >= 0 && address < 16)
                     {
                         // HARDWARE INTERCEPT: Keyboard input port at address 0x08
-                        // If the read address is 8, read directly from the InputPort instead of RAM
+                        //PORT 0x08 KEY CODE
                         if (address == 8)
                         {
-                            bool[] keyData = WinFormsApp1.Models.InputPort.ReadKey();
-                            Program.Stack.AddRegister(new Register("KEY", (bool[])keyData.Clone()));
+                            bool[] keyData = InputPort.ReadCode();
+                            Program.Stack.AddRegister(new Register("KEY_CODE", (bool[])keyData.Clone()));
 
                             string bitString = string.Join("", keyData.Select(b => b ? "1" : "0"));
                             OnExecutionComplete?.Invoke($"INPUT: Key state {bitString} loaded from port 0x08");
-
                             // Terminate the execution block to prevent normal RAM read
                             return;
                         }
+
+
+                        //port 0x06= KEYBOARD PAGE
+                        if (address==6)
+                        {
+                            bool[] pageData = InputPort.ReadPage();
+                            Program.Stack.AddRegister(new Register("KEY_PAGE", (bool[])pageData.Clone()));
+                            string bitString = string.Join("", pageData.Select(b => b ? "1" : "0"));
+                            OnExecutionComplete?.Invoke($"INPUT: Key state {bitString} loaded from port 0x06");
+
+                            // Terminate the execution block to prevent normal RAM read
+                            return;
+                        }                       
 
                         // Normal RAM read for all other addresses (0x00 - 0x07, 0x09 - 0x0F)
                         bool[] ramData = DataMemory.Read(address);
@@ -253,21 +274,9 @@ namespace WinFormsApp1.Models
                     {
                         // UI update log for successful decoding
                         OnExecutionComplete?.Invoke($"VPU DECODER: Drawing Char ID {charId} to screen via PRINT");
-
-                        // NOTE: WinForms UI pixel drawing logic will go here
-                        /*
-                        for (int r=0;r<pattern.Length;r++)
-                        {
-                            //1. send 4 bits to screen to draw to row simulates STORE 000F
-                            DataMemory.ScreenHardware.ProcessCommand(15, pattern[r]);
-                            //trigger Y scrolle STORE 000B sim with 0001
-                            DataMemory.ScreenHardware.ProcessCommand(11, new bool[] { false, false, false, true });
-                        }
-                        */
+                        
                         // Send the entire pattern to the monitor's new hardware function
                         DataMemory.ScreenHardware.DrawCharacter(pattern);
-
-
 
                     }
                     else
@@ -281,9 +290,86 @@ namespace WinFormsApp1.Models
                 }
 
                 return;
-            }
+            } //PRINT VIDEO OUT LOGIC END 
 
+            // === LOADB (Load from specific bank) ===
+            // Syntax: LOADB bank,address  e.g. LOADB 1,0000
+            if (cleanLine.StartsWith("LOADB ", StringComparison.OrdinalIgnoreCase))
+            {
+                string[] parts = cleanLine.Substring(6).Trim().Split(',');
+                if (parts.Length == 2)
+                {
+                    try
+                    {
+                        int bank = Convert.ToInt32(parts[0].Trim());
+                        int address = Convert.ToInt32(parts[1].Trim(), 16);
 
+                        if (bank >= 0 && bank < 16 && address >= 0 && address < 16)
+                        {
+                            bool[] data = DataMemory.Read(address, bank);
+                            Program.Stack.AddRegister(new Register("BANK_READ", (bool[])data.Clone()));
+                            string bitString = string.Join("", data.Select(b => b ? "1" : "0"));
+                            OnExecutionComplete?.Invoke($"LOADB: Fetched {bitString} from Bank {bank} RAM[0x{address:X2}]");
+                        }
+                        else
+                        {
+                            OnExecutionComplete?.Invoke($"Hardware Error: Invalid bank or address.");
+                        }
+                    }
+                    catch
+                    {
+                        OnExecutionComplete?.Invoke($"Syntax Error: Invalid LOADB syntax.");
+                    }
+                }
+                return;
+            } //LOADB END 
+
+            // === STOREB (Store to specific bank) ===
+            // Syntax: STOREB bank,address  e.g. STOREB 1,0000
+            if (cleanLine.StartsWith("STOREB ", StringComparison.OrdinalIgnoreCase))
+            {
+                string[] parts = cleanLine.Substring(7).Trim().Split(',');
+                if (parts.Length == 2)
+                {
+                    try
+                    {
+                        int bank = Convert.ToInt32(parts[0].Trim());
+                        int address = Convert.ToInt32(parts[1].Trim(), 16);
+
+                        if (bank >= 0 && bank < 16 && address >= 0 && address < 16)
+                        {
+                            var poppedReg = Program.Stack.PopRegister();
+                            if (poppedReg != null)
+                            {
+                                // save active bank
+                                int savedBank = DataMemory.ActiveBank;
+                                // switch to target bank
+                                DataMemory.SwitchBank(bank);
+                                // write
+                                DataMemory.Write(address, poppedReg.RegArray);
+                                // restore active bank
+                                DataMemory.SwitchBank(savedBank);
+
+                                string bitString = string.Join("", poppedReg.RegArray.Select(b => b ? "1" : "0"));
+                                OnExecutionComplete?.Invoke($"STOREB: Saved {bitString} to Bank {bank} RAM[0x{address:X2}]");
+                            }
+                            else
+                            {
+                                OnExecutionComplete?.Invoke("Hardware Error: Stack Underflow.");
+                            }
+                        }
+                        else
+                        {
+                            OnExecutionComplete?.Invoke($"Hardware Error: Invalid bank or address.");
+                        }
+                    }
+                    catch
+                    {
+                        OnExecutionComplete?.Invoke($"Syntax Error: Invalid STOREB syntax.");
+                    }
+                }
+                return;
+            } //STOREB END
 
 
             // === instructions ===
@@ -453,6 +539,16 @@ namespace WinFormsApp1.Models
                 //check if i used before 
                 return "11110111";
             }
+
+            //LOADB
+            if (cleanLine.StartsWith("LOADB ", StringComparison.OrdinalIgnoreCase))
+                return "01101111";
+
+            //STOREB
+            if (cleanLine.StartsWith("STOREB ", StringComparison.OrdinalIgnoreCase))
+                return "01111111";
+
+
 
 
             // 2. Handle Standard 4-bit instructions (Padded with 0000 to complete 8-bit architecture)
