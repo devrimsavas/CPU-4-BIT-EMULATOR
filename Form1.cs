@@ -10,10 +10,7 @@ namespace WinFormsApp1
     {
         //screen and ram instances
         private ComputerMonitor _screen;
-        //private Ram _ram;
-        //monitor form 
         private MonitorForm _monitorForm;
-
         //debugger flag slow /fast
         private bool isDebugMode = true;
         //pause flag 
@@ -24,8 +21,8 @@ namespace WinFormsApp1
 
             InitializeComponent();
             //İnitialize the data memory grid with default values for visualization
-            this.BackColor = SystemColors.Window;
-            this.ForeColor = SystemColors.ControlDark;
+            //this.BackColor =Color.Black;
+            //this.ForeColor = SystemColors.ControlDark;
             MemoryGrid.BackgroundColor = SystemColors.Window;
             MemoryGrid.DefaultCellStyle.BackColor = Color.FromArgb(30, 30, 30); // Soft dark gray
             MemoryGrid.DefaultCellStyle.ForeColor = Color.White;
@@ -34,15 +31,16 @@ namespace WinFormsApp1
             //POWER UP SCREEN 
             PowerUpHardware();
 
-            //videoGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+            //INIT CPU  MONITOR 
             videoGrid.Rows.Clear();
-            videoGrid.Columns.Clear(); // 
+            videoGrid.Columns.Clear();
 
             // add 8 columns
             for (int i = 0; i < 8; i++)
             {
                 videoGrid.Columns.Add($"col{i}", "");
-                videoGrid.Columns[i].Width = 30;
+                
+                
             }
 
             // add 8 rows
@@ -50,8 +48,13 @@ namespace WinFormsApp1
             {
                 videoGrid.Rows.Add();
                 videoGrid.Rows[i].Height = 30;
+                //headers 
+                int startAddress = i * 2;
+                videoGrid.Rows[i].HeaderCell.Value= $"0x{startAddress:X2}";
+                
+                
             }
-
+            videoGrid.RowHeadersWidth = 80;
 
             for (int i = 0; i < videoGrid.Columns.Count; i++)
             {
@@ -59,6 +62,7 @@ namespace WinFormsApp1
             }
             videoGrid.ClearSelection();
             videoGrid.CurrentCell = null;
+            //INIT MONITOR END 
 
 
         }
@@ -89,8 +93,6 @@ namespace WinFormsApp1
                 RefreshUI();
                 RefreshDataMemoryGrid();
                 UpdateVideoDisplay();
-
-
             }
 
         }
@@ -141,6 +143,7 @@ namespace WinFormsApp1
         private bool isHalted = false;
         //Core hardware cycle for fetch-decode-execute
 
+        //====EXECUTE NEXT INSTRUCTION===
         private void ExecuteNextInstruction()
         {
             Debug.WriteLine($"cpu speed {cpuClock.Interval}");
@@ -297,13 +300,12 @@ namespace WinFormsApp1
             MemoryGrid.Rows.Add(address, assembly, machineCode);
         }
 
+        //==REGISTER BUTTONS============
         private void ax0_Click(object sender, EventArgs e)
         {
             Program.Ax.AddBit(0);
             ax0.Text = Program.Ax.RegArray[3] ? "1" : "0";
             ax0.BackColor = Program.Ax.RegArray[3] ? Color.Yellow : Color.Red;
-
-
         }
 
         private void ax1_Click(object sender, EventArgs e)
@@ -311,7 +313,6 @@ namespace WinFormsApp1
             Program.Ax.AddBit(1);
             ax1.Text = Program.Ax.RegArray[2] ? "1" : "0";
             ax1.BackColor = Program.Ax.RegArray[2] ? Color.Yellow : Color.Red;
-
         }
 
         private void ax2_Click(object sender, EventArgs e)
@@ -398,17 +399,20 @@ namespace WinFormsApp1
             bx1.Text = "0"; bx1.BackColor = Color.Red;
             bx2.Text = "0"; bx2.BackColor = Color.Red;
             bx3.Text = "0"; bx3.BackColor = Color.Red;
-
         }
 
         private void clearStackButton_Click(object sender, EventArgs e)
         {
+            //*will removed 
+            /*
             Program.Stack.ClearStack();
             stackList.Items.Clear();
+            */
         }
 
         private void popStackButton_Click(object sender, EventArgs e)
         {
+            /*
             Register popped = Program.Stack.PopRegister();
             if (popped != null)
             {
@@ -420,48 +424,8 @@ namespace WinFormsApp1
             {
                 popedRegister.Text = "Stack is empty!";
             }
+            */
         }
-
-        private void op0_Click(object sender, EventArgs e)
-        {
-            Program.oppCodeA.Bits[3] = !Program.oppCodeA.Bits[3];
-            op0.Text = Program.oppCodeA.Bits[3] ? "1" : "0";
-            op0.BackColor = Program.oppCodeA.Bits[3] ? Color.Yellow : Color.Red;
-
-
-        }
-
-        private void op1_Click(object sender, EventArgs e)
-        {
-            Program.oppCodeA.Bits[2] = !Program.oppCodeA.Bits[2];
-            op1.Text = Program.oppCodeA.Bits[2] ? "1" : "0";
-            op1.BackColor = Program.oppCodeA.Bits[2] ? Color.Yellow : Color.Red;
-        }
-
-        private void op2_Click(object sender, EventArgs e)
-        {
-            Program.oppCodeA.Bits[1] = !Program.oppCodeA.Bits[1];
-            op2.Text = Program.oppCodeA.Bits[1] ? "1" : "0";
-            op2.BackColor = Program.oppCodeA.Bits[1] ? Color.Yellow : Color.Red;
-
-        }
-
-        private void op3_Click(object sender, EventArgs e)
-        {
-            Program.oppCodeA.Bits[0] = !Program.oppCodeA.Bits[0];
-            op3.Text = Program.oppCodeA.Bits[0] ? "1" : "0";
-            op3.BackColor = Program.oppCodeA.Bits[0] ? Color.Yellow : Color.Red;
-        }
-
-        private void oppPush_Click(object sender, EventArgs e)
-        {
-
-            Program.oppCodeA.SetBits(Program.oppCodeA.Bits);
-            string binaryString = string.Join("", Program.oppCodeA.Bits.Select(b => b ? "1" : "0"));
-            //oppCom.Items.Add($"Opcode: {binaryString}");
-
-        }
-
 
 
         private void Form1_Load(object sender, EventArgs e)
@@ -499,24 +463,19 @@ namespace WinFormsApp1
                     OutputRegister.Items.Add(resultText);
                     // Optional: Auto-scroll to the last item
                     OutputRegister.TopIndex = OutputRegister.Items.Count - 1;
-                    DebugLogger.Log(resultText);
+                    //DebugLogger.Log(resultText);
                     //RefreshDataMemoryGrid();
                     //UpdateVideoDisplay();
-
-
-
                 }
-
-
             };
         }
 
 
-
+        //will be deleted now 
         private void oppResetButton_Click(object sender, EventArgs e)
         {
             //oppCom.Items.Clear();
-            Program.oppCodeA.Clear();
+            //Program.oppCodeA.Clear();
         }
 
         private void runCodeButton_Click(object sender, EventArgs e)
@@ -663,7 +622,7 @@ namespace WinFormsApp1
         //CLEAR OUTPUT 
         private void clearOutput_Click(object sender, EventArgs e)
         {
-            OutputRegister.Items.Clear();
+            //OutputRegister.Items.Clear();
         }
 
         private void RefreshUI()
@@ -702,14 +661,13 @@ namespace WinFormsApp1
         private void cpuClock_Tick(object sender, EventArgs e)
         {
             // Set execution speed based on the current mode
-            int instructionsPerTick = isDebugMode ? 1 : 50;
+            int instructionsPerTick = isDebugMode ? 1 : 90;
 
             //can be faster? 
             for (int i = 0; i < instructionsPerTick; i++)
             {
                 if (isHalted) break;
                 ExecuteNextInstruction();
-
             }
             //ExecuteNextInstruction();
             //RefreshUI();
@@ -749,14 +707,11 @@ namespace WinFormsApp1
             //memory grid may stay to show the last loaded program, but we will clear the assembly and machine code columns to indicate a reset state without losing the visual structure of the memory grid.
             MemoryGrid.Rows.Clear();
             //OutputRegister.Items.Clear();
-
             WinFormsApp1.Models.ProgramMemory.MemoryList.Clear();
             WinFormsApp1.Models.DataMemory.Initialize(); // Reset the backend data memory to default values  
             InitializeDataMemoryGrid(); // Re-initialize the data memory grid to default values
-            //reset 
+            //------------reset --------------
             stackList.Items.Clear();
-
-
             programCounter = 0;
             isHalted = false;
             Program.Ax.ClearRegister();
@@ -781,63 +736,17 @@ namespace WinFormsApp1
 
         private void helpToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            string aboutInfo = "Custom 4-Bit Retro Microprocessor Emulator\n" +
-                       "Version: 1.0 (Development Phase)\n\n" +
-                       "Architecture Specifications:\n" +
-                       "- 4-Bit Shared Data Bus\n" +
-                       "- 2 Discrete Internal Hardware Registers (AX, BX)\n" +
-                       "- Hardware-based FILO/LIFO Memory Stack\n" +
-                       "- Combinational Logic ALU (16-Opcode Limit)\n\n" +
-                       "Designed and Emulated smoothly in C# WinForms.\n\n" +
-                       "2026 © Devrim Savas Yilmaz. \n";
-
-            MessageBox.Show(aboutInfo, "About Core Architecture", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(SystemMessages.AboutInfo, "About Core Architecture", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void isaReferenceToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string isaInfo = "SUPPORTED INSTRUCTION SET ARCHITECTURE (ISA):\n\n" +
-                     "0000: AND        - Bitwise Logical AND (TempA & TempB)\n" +
-                     "0001: OR         - Bitwise Logical OR (TempA | TempB)\n" +
-                     "0010: XOR        - Bitwise Logical XOR (TempA ^ TempB)\n" +
-                     "0011: NOT        - Invert TempA Bits (~TempA)\n" +
-                     "0100: ADD        - Arithmetic Addition (TempA + TempB)\n" +
-                     "0101: SUB        - Arithmetic Subtraction (TempA - TempB)\n" +
-                     "1000: SHL        - Shift TempA Left by 1 position\n" +
-                     "1001: SHR        - Shift TempA Right by 1 position\n" +
-                     "1010: INC        - Increment TempA by 1\n" +
-                     "1011: DEC        - Decrement TempA by 1\n" +
-                     "1100: PUSH AX    - Push AX Register onto Stack\n" +
-                     "1101: PUSH BX    - Push BX Register onto Stack\n" +
-                     "1110: POP AX     - Pop Top of Stack into AX Register\n" +
-                     "1111: POP BX     - Pop Top of Stack into BX Register";
-
-            MessageBox.Show(isaInfo, "Hardware ISA Reference", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(SystemMessages.IsaReferenceInfo, "Hardware ISA Reference", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
         }
         private void oppGuideToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string isaInfo = "SUPPORTED INSTRUCTION SET ARCHITECTURE (ISA):\n\n" +
-                     "-- LOGICAL OPERATIONS --\n" +
-                     "0000: AND      - Bitwise Logical AND\n" +
-                     "0001: OR       - Bitwise Logical OR\n" +
-                     "0010: XOR      - Bitwise Logical XOR\n" +
-                     "0011: NOT      - Invert TempA Bits (~TempA)\n\n" +
-                     "-- ARITHMETIC OPERATIONS --\n" +
-                     "0100: ADD      - Arithmetic Addition (TempA + TempB)\n" +
-                     "0101: SUB      - Arithmetic Subtraction (TempA - TempB)\n\n" +
-                     "-- ADVANCED OPERATIONS --\n" +
-                     "1000: SHL      - Shift TempA Left by 1 position\n" +
-                     "1001: SHR      - Shift TempA Right by 1 position\n" +
-                     "1010: INC      - Increment TempA by 1\n" +
-                     "1011: DEC      - Decrement TempA by 1\n\n" +
-                     "-- STACK & REGISTER OPERATIONS --\n" +
-                     "1100: PUSH AX  - Push AX Register onto Stack\n" +
-                     "1101: PUSH BX  - Push BX Register onto Stack\n" +
-                     "1110: POP AX   - Pop Stack Top into AX Register\n" +
-                     "1111: POP BX   - Pop Stack Top into BX Register";
-
-            MessageBox.Show(isaInfo, "Current Hardware ISA Reference", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(SystemMessages.OpGuideInfo, "Current Hardware ISA Reference", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
         }
 
@@ -855,8 +764,6 @@ namespace WinFormsApp1
             {
                 MemoryGrid.ClearSelection();
             }
-
-
 
             MessageBox.Show("CPU hardware cold boot sequence completed. All buffers and registers reset.", "Hardware Reset", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -951,7 +858,6 @@ namespace WinFormsApp1
             Console.Write("test");
             Debug.WriteLine("test");
 
-
         }
 
         private void InitializeDataMemoryGrid()
@@ -1006,7 +912,6 @@ namespace WinFormsApp1
             assemblyCodeBox.AppendText("MOV AX,1000\r\n");
             assemblyCodeBox.AppendText("PUSH AX\r\n");
             assemblyCodeBox.AppendText("SHR\r\n");
-
         }
 
         private void storeToMemoryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1170,25 +1075,15 @@ namespace WinFormsApp1
             {
                 _monitorForm.Hide();
                 btnMonitorPower.Text = "TURN ON SCREEN";
+                btnMonitorPower.BackColor = Color.Green;
             }
             else
             {
                 _monitorForm.Show();
                 btnMonitorPower.Text = "TURN OFF SCREEN";
+                btnMonitorPower.BackColor = Color.DarkGray;
             }
-            /*
-            if (_monitorForm == null) return;
-            if (_monitorForm.Visible)
-            {
-                _monitorForm.Hide();
-                btnMonitorPower.Text = "TURN ON SCREEN";
-            }
-            else
-            {
-                _monitorForm.Show();
-                btnMonitorPower.Text = "TURN OFF SCREEN";
-            }
-            */
+
 
         }
 
@@ -1230,7 +1125,7 @@ namespace WinFormsApp1
 
         }
 
-        //RETRO EFFECTS 
+        //==============RETRO EFFECTS 
         private void activeEffectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             RenderEffects.ActiveEffect = RenderEffects.Effect.None;
@@ -1244,7 +1139,6 @@ namespace WinFormsApp1
         private void phosphorGlowToolStripMenuItem_Click(object sender, EventArgs e)
         {
             RenderEffects.ActiveEffect = RenderEffects.Effect.PhosphorGlow;
-
         }
 
         private void rGBMaskToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1261,5 +1155,34 @@ namespace WinFormsApp1
         {
             RenderEffects.ActiveEffect = RenderEffects.Effect.CRTFull;
         }
+
+        private void btnSaveDebug_Click(object sender, EventArgs e)
+        {
+            if (OutputRegister.Items.Count == 0)
+            {
+                MessageBox.Show("Output is empty!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using (SaveFileDialog dlg = new SaveFileDialog())
+            {
+                dlg.Filter = "Text File (*.txt)|*.txt";
+                dlg.Title = "Save Debug Output";
+                dlg.FileName = $"debug_{DateTime.Now:yyyyMMdd_HHmmss}";
+
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    var lines = OutputRegister.Items.Cast<object>().Select(i => i.ToString());
+                    System.IO.File.WriteAllLines(dlg.FileName, lines);
+                    MessageBox.Show("Saved!", "OK", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+
+        }
+
+
+
+
+        //==RETRO EFFECTS END 
     }
 }

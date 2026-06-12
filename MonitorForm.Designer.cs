@@ -15,10 +15,17 @@
 
         private void InitializeComponent()
         {
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1024,1024);
-            this.Text = "BIT4 Monitor";
-            this.BackColor = System.Drawing.Color.Black;
+            SuspendLayout();
+            // 
+            // MonitorForm
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.Black;
+            ClientSize = new Size(1136, 1020);
+            Name = "MonitorForm";
+            Text = "BIT4 Monitor";
+            ResumeLayout(false);
         }
     }
 }

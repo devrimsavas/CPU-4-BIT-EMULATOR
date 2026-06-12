@@ -52,6 +52,7 @@ namespace WinFormsApp1.Models
     };
 
         //parser 
+        //=================RUNCODE============================
         public static void RunCode(string line)
         {
             // Clean spaces
@@ -86,10 +87,8 @@ namespace WinFormsApp1.Models
                 Program.Bx.RegArray = (bool[])Program.Ax.RegArray.Clone();
                 OnExecutionComplete?.Invoke($"MOV BX,AX: BX = {string.Join("", Program.Bx.RegArray.Select(b => b ? "1" : "0"))}");
                 return;
-            }
-
-            //  Check if it's a dynamic PUSH AX with a binary value!
-            //
+            }            
+            
             // === IMMEDIATE ASSIGNMENT (MOV) ===
             // Check if it's a dynamic MOV AX with a binary value!
             if (cleanLine.StartsWith("MOV AX,", StringComparison.OrdinalIgnoreCase))
@@ -256,7 +255,6 @@ namespace WinFormsApp1.Models
                             return;
                         }
 
-
                         //port 0x06= KEYBOARD PAGE
                         if (address==6)
                         {
@@ -315,9 +313,6 @@ namespace WinFormsApp1.Models
             }
             //LOADBI END
 
-
-
-
             //==PRINT (VIDEO OUT) LOGIC 
             if (cleanLine.Equals("PRINT", StringComparison.OrdinalIgnoreCase))
             {
@@ -343,7 +338,6 @@ namespace WinFormsApp1.Models
                         
                         // Send the entire pattern to the monitor's new hardware function
                         DataMemory.ScreenHardware.DrawCharacter(pattern);
-
                     }
                     else
                     {
@@ -489,12 +483,6 @@ namespace WinFormsApp1.Models
                 return;
             }
 
-            
-
-
-
-
-
             // === instructions ===
             if (instructionSet.TryGetValue(cleanLine, out var hardwareAction))
             {
@@ -506,7 +494,7 @@ namespace WinFormsApp1.Models
             }
         }
 
-        // hardwares
+        // ==HARDWARE OPERATIONS 
         private static void RunHardwareOperation(bool[] opcode)
         {
             AluInputBuffer.ClearBuffers(); // Clear buffers before loading new data
@@ -521,10 +509,7 @@ namespace WinFormsApp1.Models
             //  (DEBUGGING)
             string opName = string.Join("", opcode.Select(b => b ? "1" : "0"));
             string valA = poppedA != null ? string.Join("", poppedA.RegArray.Select(b => b ? "1" : "0")) : "NULL";
-            string valB = poppedB != null ? string.Join("", poppedB.RegArray.Select(b => b ? "1" : "0")) : "NULL";
-
-            
-            Console.WriteLine($"ALU DEBUG: Opcode:{opName} | A:{valA} | B:{valB}");
+            string valB = poppedB != null ? string.Join("", poppedB.RegArray.Select(b => b ? "1" : "0")) : "NULL";            
 
             if (isUnary)
             {
@@ -561,6 +546,7 @@ namespace WinFormsApp1.Models
         }
 
         //  helper for stack operations
+        //=RUN STACK OPERATIONS============
         public static void RunStackOperation(bool[] opcode)
         {
             string operationName = "";
@@ -671,8 +657,6 @@ namespace WinFormsApp1.Models
                 return "11110111";
             }
 
-
-
             //LOADB
             if (cleanLine.StartsWith("LOADB ", StringComparison.OrdinalIgnoreCase))
                 return "01101111";
@@ -698,9 +682,6 @@ namespace WinFormsApp1.Models
 
             if (cleanLine.Equals("MOV BX,AX", StringComparison.OrdinalIgnoreCase))
                 return "11011100";
-
-
-
 
             // 2. Handle Standard 4-bit instructions (Padded with 0000 to complete 8-bit architecture)
             switch (cleanLine)
@@ -878,8 +859,6 @@ namespace WinFormsApp1.Models
                 }
                 return true;
             }
-
-
 
 
             // if not a jump, run normally
