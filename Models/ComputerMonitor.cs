@@ -1,153 +1,111 @@
 ﻿using System;
 using System.Drawing;
-//active color 15
+
 namespace WinFormsApp1.Models
 {
     public class ComputerMonitor
     {
-        // Define screen dimensions
         private const int Width = 512;
         private const int Height = 512;
-        private const int PixelScale = 4; // 8x8 pixel blocks for color attributes or 4x4 pixel blocks for drawing
+        private const int PixelScale = 4;
 
-        // Pixel layer buffer (Layer 1 - Monochrome shapes)
         private bool[,] _pixelBuffer;
-
-        // Color attribute matrix (Layer 2 - 32x32 blocks = 1024 blocks total)
-        // NOTe:  if 512x512 and if  8x8 (PixelScale ) 
-        // 512 / 8 = 64 block  totaly 64 x 64 = 4096 block
-        // ram expended a bit cheat? check architecture
         private ushort[] _attributeMatrix;
-
-        // Scanline cursor coordinates
         private int _cursorX;
         private int _cursorY;
-
-        // smart brush active color 6 ? check again maybe black better?
         private ushort _activeColorCode = 14;
 
         public ComputerMonitor()
         {
-            // Initialize the blank pixel screen
             _pixelBuffer = new bool[Width, Height];
-
-            // Initialize the color matrix memory bank (Genişletildi: 4096)
             _attributeMatrix = new ushort[4096];
-
-            // Fill the screen with default color code (e.g., 2 for Lime Green)
             for (int i = 0; i < 4096; i++)
-            {
-                _attributeMatrix[i] = 0; //black
-            }
-
-            // Reset cursors
+                _attributeMatrix[i] = 0;
             _cursorX = 0;
             _cursorY = 0;
         }
 
-        // Central command hub for screen segment addresses (0x0A to 0x0F)
         public void ProcessCommand(int address, bool[] data)
         {
-            // Safety check
             if (data == null || data.Length != 4) return;
 
-            // 0x0F: Draw 4 pixels to the screen
+            // 0x0F: Draw 4 pixels
             if (address == 15)
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    // 1. Brush 
                     int blockX = _cursorX / 8;
                     int blockY = _cursorY / 8;
-                    int index = (blockY * 64) + blockX; // 
-
+                    int index = (blockY * 64) + blockX;
                     if (index >= 0 && index < 4096)
-                    {
                         _attributeMatrix[index] = _activeColorCode;
-                    }
 
-                    // 2. DRAW PIXEL
                     bool bitValue = data[i];
-
-                    // pixel block
                     for (int dx = 0; dx < PixelScale; dx++)
-                    {
                         for (int dy = 0; dy < PixelScale; dy++)
-                        {
-                            // against limit 
                             if (_cursorX + dx < Width && _cursorY + dy < Height)
-                            {
                                 _pixelBuffer[_cursorX + dx, _cursorY + dy] = bitValue;
-                            }
-                        }
-                    }
 
-                    // advance cursor
                     AdvanceCursor();
                 }
             }
-
-            // 0x0E: SET THE ACTIVE BRUSH COLOR
+            // 0x0E: Set color
             else if (address == 14)
             {
-                // update brush color 
                 _activeColorCode = ConvertBoolArrayToUShort(data);
             }
-
-            // RESET CURSOR (0x0D)
+            // 0x0D: Carriage return — X only reset
             else if (address == 13)
             {
                 _cursorX = 0;
-                _cursorY = 0;
             }
-
-            // 0x0C: FAST FORWARD X (Skip blank spaces horizontally)
+            // 0x0C: Fast forward X
             else if (address == 12)
             {
-                int steps = ConvertBoolArrayToUShort(data) * PixelScale; // PixelScale 
+                int steps = ConvertBoolArrayToUShort(data) * PixelScale;
                 _cursorX += steps;
-
                 if (_cursorX >= Width)
                 {
                     _cursorX %= Width;
-                    _cursorY += PixelScale; // jump with pixelscale
+                    _cursorY += PixelScale;
                 }
             }
-
-            // 0x0B: NEWLINE (Jump Y and reset X)
+            // 0x0B: Newline — Y only
             else if (address == 11)
             {
                 int lines = ConvertBoolArrayToUShort(data);
                 if (lines == 0) lines = 1;
-
-                _cursorY += (lines * PixelScale); // PixelScale 
-                _cursorX = 0;
-
+                _cursorY += (lines * PixelScale);
                 if (_cursorY >= Height)
-                {
                     _cursorY %= Height;
-                }
             }
-
             // 0x0A: CLS
             else if (address == 10)
             {
                 Array.Clear(_pixelBuffer, 0, _pixelBuffer.Length);
-                for (int i = 0; i < 4096; i++) // memory extension 
-                {
-                    _attributeMatrix[i] = 0; //TO ZERO 
-                }
+                for (int i = 0; i < 4096; i++)
+                    _attributeMatrix[i] = 0;
                 _cursorX = 0;
                 _cursorY = 0;
-                _activeColorCode = 14; // reset brush 
+                _activeColorCode = 14;
+            }
+            // 0x07: Set absolute X
+            else if (address == 7)
+            {
+                int xPos = ConvertBoolArrayToUShort(data) * PixelScale;
+                _cursorX = xPos;
+            }
+            // 0x04: Set absolute Y
+            else if (address == 4)
+            {
+                int yPos = ConvertBoolArrayToUShort(data) * PixelScale;
+                _cursorY = yPos;
             }
         }
 
-        // Handle the scanline movement
         private void AdvanceCursor()
         {
             _cursorX += PixelScale;
-
             if (_cursorX >= Width)
             {
                 _cursorX = 0;
@@ -156,149 +114,64 @@ namespace WinFormsApp1.Models
             }
         }
 
-        // HARDWARE DECODER: Draws a full character block and advances cursor side-by-side
-        public void DrawCharacterOLD(bool[][] pattern)
-        {
-            int startX = _cursorX;
-            int startY = _cursorY;
-
-            // 1. Draw the character matrix
-            for (int r = 0; r < pattern.Length; r++)
-            {
-                for (int c = 0; c < pattern[r].Length; c++)
-                {
-                    bool bitValue = pattern[r][c];
-
-                    // Draw the pixel block with PixelScale
-                    for (int dx = 0; dx < PixelScale; dx++)
-                    {
-                        for (int dy = 0; dy < PixelScale; dy++)
-                        {
-                            int px = startX + (c * PixelScale) + dx;
-                            int py = startY + (r * PixelScale) + dy;
-
-                            // Screen limit check
-                            if (px < Width && py < Height)
-                            {
-                                _pixelBuffer[px, py] = bitValue;
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            // 2. Advance the cursor to the RIGHT for the next character
-            // 4 pixels width + 1 pixel blank space = 5
-            _cursorX = startX + (5 * PixelScale);
-
-            // 3. Wrap to the next line if it hits the right edge of the screen
-            if (_cursorX >= Width)
-            {
-                _cursorX = 0;
-                _cursorY += (6 * PixelScale); // 5 rows height + 1 blank row space
-
-                if (_cursorY >= Height)
-                {
-                    _cursorY = 0;
-                }
-            }
-        }
-
-        //DRAW CHAR NEW
-        // HARDWARE DECODER: Draws a full character block and advances cursor side-by-side
         public void DrawCharacter(bool[][] pattern)
         {
             int startX = _cursorX;
             int startY = _cursorY;
 
-            // 1. Draw the character matrix
             for (int r = 0; r < pattern.Length; r++)
             {
                 for (int c = 0; c < pattern[r].Length; c++)
                 {
-                    // === color matrix ===
                     int px = startX + (c * PixelScale);
                     int py = startY + (r * PixelScale);
                     int blockX = px / 8;
                     int blockY = py / 8;
                     int index = (blockY * 64) + blockX;
-
                     if (index >= 0 && index < 4096)
-                    {
-                        _attributeMatrix[index] = _activeColorCode; 
-                    }
-                    // ====================================================
+                        _attributeMatrix[index] = _activeColorCode;
 
                     bool bitValue = pattern[r][c];
-
-                    // Draw the pixel block with PixelScale
                     for (int dx = 0; dx < PixelScale; dx++)
-                    {
                         for (int dy = 0; dy < PixelScale; dy++)
                         {
                             int finalX = px + dx;
                             int finalY = py + dy;
-
-                            // Screen limit check
                             if (finalX < Width && finalY < Height)
-                            {
                                 _pixelBuffer[finalX, finalY] = bitValue;
-                            }
                         }
-                    }
                 }
             }
 
-            // 2. Advance the cursor to the RIGHT for the next character
             _cursorX = startX + (5 * PixelScale);
-
-            // 3. Wrap to the next line if it hits the right edge of the screen
             if (_cursorX >= Width)
             {
                 _cursorX = 0;
                 _cursorY += (6 * PixelScale);
-
                 if (_cursorY >= Height)
-                {
                     _cursorY = 0;
-                }
             }
         }
 
+        public bool IsPixelActive(int x, int y) => _pixelBuffer[x, y];
 
-
-
-        // Helper: Convert bool[4] to a numeric value (0 to 15)
-        private ushort ConvertBoolArrayToUShort(bool[] data)
-        {
-            int value = 0;
-            if (data[0]) value += 8; // MSB
-            if (data[1]) value += 4;
-            if (data[2]) value += 2;
-            if (data[3]) value += 1; // LSB
-            return (ushort)value;
-        }
-
-        // Check if a specific pixel is active in the buffer
-        public bool IsPixelActive(int x, int y)
-        {
-            return _pixelBuffer[x, y];
-        }
-
-        // Determine the color code for any given X/Y pixel coordinate
         public ushort GetColorAttribute(int x, int y)
         {
             int blockX = x / 8;
             int blockY = y / 8;
-            int index = (blockY * 64) + blockX; // update to 64
-
-            // return greens if it exceeds limit
+            int index = (blockY * 64) + blockX;
             if (index < 0 || index >= 4096) return 2;
-
             return _attributeMatrix[index];
         }
 
-        
+        private ushort ConvertBoolArrayToUShort(bool[] data)
+        {
+            int value = 0;
+            if (data[0]) value += 8;
+            if (data[1]) value += 4;
+            if (data[2]) value += 2;
+            if (data[3]) value += 1;
+            return (ushort)value;
+        }
     }
 }

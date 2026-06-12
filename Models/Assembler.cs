@@ -153,6 +153,14 @@ namespace WinFormsApp1.Models
                                 // Exit the block so it doesn't write to normal RAM
                                 return;
                             }
+                            //ABSOLUTE X,Y SET 
+                            if (address==7 || address==4)
+                            {
+                                DataMemory.ScreenHardware.ProcessCommand(address, poppedReg.RegArray);
+                                OnExecutionComplete?.Invoke($"VPU: Cursor {(address == 7 ? 'X' : 'Y')} set");
+                                return;
+                            }
+                             
                             //HARDWRE SWITCH RAM BANK SWITCH 0x05
                             if (address==5)
                             {
@@ -250,6 +258,33 @@ namespace WinFormsApp1.Models
                 return;
             }
             //==END LOAD===============
+
+            //==LOADBI Indirect addressing
+            // === LOADBI bank — load from bank using BX as address ===
+            if (cleanLine.StartsWith("LOADBI ", StringComparison.OrdinalIgnoreCase))
+            {
+                string bankStr = cleanLine.Substring(7).Trim();
+                try
+                {
+                    int bank = Convert.ToInt32(bankStr);
+                    int address = (Program.Bx.RegArray[0] ? 8 : 0) +
+                                  (Program.Bx.RegArray[1] ? 4 : 0) +
+                                  (Program.Bx.RegArray[2] ? 2 : 0) +
+                                  (Program.Bx.RegArray[3] ? 1 : 0);
+
+                    bool[] data = DataMemory.Read(address, bank);
+                    Program.Stack.AddRegister(new Register("BANK_IND", (bool[])data.Clone()));
+                    OnExecutionComplete?.Invoke($"LOADBI: Fetched from Bank {bank} RAM[{address}] via BX");
+                }
+                catch
+                {
+                    OnExecutionComplete?.Invoke($"Syntax Error: Invalid LOADBI syntax.");
+                }
+                return;
+            }
+            //LOADBI END
+
+
 
 
             //==PRINT (VIDEO OUT) LOGIC 
@@ -547,6 +582,10 @@ namespace WinFormsApp1.Models
             //STOREB
             if (cleanLine.StartsWith("STOREB ", StringComparison.OrdinalIgnoreCase))
                 return "01111111";
+
+            //LOADBI
+            if (cleanLine.StartsWith("LOADBI ", StringComparison.OrdinalIgnoreCase))
+                return "01101110";
 
 
 
