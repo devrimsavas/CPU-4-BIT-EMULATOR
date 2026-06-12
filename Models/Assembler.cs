@@ -57,6 +57,37 @@ namespace WinFormsApp1.Models
             // Clean spaces
             string cleanLine = line.Trim();
 
+            // === NOP ===
+            if (cleanLine.Equals("NOP", StringComparison.OrdinalIgnoreCase))
+            {
+                OnExecutionComplete?.Invoke("NOP: No operation");
+                return;
+            }
+
+            // === HALT ===
+            if (cleanLine.Equals("HALT", StringComparison.OrdinalIgnoreCase))
+            {
+                PC = LoadedCode.Length; // terminate execution
+                OnExecutionComplete?.Invoke("HALT: CPU stopped.");
+                return;
+            }
+
+            // === MOV AX,BX ===
+            if (cleanLine.Equals("MOV AX,BX", StringComparison.OrdinalIgnoreCase))
+            {
+                Program.Ax.RegArray = (bool[])Program.Bx.RegArray.Clone();
+                OnExecutionComplete?.Invoke($"MOV AX,BX: AX = {string.Join("", Program.Ax.RegArray.Select(b => b ? "1" : "0"))}");
+                return;
+            }
+
+            // === MOV BX,AX ===
+            if (cleanLine.Equals("MOV BX,AX", StringComparison.OrdinalIgnoreCase))
+            {
+                Program.Bx.RegArray = (bool[])Program.Ax.RegArray.Clone();
+                OnExecutionComplete?.Invoke($"MOV BX,AX: BX = {string.Join("", Program.Bx.RegArray.Select(b => b ? "1" : "0"))}");
+                return;
+            }
+
             //  Check if it's a dynamic PUSH AX with a binary value!
             //
             // === IMMEDIATE ASSIGNMENT (MOV) ===
@@ -406,6 +437,63 @@ namespace WinFormsApp1.Models
                 return;
             } //STOREB END
 
+            // === CMP AX ===
+            if (cleanLine.StartsWith("CMP AX,", StringComparison.OrdinalIgnoreCase))
+            {
+                string binaryPart = cleanLine.Substring(7).Trim();
+                if (binaryPart.Length == 4 && binaryPart.All(c => c == '0' || c == '1'))
+                {
+                    bool[] compareValue = binaryPart.Select(c => c == '1').ToArray();
+                    bool equal = true;
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (Program.Ax.RegArray[i] != compareValue[i])
+                        {
+                            equal = false;
+                            break;
+                        }
+                    }
+                    ZeroFlag = equal;
+                    OnExecutionComplete?.Invoke($"CMP AX,{binaryPart}: ZeroFlag={ZeroFlag}");
+                }
+                else
+                {
+                    OnExecutionComplete?.Invoke($"Syntax Error: Invalid CMP value '{binaryPart}'");
+                }
+                return;
+            }
+
+            // === CMP BX ===
+            if (cleanLine.StartsWith("CMP BX,", StringComparison.OrdinalIgnoreCase))
+            {
+                string binaryPart = cleanLine.Substring(7).Trim();
+                if (binaryPart.Length == 4 && binaryPart.All(c => c == '0' || c == '1'))
+                {
+                    bool[] compareValue = binaryPart.Select(c => c == '1').ToArray();
+                    bool equal = true;
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (Program.Bx.RegArray[i] != compareValue[i])
+                        {
+                            equal = false;
+                            break;
+                        }
+                    }
+                    ZeroFlag = equal;
+                    OnExecutionComplete?.Invoke($"CMP BX,{binaryPart}: ZeroFlag={ZeroFlag}");
+                }
+                else
+                {
+                    OnExecutionComplete?.Invoke($"Syntax Error: Invalid CMP value '{binaryPart}'");
+                }
+                return;
+            }
+
+            
+
+
+
+
 
             // === instructions ===
             if (instructionSet.TryGetValue(cleanLine, out var hardwareAction))
@@ -514,6 +602,14 @@ namespace WinFormsApp1.Models
             //string cleanLine = line.Trim().ToUpper();
             string cleanLine=Regex.Replace(line.Trim(), @"\s+", " ").ToUpper(); // Normalize spaces and convert to uppercase for consistent parsing
 
+            //NOP 
+            if (cleanLine.Equals("NOP", StringComparison.OrdinalIgnoreCase))
+                return "00000001";
+
+            //HALT 
+            if (cleanLine.Equals("HALT", StringComparison.OrdinalIgnoreCase))
+                return "11111110";
+
             // 1. Handle Dynamic PUSH with data (e.g., "PUSH AX, 0110")
             // First 4 bits: Opcode (1100 or 1101), Last 4 bits: The binary data
             if (cleanLine.StartsWith("MOV AX,",StringComparison.OrdinalIgnoreCase))
@@ -575,6 +671,8 @@ namespace WinFormsApp1.Models
                 return "11110111";
             }
 
+
+
             //LOADB
             if (cleanLine.StartsWith("LOADB ", StringComparison.OrdinalIgnoreCase))
                 return "01101111";
@@ -586,6 +684,20 @@ namespace WinFormsApp1.Models
             //LOADBI
             if (cleanLine.StartsWith("LOADBI ", StringComparison.OrdinalIgnoreCase))
                 return "01101110";
+
+            //CMP AX
+            if (cleanLine.StartsWith("CMP AX,", StringComparison.OrdinalIgnoreCase))
+                return "10111100";
+
+            //CMP BX
+            if (cleanLine.StartsWith("CMP BX,", StringComparison.OrdinalIgnoreCase))
+                return "10111101";
+
+            if (cleanLine.Equals("MOV AX,BX", StringComparison.OrdinalIgnoreCase))
+                return "11001101";
+
+            if (cleanLine.Equals("MOV BX,AX", StringComparison.OrdinalIgnoreCase))
+                return "11011100";
 
 
 
