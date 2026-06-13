@@ -313,6 +313,41 @@ namespace WinFormsApp1.Models
             }
             //LOADBI END
 
+            // === STOREBI bank — store to bank using BX as address ===
+            if (cleanLine.StartsWith("STOREBI ", StringComparison.OrdinalIgnoreCase))
+            {
+                string bankStr = cleanLine.Substring(8).Trim();
+                try
+                {
+                    int bank = Convert.ToInt32(bankStr);
+                    int address = (Program.Bx.RegArray[0] ? 8 : 0) +
+                                  (Program.Bx.RegArray[1] ? 4 : 0) +
+                                  (Program.Bx.RegArray[2] ? 2 : 0) +
+                                  (Program.Bx.RegArray[3] ? 1 : 0);
+
+                    var poppedReg = Program.Stack.PopRegister();
+                    if (poppedReg != null)
+                    {
+                        int savedBank = DataMemory.ActiveBank;
+                        DataMemory.SwitchBank(bank);
+                        DataMemory.Write(address, poppedReg.RegArray);
+                        DataMemory.SwitchBank(savedBank);
+
+                        string bitString = string.Join("", poppedReg.RegArray.Select(b => b ? "1" : "0"));
+                        OnExecutionComplete?.Invoke($"STOREBI: Saved {bitString} to Bank {bank} RAM[{address}] via BX");
+                    }
+                    else
+                    {
+                        OnExecutionComplete?.Invoke("Hardware Error: Stack Underflow.");
+                    }
+                }
+                catch
+                {
+                    OnExecutionComplete?.Invoke($"Syntax Error: Invalid STOREBI syntax.");
+                }
+                return;
+            }
+
             //==PRINT (VIDEO OUT) LOGIC 
             if (cleanLine.Equals("PRINT", StringComparison.OrdinalIgnoreCase))
             {
@@ -676,12 +711,16 @@ namespace WinFormsApp1.Models
             //CMP BX
             if (cleanLine.StartsWith("CMP BX,", StringComparison.OrdinalIgnoreCase))
                 return "10111101";
-
+            //MOV AX BX
             if (cleanLine.Equals("MOV AX,BX", StringComparison.OrdinalIgnoreCase))
                 return "11001101";
-
+            //MOV AX BX
             if (cleanLine.Equals("MOV BX,AX", StringComparison.OrdinalIgnoreCase))
                 return "11011100";
+
+            //STOREBI
+            if (cleanLine.StartsWith("STOREBI ", StringComparison.OrdinalIgnoreCase))
+                return "01111110";
 
             // 2. Handle Standard 4-bit instructions (Padded with 0000 to complete 8-bit architecture)
             switch (cleanLine)

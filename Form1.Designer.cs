@@ -59,9 +59,9 @@
             bx3 = new Button();
             registersBox = new GroupBox();
             OUTPUT = new GroupBox();
+            OutputRegister = new ListBox();
             btnSaveDebug = new Button();
             clearOutputRegisterBtn = new Button();
-            OutputRegister = new ListBox();
             assemblyCodeBox = new RichTextBox();
             clearEditorButton = new Button();
             MemoryGrid = new DataGridView();
@@ -337,15 +337,28 @@
             // OUTPUT
             // 
             OUTPUT.BackColor = SystemColors.WindowFrame;
+            OUTPUT.Controls.Add(OutputRegister);
             OUTPUT.Controls.Add(btnSaveDebug);
             OUTPUT.Controls.Add(clearOutputRegisterBtn);
-            OUTPUT.Controls.Add(OutputRegister);
             OUTPUT.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             OUTPUT.Location = new Point(662, 25);
             OUTPUT.Name = "OUTPUT";
             OUTPUT.Size = new Size(436, 1026);
             OUTPUT.TabIndex = 15;
             OUTPUT.TabStop = false;
+            // 
+            // OutputRegister
+            // 
+            OutputRegister.BackColor = Color.Black;
+            OutputRegister.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            OutputRegister.ForeColor = Color.White;
+            OutputRegister.FormattingEnabled = true;
+            OutputRegister.HorizontalScrollbar = true;
+            OutputRegister.Location = new Point(6, 15);
+            OutputRegister.Name = "OutputRegister";
+            OutputRegister.ScrollAlwaysVisible = true;
+            OutputRegister.Size = new Size(430, 954);
+            OutputRegister.TabIndex = 1;
             // 
             // btnSaveDebug
             // 
@@ -370,19 +383,6 @@
             clearOutputRegisterBtn.Text = "CLEAR CONSOLE";
             clearOutputRegisterBtn.UseVisualStyleBackColor = false;
             clearOutputRegisterBtn.Click += clearOutputRegisterBtn_Click;
-            // 
-            // OutputRegister
-            // 
-            OutputRegister.BackColor = Color.Black;
-            OutputRegister.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            OutputRegister.ForeColor = Color.Yellow;
-            OutputRegister.FormattingEnabled = true;
-            OutputRegister.HorizontalScrollbar = true;
-            OutputRegister.Location = new Point(6, 15);
-            OutputRegister.Name = "OutputRegister";
-            OutputRegister.ScrollAlwaysVisible = true;
-            OutputRegister.Size = new Size(430, 956);
-            OutputRegister.TabIndex = 1;
             // 
             // assemblyCodeBox
             // 

@@ -428,6 +428,62 @@ namespace WinFormsApp1
         }
 
 
+        private void OutputRegister_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0) return;
+
+            string text = OutputRegister.Items[e.Index].ToString();
+
+            Color textColor;
+            Font textFont;
+
+            if (text.Contains("Error") || text.Contains("Syntax"))
+            {
+                textColor = Color.FromArgb(255, 85, 85);
+                textFont = new Font(e.Font, FontStyle.Bold);
+            }
+            else if (text.Contains("VPU"))
+            {
+                textColor = Color.FromArgb(85, 255, 255);
+                textFont = e.Font;
+            }
+            else if (text.Contains("JUMPED") || text.Contains("JZ") || text.Contains("JNZ") || text.Contains("JMP"))
+            {
+                textColor = Color.FromArgb(255, 255, 85);
+                textFont = e.Font;
+            }
+            else if (text.Contains("CALL") || text.Contains("RET"))
+            {
+                textColor = Color.FromArgb(255, 85, 255);
+                textFont = e.Font;
+            }
+            else if (text.Contains("LOAD") || text.Contains("STORE"))
+            {
+                textColor = Color.FromArgb(85, 255, 85);
+                textFont = e.Font;
+            }
+            else if (text.Contains("INPUT"))
+            {
+                textColor = Color.FromArgb(85, 85, 255);
+                textFont = e.Font;
+            }
+            else if (text.Contains("Result"))
+            {
+                textColor = Color.FromArgb(170, 170, 170);
+                textFont = e.Font;
+            }
+            else
+            {
+                textColor = Color.White;
+                textFont = e.Font;
+            }
+
+            e.DrawBackground();
+            using (SolidBrush brush = new SolidBrush(textColor))
+                e.Graphics.DrawString(text, textFont, brush, e.Bounds);
+            e.DrawFocusRectangle();
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
             //key
@@ -446,6 +502,10 @@ namespace WinFormsApp1
             MemoryGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             MemoryGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             UpdateCpuSpeedLabel();
+            //outregister error -CUSTOM COLORS
+            OutputRegister.DrawMode = DrawMode.OwnerDrawFixed;
+            OutputRegister.DrawItem += OutputRegister_DrawItem!;
+
 
 
             //Assembler 
@@ -661,7 +721,7 @@ namespace WinFormsApp1
         private void cpuClock_Tick(object sender, EventArgs e)
         {
             // Set execution speed based on the current mode
-            int instructionsPerTick = isDebugMode ? 1 : 90;
+            int instructionsPerTick = isDebugMode ? 1 : 290;
 
             //can be faster? 
             for (int i = 0; i < instructionsPerTick; i++)
