@@ -21,8 +21,9 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.Black;
-            ClientSize = new Size(1136, 1020);
+            BackColor = Color.FromArgb(40, 40, 40);
+            ClientSize = new Size(994, 827);
+            ForeColor = Color.Black;
             Name = "MonitorForm";
             Text = "BIT4 Monitor";
             ResumeLayout(false);

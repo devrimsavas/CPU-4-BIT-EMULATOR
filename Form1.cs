@@ -39,8 +39,7 @@ namespace WinFormsApp1
             for (int i = 0; i < 8; i++)
             {
                 videoGrid.Columns.Add($"col{i}", "");
-                
-                
+
             }
 
             // add 8 rows
@@ -50,9 +49,7 @@ namespace WinFormsApp1
                 videoGrid.Rows[i].Height = 30;
                 //headers 
                 int startAddress = i * 2;
-                videoGrid.Rows[i].HeaderCell.Value= $"0x{startAddress:X2}";
-                
-                
+                videoGrid.Rows[i].HeaderCell.Value = $"0x{startAddress:X2}";
             }
             videoGrid.RowHeadersWidth = 80;
 
@@ -61,11 +58,15 @@ namespace WinFormsApp1
                 videoGrid.Columns[i].Width = 30; // pixelSize;
             }
             videoGrid.ClearSelection();
+            videoGrid.DoubleBuffered(true);
             videoGrid.CurrentCell = null;
-            //INIT MONITOR END 
 
 
-        }
+        }//INIT MONITOR END 
+
+        //the hidden buffer list for collectiong fast CPU LOGS 
+        private List<string> _debugLogBuffer = new List<string>();
+
         //initialize screen and ram instances
         private void PowerUpHardware()
         {
@@ -83,26 +84,58 @@ namespace WinFormsApp1
         }
 
         //render screen at 60fps
+        private int _memoryRefreshCounter = 0;
         private void screenClock_Tick(object sender, EventArgs e)
         {
-            //renderscreen is for monitor 
             RenderScreen();
-            //UpdateVideoDisplay();
+            _memoryRefreshCounter++;
+
+            // Process UI-heavy operations only every 10 ticks to save CPU cycles
+            if (_memoryRefreshCounter >= 10)
+            {
+                
+                RefreshWholeMemoryGrid();
+                _memoryRefreshCounter = 0;
+            }
+
+            // Process debug UI and log buffers independently if enabled
             if (isDebugMode)
             {
                 RefreshUI();
                 RefreshDataMemoryGrid();
                 UpdateVideoDisplay();
-            }
 
+                // Process debug logs in batches to prevent UI flickering in OutputRegister
+                if (_debugLogBuffer.Count > 0)
+                {
+                    OutputRegister.BeginUpdate(); // Suspend UI drawing
+
+                    // Dump all collected logs into the ListBox
+                    foreach (string log in _debugLogBuffer)
+                    {
+                        OutputRegister.Items.Add(log);
+                    }
+
+                    // Scroll to the bottom only once per batch
+                    OutputRegister.TopIndex = OutputRegister.Items.Count - 1;
+
+                    OutputRegister.EndUpdate(); // Resume drawing and paint screen once
+
+                    // Clear the buffer for the next CPU cycle
+                    _debugLogBuffer.Clear();
+                }
+            }
         }
         // Convert the hardware pixel buffer and color matrix into a visible Windows image
         //RENDER SCREEN
         private void RenderScreen()
         {
-            Bitmap frame = new Bitmap(512, 512, PixelFormat.Format32bppArgb);
+            int renderW = 512;
+            int renderH = 512;
+
+            Bitmap frame = new Bitmap(renderW, renderH, PixelFormat.Format32bppArgb);
             BitmapData bmpData = frame.LockBits(
-                new Rectangle(0, 0, 512, 512),
+                new Rectangle(0, 0, renderW, renderH),
                 ImageLockMode.WriteOnly,
                 PixelFormat.Format32bppArgb);
 
@@ -117,9 +150,8 @@ namespace WinFormsApp1
                         Color c = _screen.IsPixelActive(x, y)
                             ? HardwarePalette.Colors[colorCode]
                             : Color.Black;
-
                         c = RenderEffects.Apply(c, x, y);
-                        ptr[y * 512 + x] = c.ToArgb();
+                        ptr[(y * renderH / 512) * renderW + (x * renderW / 512)] = c.ToArgb();
                     }
                 }
             }
@@ -136,6 +168,105 @@ namespace WinFormsApp1
             if (code > 15) return Color.Black;
             return HardwarePalette.Colors[code];
         }
+
+        //WHOLE RAM BANKS MONITOR 
+        private void InitializeWholeMemoryBankGrid()
+        {
+            memoryBankGrid.Rows.Clear();
+            memoryBankGrid.Columns.Clear();
+
+            // bank column
+            memoryBankGrid.Columns.Add("bank", "Bank");
+            memoryBankGrid.Columns[0].Width = 45;
+
+            // 16 address columns
+            for (int i = 0; i < 16; i++)
+            {
+                memoryBankGrid.Columns.Add($"addr{i}", $"{i:X2}");
+                memoryBankGrid.Columns[i + 1].Width = 38;
+            }
+
+            // 16 bank rows
+            for (int b = 0; b < 16; b++)
+            {
+                memoryBankGrid.Rows.Add();
+                memoryBankGrid.Rows[b].Cells[0].Value = $"Bank {b}";
+                memoryBankGrid.Rows[b].Cells[0].Style.ForeColor = Color.FromArgb(255, 255, 85);
+            }
+
+            memoryBankGrid.AllowUserToAddRows = false;
+            memoryBankGrid.ReadOnly = true;
+            memoryBankGrid.RowHeadersVisible = false;
+            memoryBankGrid.BackgroundColor = Color.Black;
+            memoryBankGrid.DefaultCellStyle.BackColor = Color.FromArgb(20, 20, 60);
+            memoryBankGrid.DefaultCellStyle.ForeColor = Color.FromArgb(150,150,220);
+            memoryBankGrid.DefaultCellStyle.Font = new Font("Courier New", 7);
+            memoryBankGrid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(26, 26, 46);
+            memoryBankGrid.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(255, 255, 85);
+            
+
+            memoryBankGrid.GridColor = Color.FromArgb(40, 40, 80);
+            memoryBankGrid.ClearSelection();
+            memoryBankGrid.DoubleBuffered(true);
+
+        } //INITIALIZE WHOLE RAM BANKS ENDS
+        private void RefreshWholeMemoryGrid()
+        {
+            if (memoryBankGrid.Rows.Count < 16 || memoryBankGrid.Columns.Count < 17)
+            {
+                InitializeWholeMemoryBankGrid();
+                return;
+            }
+
+            int activeBank = DataMemory.ActiveBank;
+
+            for (int b = 0; b < 16; b++)
+            {
+                for (int addr = 0; addr < 16; addr++)
+                {
+                    // Read fresh data from memory
+                    bool[] data = DataMemory.Read(addr, b);
+                    string newValue = string.Join("", data.Select(x => x ? "1" : "0"));
+
+                    // Read old data to detect if the memory cell has been overwritten
+                    string oldValue = memoryBankGrid.Rows[b].Cells[addr + 1].Value as string;
+                    bool isChanged = (oldValue != null && oldValue != newValue);
+
+                    // Update cell with the new binary string
+                    memoryBankGrid.Rows[b].Cells[addr + 1].Value = newValue;
+
+                    // Apply coloring based on state
+                    if (isChanged)
+                    {
+                        // Flash effect: White background for newly written data
+                        memoryBankGrid.Rows[b].Cells[addr + 1].Style.BackColor = Color.White;
+                        memoryBankGrid.Rows[b].Cells[addr + 1].Style.ForeColor = Color.Black;
+                    }
+                    else if (b == 0 && addr >= 4)
+                    {
+                        // Bank 0 reserved ports - red always wins
+                        memoryBankGrid.Rows[b].Cells[addr + 1].Style.BackColor = Color.FromArgb(60, 0, 0);
+                        memoryBankGrid.Rows[b].Cells[addr + 1].Style.ForeColor = Color.FromArgb(255, 85, 85);
+                    }
+                    else if (b == activeBank)
+                    {
+                        // Active bank - bright green
+                        memoryBankGrid.Rows[b].Cells[addr + 1].Style.BackColor = Color.FromArgb(0, 60, 0);
+                        memoryBankGrid.Rows[b].Cells[addr + 1].Style.ForeColor = Color.FromArgb(85, 255, 85);
+                    }
+                    else
+                    {
+                        // Other inactive banks - dim blue
+                        memoryBankGrid.Rows[b].Cells[addr + 1].Style.BackColor = Color.FromArgb(20, 20, 60);
+                        memoryBankGrid.Rows[b].Cells[addr + 1].Style.ForeColor = Color.FromArgb(150, 150, 220);
+                    }
+                }
+            }
+
+            memoryBankGrid.ClearSelection();
+        }
+
+
 
         // Simulated Program Counter to track current instruction in memory
         private int programCounter = 0;
@@ -427,60 +558,62 @@ namespace WinFormsApp1
             */
         }
 
-
+        private Font _boldErrorFont;
+        //OUTPUT COLOR MESSAGE 
         private void OutputRegister_DrawItem(object sender, DrawItemEventArgs e)
         {
             if (e.Index < 0) return;
 
+            // Initialize the cached font on the first run using the ListBox's default font
+            if (_boldErrorFont == null)
+            {
+                _boldErrorFont = new Font(e.Font, FontStyle.Bold);
+            }
+
             string text = OutputRegister.Items[e.Index].ToString();
+            Color textColor = Color.White; // Default color
+            Font textFont = e.Font;        // Default font
 
-            Color textColor;
-            Font textFont;
-
+            // Determine colors without allocating new heavy objects in memory
             if (text.Contains("Error") || text.Contains("Syntax"))
             {
                 textColor = Color.FromArgb(255, 85, 85);
-                textFont = new Font(e.Font, FontStyle.Bold);
+                textFont = _boldErrorFont; // Use the pre-loaded cached font!
             }
             else if (text.Contains("VPU"))
             {
                 textColor = Color.FromArgb(85, 255, 255);
-                textFont = e.Font;
             }
             else if (text.Contains("JUMPED") || text.Contains("JZ") || text.Contains("JNZ") || text.Contains("JMP"))
             {
                 textColor = Color.FromArgb(255, 255, 85);
-                textFont = e.Font;
             }
             else if (text.Contains("CALL") || text.Contains("RET"))
             {
                 textColor = Color.FromArgb(255, 85, 255);
-                textFont = e.Font;
             }
             else if (text.Contains("LOAD") || text.Contains("STORE"))
             {
                 textColor = Color.FromArgb(85, 255, 85);
-                textFont = e.Font;
             }
             else if (text.Contains("INPUT"))
             {
                 textColor = Color.FromArgb(85, 85, 255);
-                textFont = e.Font;
             }
             else if (text.Contains("Result"))
             {
                 textColor = Color.FromArgb(170, 170, 170);
-                textFont = e.Font;
-            }
-            else
-            {
-                textColor = Color.White;
-                textFont = e.Font;
             }
 
+            // Draw the background behind the text
             e.DrawBackground();
+
+            // The 'using' block creates the brush, uses it, and immediately destroys it safely
             using (SolidBrush brush = new SolidBrush(textColor))
+            {
                 e.Graphics.DrawString(text, textFont, brush, e.Bounds);
+            }
+
             e.DrawFocusRectangle();
         }
 
@@ -502,9 +635,11 @@ namespace WinFormsApp1
             MemoryGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             MemoryGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             UpdateCpuSpeedLabel();
+            InitializeWholeMemoryBankGrid();
             //outregister error -CUSTOM COLORS
             OutputRegister.DrawMode = DrawMode.OwnerDrawFixed;
             OutputRegister.DrawItem += OutputRegister_DrawItem!;
+            OutputRegister.EnableDoubleBuffered(true);
 
 
 
@@ -520,9 +655,15 @@ namespace WinFormsApp1
 
                 if (isDebugMode)
                 {
-                    OutputRegister.Items.Add(resultText);
+                    //OutputRegister.Items.Add(resultText);
+
                     // Optional: Auto-scroll to the last item
-                    OutputRegister.TopIndex = OutputRegister.Items.Count - 1;
+
+                    //OutputRegister.TopIndex = OutputRegister.Items.Count - 1;
+
+
+
+                    _debugLogBuffer.Add(resultText);
                     //DebugLogger.Log(resultText);
                     //RefreshDataMemoryGrid();
                     //UpdateVideoDisplay();
@@ -741,6 +882,7 @@ namespace WinFormsApp1
 
         }
 
+        //TO BE DELETED 
         private void btnStartClock_Click(object sender, EventArgs e)
         {
             // Add visual separator for the start of the Autorun session
@@ -1237,6 +1379,32 @@ namespace WinFormsApp1
                     MessageBox.Show("Saved!", "OK", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
+
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // Check if memory has data to determine if saving prompt is needed
+            if (WinFormsApp1.Models.ProgramMemory.MemoryList.Count > 0)
+            {
+                DialogResult result = MessageBox.Show(
+                    "Do you want to save your CPU Program Memory before exiting?",
+                    "Unsaved Data Warning",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    // Trigger your existing save button logic virtually
+                    saveToFileButton_Click(null, null);
+                }
+                else if (result == DialogResult.Cancel)
+                {
+                    // Abort closing
+                    e.Cancel = true;
+                }
+            }
+
 
         }
 

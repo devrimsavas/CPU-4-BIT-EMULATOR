@@ -784,7 +784,7 @@ namespace WinFormsApp1.Models
         //when it calls , program counter run a line and execute 
         public static bool ExecuteNextLine()
         {
-            if (PC >= LoadedCode.Length) return false; // Kod bitti
+            if (PC >= LoadedCode.Length) return false; 
 
             string cleanLine = LoadedCode[PC].Trim();
 
