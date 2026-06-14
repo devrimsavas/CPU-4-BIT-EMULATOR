@@ -29,18 +29,18 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            DataGridViewCellStyle dataGridViewCellStyle13 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle14 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle15 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle16 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle17 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle22 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle23 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle24 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle20 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle21 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle18 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle19 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle7 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle8 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle11 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle12 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle9 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle10 = new DataGridViewCellStyle();
             saveFileDialog1 = new SaveFileDialog();
             RegisterAxBox = new GroupBox();
             resetAx = new Button();
@@ -113,6 +113,7 @@
             debugToggleButton = new Button();
             btnMonitorPower = new Button();
             screenClock = new System.Windows.Forms.Timer(components);
+            resetMonitorBtn = new Button();
             RegisterAxBox.SuspendLayout();
             RegisterBxBox.SuspendLayout();
             registersBox.SuspendLayout();
@@ -411,43 +412,43 @@
             // 
             // MemoryGrid
             // 
-            dataGridViewCellStyle13.SelectionBackColor = Color.Yellow;
-            dataGridViewCellStyle13.SelectionForeColor = Color.Black;
-            MemoryGrid.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle13;
+            dataGridViewCellStyle1.SelectionBackColor = Color.Yellow;
+            dataGridViewCellStyle1.SelectionForeColor = Color.Black;
+            MemoryGrid.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             MemoryGrid.BackgroundColor = SystemColors.ControlDarkDark;
-            dataGridViewCellStyle14.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle14.BackColor = SystemColors.Control;
-            dataGridViewCellStyle14.Font = new Font("Consolas", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle14.ForeColor = Color.White;
-            dataGridViewCellStyle14.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle14.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle14.WrapMode = DataGridViewTriState.True;
-            MemoryGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle14;
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = SystemColors.Control;
+            dataGridViewCellStyle2.Font = new Font("Consolas", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle2.ForeColor = Color.White;
+            dataGridViewCellStyle2.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
+            MemoryGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             MemoryGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle15.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle15.BackColor = SystemColors.WindowText;
-            dataGridViewCellStyle15.Font = new Font("Consolas", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle15.ForeColor = Color.White;
-            dataGridViewCellStyle15.SelectionBackColor = SystemColors.WindowText;
-            dataGridViewCellStyle15.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle15.WrapMode = DataGridViewTriState.False;
-            MemoryGrid.DefaultCellStyle = dataGridViewCellStyle15;
+            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = SystemColors.WindowText;
+            dataGridViewCellStyle3.Font = new Font("Consolas", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle3.ForeColor = Color.White;
+            dataGridViewCellStyle3.SelectionBackColor = SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
+            MemoryGrid.DefaultCellStyle = dataGridViewCellStyle3;
             MemoryGrid.GridColor = Color.DarkGray;
             MemoryGrid.Location = new Point(24, 21);
             MemoryGrid.Name = "MemoryGrid";
-            dataGridViewCellStyle16.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle16.BackColor = SystemColors.ControlDark;
-            dataGridViewCellStyle16.Font = new Font("Consolas", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle16.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle16.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle16.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle16.WrapMode = DataGridViewTriState.True;
-            MemoryGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle16;
-            dataGridViewCellStyle17.BackColor = Color.Black;
-            dataGridViewCellStyle17.ForeColor = Color.White;
-            dataGridViewCellStyle17.SelectionBackColor = Color.Black;
-            dataGridViewCellStyle17.SelectionForeColor = Color.White;
-            MemoryGrid.RowsDefaultCellStyle = dataGridViewCellStyle17;
+            dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = SystemColors.ControlDark;
+            dataGridViewCellStyle4.Font = new Font("Consolas", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle4.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = DataGridViewTriState.True;
+            MemoryGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle5.BackColor = Color.Black;
+            dataGridViewCellStyle5.ForeColor = Color.White;
+            dataGridViewCellStyle5.SelectionBackColor = Color.Black;
+            dataGridViewCellStyle5.SelectionForeColor = Color.White;
+            MemoryGrid.RowsDefaultCellStyle = dataGridViewCellStyle5;
             MemoryGrid.Size = new Size(359, 984);
             MemoryGrid.TabIndex = 20;
             // 
@@ -609,28 +610,28 @@
             videoGrid.BorderStyle = BorderStyle.None;
             videoGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             videoGrid.ColumnHeadersVisible = false;
-            dataGridViewCellStyle22.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle22.BackColor = Color.Black;
-            dataGridViewCellStyle22.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle22.ForeColor = Color.Black;
-            dataGridViewCellStyle22.SelectionBackColor = Color.Black;
-            dataGridViewCellStyle22.SelectionForeColor = Color.Black;
-            dataGridViewCellStyle22.WrapMode = DataGridViewTriState.False;
-            videoGrid.DefaultCellStyle = dataGridViewCellStyle22;
+            dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = Color.Black;
+            dataGridViewCellStyle6.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle6.ForeColor = Color.Black;
+            dataGridViewCellStyle6.SelectionBackColor = Color.Black;
+            dataGridViewCellStyle6.SelectionForeColor = Color.Black;
+            dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
+            videoGrid.DefaultCellStyle = dataGridViewCellStyle6;
             videoGrid.GridColor = Color.DarkOrange;
             videoGrid.Location = new Point(6, 30);
             videoGrid.Name = "videoGrid";
-            dataGridViewCellStyle23.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle23.BackColor = Color.Black;
-            dataGridViewCellStyle23.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle23.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle23.SelectionBackColor = Color.Black;
-            dataGridViewCellStyle23.SelectionForeColor = Color.Black;
-            dataGridViewCellStyle23.WrapMode = DataGridViewTriState.True;
-            videoGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle23;
+            dataGridViewCellStyle7.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle7.BackColor = Color.Black;
+            dataGridViewCellStyle7.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle7.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle7.SelectionBackColor = Color.Black;
+            dataGridViewCellStyle7.SelectionForeColor = Color.Black;
+            dataGridViewCellStyle7.WrapMode = DataGridViewTriState.True;
+            videoGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle7;
             videoGrid.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle24.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            videoGrid.RowsDefaultCellStyle = dataGridViewCellStyle24;
+            dataGridViewCellStyle8.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            videoGrid.RowsDefaultCellStyle = dataGridViewCellStyle8;
             videoGrid.Size = new Size(323, 253);
             videoGrid.TabIndex = 28;
             // 
@@ -642,47 +643,47 @@
             dataMemoryGrid.BackgroundColor = SystemColors.ControlDarkDark;
             dataMemoryGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataMemoryGrid.Columns.AddRange(new DataGridViewColumn[] { Address, Data });
-            dataGridViewCellStyle20.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle20.BackColor = SystemColors.Control;
-            dataGridViewCellStyle20.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle20.ForeColor = Color.White;
-            dataGridViewCellStyle20.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle20.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle20.WrapMode = DataGridViewTriState.False;
-            dataMemoryGrid.DefaultCellStyle = dataGridViewCellStyle20;
+            dataGridViewCellStyle11.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle11.BackColor = SystemColors.Control;
+            dataGridViewCellStyle11.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle11.ForeColor = Color.White;
+            dataGridViewCellStyle11.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle11.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle11.WrapMode = DataGridViewTriState.False;
+            dataMemoryGrid.DefaultCellStyle = dataGridViewCellStyle11;
             dataMemoryGrid.GridColor = Color.FromArgb(255, 128, 128);
             dataMemoryGrid.Location = new Point(1547, 374);
             dataMemoryGrid.Name = "dataMemoryGrid";
-            dataGridViewCellStyle21.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle21.BackColor = SystemColors.Control;
-            dataGridViewCellStyle21.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle21.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle21.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle21.SelectionForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle21.WrapMode = DataGridViewTriState.True;
-            dataMemoryGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle21;
+            dataGridViewCellStyle12.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle12.BackColor = SystemColors.Control;
+            dataGridViewCellStyle12.Font = new Font("Consolas", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle12.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle12.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle12.SelectionForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle12.WrapMode = DataGridViewTriState.True;
+            dataMemoryGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle12;
             dataMemoryGrid.RowHeadersVisible = false;
             dataMemoryGrid.Size = new Size(514, 457);
             dataMemoryGrid.TabIndex = 29;
             // 
             // Address
             // 
-            dataGridViewCellStyle18.BackColor = SystemColors.Desktop;
-            dataGridViewCellStyle18.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle18.ForeColor = SystemColors.Control;
-            dataGridViewCellStyle18.SelectionBackColor = SystemColors.Desktop;
-            dataGridViewCellStyle18.SelectionForeColor = SystemColors.Control;
-            Address.DefaultCellStyle = dataGridViewCellStyle18;
+            dataGridViewCellStyle9.BackColor = SystemColors.Desktop;
+            dataGridViewCellStyle9.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle9.ForeColor = SystemColors.Control;
+            dataGridViewCellStyle9.SelectionBackColor = SystemColors.Desktop;
+            dataGridViewCellStyle9.SelectionForeColor = SystemColors.Control;
+            Address.DefaultCellStyle = dataGridViewCellStyle9;
             Address.HeaderText = "Address";
             Address.Name = "Address";
             // 
             // Data
             // 
-            dataGridViewCellStyle19.BackColor = SystemColors.Desktop;
-            dataGridViewCellStyle19.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            dataGridViewCellStyle19.ForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle19.SelectionBackColor = SystemColors.Desktop;
-            Data.DefaultCellStyle = dataGridViewCellStyle19;
+            dataGridViewCellStyle10.BackColor = SystemColors.Desktop;
+            dataGridViewCellStyle10.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            dataGridViewCellStyle10.ForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle10.SelectionBackColor = SystemColors.Desktop;
+            Data.DefaultCellStyle = dataGridViewCellStyle10;
             Data.HeaderText = "Data";
             Data.Name = "Data";
             // 
@@ -903,6 +904,7 @@
             // 
             groupBox5.AutoSize = true;
             groupBox5.BackColor = SystemColors.Desktop;
+            groupBox5.Controls.Add(resetMonitorBtn);
             groupBox5.Controls.Add(debugToggleButton);
             groupBox5.Controls.Add(btnMonitorPower);
             groupBox5.Controls.Add(cpuSpeedLabel);
@@ -946,6 +948,19 @@
             screenClock.Enabled = true;
             screenClock.Interval = 1;
             screenClock.Tick += screenClock_Tick;
+            // 
+            // resetMonitorBtn
+            // 
+            resetMonitorBtn.BackColor = SystemColors.ControlDarkDark;
+            resetMonitorBtn.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            resetMonitorBtn.ForeColor = Color.Black;
+            resetMonitorBtn.Location = new Point(6, 563);
+            resetMonitorBtn.Name = "resetMonitorBtn";
+            resetMonitorBtn.Size = new Size(185, 31);
+            resetMonitorBtn.TabIndex = 31;
+            resetMonitorBtn.Text = "Clear Screen";
+            resetMonitorBtn.UseVisualStyleBackColor = false;
+            resetMonitorBtn.Click += resetMonitorBtn_Click;
             // 
             // Form1
             // 
@@ -1070,5 +1085,6 @@
         private DataGridViewTextBoxColumn Data;
         private Button btnSaveDebug;
         private DataGridView memoryBankGrid;
+        private Button resetMonitorBtn;
     }
 }

@@ -81,6 +81,9 @@ namespace WinFormsApp1
             screenClock.Tick += screenClock_Tick;
             screenClock.Start();
 
+            //BIOS 
+            Bios.Boot();
+
         }
 
         //render screen at 60fps
@@ -93,7 +96,7 @@ namespace WinFormsApp1
             // Process UI-heavy operations only every 10 ticks to save CPU cycles
             if (_memoryRefreshCounter >= 10)
             {
-                
+
                 RefreshWholeMemoryGrid();
                 _memoryRefreshCounter = 0;
             }
@@ -199,11 +202,11 @@ namespace WinFormsApp1
             memoryBankGrid.RowHeadersVisible = false;
             memoryBankGrid.BackgroundColor = Color.Black;
             memoryBankGrid.DefaultCellStyle.BackColor = Color.FromArgb(20, 20, 60);
-            memoryBankGrid.DefaultCellStyle.ForeColor = Color.FromArgb(150,150,220);
+            memoryBankGrid.DefaultCellStyle.ForeColor = Color.FromArgb(150, 150, 220);
             memoryBankGrid.DefaultCellStyle.Font = new Font("Courier New", 7);
             memoryBankGrid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(26, 26, 46);
             memoryBankGrid.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(255, 255, 85);
-            
+
 
             memoryBankGrid.GridColor = Color.FromArgb(40, 40, 80);
             memoryBankGrid.ClearSelection();
@@ -1406,6 +1409,12 @@ namespace WinFormsApp1
             }
 
 
+        }
+
+        private void resetMonitorBtn_Click(object sender, EventArgs e)
+        {
+            //CLS 
+            DataMemory.ScreenHardware.ProcessCommand(10, new bool[4]); 
         }
 
 

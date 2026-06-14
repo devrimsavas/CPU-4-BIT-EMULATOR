@@ -26,6 +26,7 @@ namespace WinFormsApp1
             btnPanel.Dock = DockStyle.Bottom;
             btnPanel.Height = 60;
             btnPanel.BackColor = Color.FromArgb(30, 30, 30);
+            btnPanel.TabStop = false;
             this.Controls.Add(btnPanel);
 
             string[] effects = { "NONE", "SCANLINE", "GLOW", "RGB", "VIGNETTE", "CRT" };
@@ -41,7 +42,12 @@ namespace WinFormsApp1
                 btn.FlatStyle = FlatStyle.Flat;
                 btn.FlatAppearance.BorderColor = Color.FromArgb(85, 85, 85);
                 btn.Tag = (RenderEffects.Effect)(i + 1);
-                btn.Click += (s, e) => RenderEffects.ActiveEffect = (RenderEffects.Effect)((Button)s).Tag;
+                btn.TabStop= false;
+
+                btn.Click += (s, e) => {
+                    RenderEffects.ActiveEffect = (RenderEffects.Effect)((Button)s).Tag;
+                    this.Focus(); // give focus back to form 
+                };
                 btnPanel.Controls.Add(btn);
             }
 
@@ -54,6 +60,7 @@ namespace WinFormsApp1
             pwrBtn.ForeColor = Color.FromArgb(255, 85, 85);
             pwrBtn.FlatStyle = FlatStyle.Flat;
             pwrBtn.FlatAppearance.BorderColor = Color.FromArgb(255, 85, 85);
+            pwrBtn.TabStop = false;
             pwrBtn.Click += (s, e) => this.Hide();
             btnPanel.Controls.Add(pwrBtn);
 
