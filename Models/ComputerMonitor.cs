@@ -101,6 +101,13 @@ namespace WinFormsApp1.Models
                 int yPos = ConvertBoolArrayToUShort(data) * PixelScale;
                 _cursorY = yPos;
             }
+            // 0x03: Set absolute X — HIGH BYTE (x16 multiplier)
+            else if (address == 3)
+            {
+                int xHigh = ConvertBoolArrayToUShort(data);
+                _cursorX = xHigh * 16 * PixelScale;
+            }
+
         }
 
         private void AdvanceCursor()

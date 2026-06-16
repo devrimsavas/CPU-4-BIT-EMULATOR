@@ -124,8 +124,8 @@ namespace WinFormsApp1.Models
                 "mov ax,0100", "push ax", "print",
 
             };
-            Assembler.Compile(bootCode);
-            while (Assembler.ExecuteNextLine()) { }
+            //Assembler.Compile(bootCode);
+            //while (Assembler.ExecuteNextLine()) { }
 
 
 

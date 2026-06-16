@@ -66,12 +66,14 @@ namespace WinFormsApp1.Models
             }
 
             // === HALT ===
+            /*
             if (cleanLine.Equals("HALT", StringComparison.OrdinalIgnoreCase))
             {
                 PC = LoadedCode.Length; // terminate execution
                 OnExecutionComplete?.Invoke("HALT: CPU stopped.");
-                return;
+                return ;
             }
+            */
 
             // === MOV AX,BX ===
             if (cleanLine.Equals("MOV AX,BX", StringComparison.OrdinalIgnoreCase))
@@ -203,6 +205,15 @@ namespace WinFormsApp1.Models
                                 return; // critical — prevent normal RAM write
 
                             } //ADDRESS 5 END 
+
+                            //ADDRESS 3
+                            if (address == 3)
+                            {
+                                DataMemory.ScreenHardware.ProcessCommand(3, poppedReg.RegArray);
+                                OnExecutionComplete?.Invoke($"VPU: Cursor X HIGH set");
+                                return;
+                            }
+
 
                             // Standard RAM write for all other addresses
                             DataMemory.Write(address, poppedReg.RegArray);
@@ -787,6 +798,13 @@ namespace WinFormsApp1.Models
             if (PC >= LoadedCode.Length) return false; 
 
             string cleanLine = LoadedCode[PC].Trim();
+            //HALT 
+            if (cleanLine.Equals("HALT",StringComparison.OrdinalIgnoreCase))
+            {
+                PC = LoadedCode.Length;
+                OnExecutionComplete?.Invoke("HALT: CPUT STOPPED");
+                return false;
+            }
 
             // skip empty lines and labels (lines ending with ":") during execution, but still increment the program counter to avoid infinite loops on labels
             if (string.IsNullOrWhiteSpace(cleanLine) || cleanLine.EndsWith(":"))

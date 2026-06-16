@@ -399,6 +399,16 @@ namespace WinFormsApp1
                     cpuClock.Stop();
                 }
             }
+
+            // === HALT ===
+            else if (assemblyLine.Equals("HALT", StringComparison.OrdinalIgnoreCase))
+            {
+                isHalted = true;
+                cpuClock.Stop();
+                Assembler.OnExecutionComplete?.Invoke("HALT: CPU stopped.");
+                return;
+            }
+
             // === RET (RETURN) LOGIC ===
             else if (assemblyLine.Equals("RET", StringComparison.OrdinalIgnoreCase))
             {
@@ -644,6 +654,8 @@ namespace WinFormsApp1
             OutputRegister.DrawItem += OutputRegister_DrawItem!;
             OutputRegister.EnableDoubleBuffered(true);
 
+            
+
 
 
             //Assembler 
@@ -865,7 +877,7 @@ namespace WinFormsApp1
         private void cpuClock_Tick(object sender, EventArgs e)
         {
             // Set execution speed based on the current mode
-            int instructionsPerTick = isDebugMode ? 1 : 290;
+            int instructionsPerTick = isDebugMode ? 1 : 1290;
 
             //can be faster? 
             for (int i = 0; i < instructionsPerTick; i++)
@@ -888,6 +900,12 @@ namespace WinFormsApp1
         //TO BE DELETED 
         private void btnStartClock_Click(object sender, EventArgs e)
         {
+            if (cpuClock.Enabled)
+            {
+                cpuClock.Stop();
+                programCounter = 0;
+                isHalted = false;
+            }
             // Add visual separator for the start of the Autorun session
             OutputRegister.Items.Add("====================");
             OutputRegister.Items.Add("AUTORUN STARTED");

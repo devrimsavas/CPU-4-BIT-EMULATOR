@@ -16,6 +16,7 @@ namespace WinFormsApp1.Models
                 case Keys.Space: return (ToBits(0), ToBits(5));
                 case Keys.Enter: return (ToBits(0), ToBits(6));
                 case Keys.Escape: return (ToBits(0), ToBits(7));
+                case Keys.Back: return (ToBits(0), ToBits(8)); //back space 
 
                 // PAGE 1 — A to P
                 case Keys.A: return (ToBits(1), ToBits(0));
