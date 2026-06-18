@@ -110,10 +110,10 @@
             vignetteToolStripMenuItem = new ToolStripMenuItem();
             cRTFullToolStripMenuItem = new ToolStripMenuItem();
             groupBox5 = new GroupBox();
+            resetMonitorBtn = new Button();
             debugToggleButton = new Button();
             btnMonitorPower = new Button();
             screenClock = new System.Windows.Forms.Timer(components);
-            resetMonitorBtn = new Button();
             RegisterAxBox.SuspendLayout();
             RegisterBxBox.SuspendLayout();
             registersBox.SuspendLayout();
@@ -389,12 +389,12 @@
             // 
             // assemblyCodeBox
             // 
-            assemblyCodeBox.BackColor = Color.FromArgb(0, 0, 32);
+            assemblyCodeBox.BackColor = SystemColors.Desktop;
             assemblyCodeBox.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            assemblyCodeBox.ForeColor = Color.Lime;
-            assemblyCodeBox.Location = new Point(12, 22);
+            assemblyCodeBox.ForeColor = Color.DarkOrange;
+            assemblyCodeBox.Location = new Point(6, 22);
             assemblyCodeBox.Name = "assemblyCodeBox";
-            assemblyCodeBox.Size = new Size(632, 1018);
+            assemblyCodeBox.Size = new Size(650, 1018);
             assemblyCodeBox.TabIndex = 17;
             assemblyCodeBox.Text = "";
             // 
@@ -490,9 +490,9 @@
             groupBox2.Controls.Add(loadToMemoryButton);
             groupBox2.Controls.Add(btnStartClock);
             groupBox2.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            groupBox2.Location = new Point(12, 1046);
+            groupBox2.Location = new Point(0, 1046);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(632, 121);
+            groupBox2.Size = new Size(656, 121);
             groupBox2.TabIndex = 26;
             groupBox2.TabStop = false;
             groupBox2.Text = "OPERATIONS";
@@ -917,6 +917,19 @@
             groupBox5.TabIndex = 30;
             groupBox5.TabStop = false;
             // 
+            // resetMonitorBtn
+            // 
+            resetMonitorBtn.BackColor = SystemColors.ControlDarkDark;
+            resetMonitorBtn.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            resetMonitorBtn.ForeColor = Color.Black;
+            resetMonitorBtn.Location = new Point(6, 563);
+            resetMonitorBtn.Name = "resetMonitorBtn";
+            resetMonitorBtn.Size = new Size(185, 31);
+            resetMonitorBtn.TabIndex = 31;
+            resetMonitorBtn.Text = "Clear Screen";
+            resetMonitorBtn.UseVisualStyleBackColor = false;
+            resetMonitorBtn.Click += resetMonitorBtn_Click;
+            // 
             // debugToggleButton
             // 
             debugToggleButton.BackColor = Color.FromArgb(192, 192, 0);
@@ -948,19 +961,6 @@
             screenClock.Enabled = true;
             screenClock.Interval = 1;
             screenClock.Tick += screenClock_Tick;
-            // 
-            // resetMonitorBtn
-            // 
-            resetMonitorBtn.BackColor = SystemColors.ControlDarkDark;
-            resetMonitorBtn.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            resetMonitorBtn.ForeColor = Color.Black;
-            resetMonitorBtn.Location = new Point(6, 563);
-            resetMonitorBtn.Name = "resetMonitorBtn";
-            resetMonitorBtn.Size = new Size(185, 31);
-            resetMonitorBtn.TabIndex = 31;
-            resetMonitorBtn.Text = "Clear Screen";
-            resetMonitorBtn.UseVisualStyleBackColor = false;
-            resetMonitorBtn.Click += resetMonitorBtn_Click;
             // 
             // Form1
             // 

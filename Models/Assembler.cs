@@ -430,6 +430,39 @@ namespace WinFormsApp1.Models
                 return;
             } //LOADB END 
 
+            // === LOADBI+ bank — load from bank using BX as address, then increment BX ===
+            if (cleanLine.StartsWith("LOADBI+ ", StringComparison.OrdinalIgnoreCase))
+            {
+                string bankStr = cleanLine.Substring(8).Trim();
+                try
+                {
+                    int bank = Convert.ToInt32(bankStr);
+                    int address = (Program.Bx.RegArray[0] ? 8 : 0) +
+                                  (Program.Bx.RegArray[1] ? 4 : 0) +
+                                  (Program.Bx.RegArray[2] ? 2 : 0) +
+                                  (Program.Bx.RegArray[3] ? 1 : 0);
+
+                    bool[] data = DataMemory.Read(address, bank);
+                    Program.Stack.AddRegister(new Register("BANK_IND+", (bool[])data.Clone()));
+
+                    // BX otomatik increment
+                    int bxVal = address + 1;
+                    Program.Bx.RegArray[0] = (bxVal & 0x08) != 0;
+                    Program.Bx.RegArray[1] = (bxVal & 0x04) != 0;
+                    Program.Bx.RegArray[2] = (bxVal & 0x02) != 0;
+                    Program.Bx.RegArray[3] = (bxVal & 0x01) != 0;
+
+                    OnExecutionComplete?.Invoke($"LOADBI+: Fetched from Bank {bank} RAM[{address}], BX now {bxVal}");
+                }
+                catch
+                {
+                    OnExecutionComplete?.Invoke($"Syntax Error: Invalid LOADBI+ syntax.");
+                }
+                return;
+            }
+
+
+
             // === STOREB (Store to specific bank) ===
             // Syntax: STOREB bank,address  e.g. STOREB 1,0000
             if (cleanLine.StartsWith("STOREB ", StringComparison.OrdinalIgnoreCase))
@@ -476,6 +509,80 @@ namespace WinFormsApp1.Models
                 }
                 return;
             } //STOREB END
+
+            // === STOREBI+ bank — store to bank using BX as address, then increment BX ===
+            if (cleanLine.StartsWith("STOREBI+ ", StringComparison.OrdinalIgnoreCase))
+            {
+                string bankStr = cleanLine.Substring(9).Trim();
+                try
+                {
+                    int bank = Convert.ToInt32(bankStr);
+                    int address = (Program.Bx.RegArray[0] ? 8 : 0) +
+                                  (Program.Bx.RegArray[1] ? 4 : 0) +
+                                  (Program.Bx.RegArray[2] ? 2 : 0) +
+                                  (Program.Bx.RegArray[3] ? 1 : 0);
+
+                    var poppedReg = Program.Stack.PopRegister();
+                    if (poppedReg != null)
+                    {
+                        int savedBank = DataMemory.ActiveBank;
+                        DataMemory.SwitchBank(bank);
+                        DataMemory.Write(address, poppedReg.RegArray);
+                        DataMemory.SwitchBank(savedBank);
+
+                        // BX otomatik increment
+                        int bxVal = address + 1;
+                        Program.Bx.RegArray[0] = (bxVal & 0x08) != 0;
+                        Program.Bx.RegArray[1] = (bxVal & 0x04) != 0;
+                        Program.Bx.RegArray[2] = (bxVal & 0x02) != 0;
+                        Program.Bx.RegArray[3] = (bxVal & 0x01) != 0;
+
+                        string bitString = string.Join("", poppedReg.RegArray.Select(b => b ? "1" : "0"));
+                        OnExecutionComplete?.Invoke($"STOREBI+: Saved {bitString} to Bank {bank} RAM[{address}], BX now {bxVal}");
+                    }
+                }
+                catch
+                {
+                    OnExecutionComplete?.Invoke($"Syntax Error: Invalid STOREBI+ syntax.");
+                }
+                return;
+            }
+
+
+
+            //==CMP AX,BX
+            if (cleanLine.Equals("CMP AX,BX", StringComparison.OrdinalIgnoreCase))
+            {
+                bool equal = true;
+                for (int i = 0; i < 4; i++)
+                {
+                    if (Program.Ax.RegArray[i] != Program.Bx.RegArray[i])
+                    {
+                        equal = false;
+                        break;
+                    }
+                }
+                ZeroFlag = equal;
+                OnExecutionComplete?.Invoke($"CMP AX,BX: ZeroFlag={ZeroFlag}");
+                return;
+            }
+
+            // === CMP BX,AX ===
+            if (cleanLine.Equals("CMP BX,AX", StringComparison.OrdinalIgnoreCase))
+            {
+                bool equal = true;
+                for (int i = 0; i < 4; i++)
+                {
+                    if (Program.Bx.RegArray[i] != Program.Ax.RegArray[i])
+                    {
+                        equal = false;
+                        break;
+                    }
+                }
+                ZeroFlag = equal;
+                OnExecutionComplete?.Invoke($"CMP BX,AX: ZeroFlag={ZeroFlag}");
+                return;
+            }
 
             // === CMP AX ===
             if (cleanLine.StartsWith("CMP AX,", StringComparison.OrdinalIgnoreCase))
@@ -528,6 +635,10 @@ namespace WinFormsApp1.Models
                 }
                 return;
             }
+
+            
+
+
 
             // === instructions ===
             if (instructionSet.TryGetValue(cleanLine, out var hardwareAction))
@@ -732,6 +843,23 @@ namespace WinFormsApp1.Models
             //STOREBI
             if (cleanLine.StartsWith("STOREBI ", StringComparison.OrdinalIgnoreCase))
                 return "01111110";
+
+            //CMP AX,BX
+            if (cleanLine.Equals("CMP AX,BX", StringComparison.OrdinalIgnoreCase))
+                return "10111110";
+            //CMP BX,AX
+            if (cleanLine.Equals("CMP BX,AX", StringComparison.OrdinalIgnoreCase))
+                return "10111111";
+
+            //LOADBI+
+            if (cleanLine.StartsWith("LOADBI+ ", StringComparison.OrdinalIgnoreCase))
+                return "01101111";
+            //STOREBI+
+            if (cleanLine.StartsWith("STOREBI+ ", StringComparison.OrdinalIgnoreCase))
+                return "01111111";
+
+
+
 
             // 2. Handle Standard 4-bit instructions (Padded with 0000 to complete 8-bit architecture)
             switch (cleanLine)
