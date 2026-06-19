@@ -131,10 +131,12 @@ namespace WinFormsApp1
         }
         // Convert the hardware pixel buffer and color matrix into a visible Windows image
         //RENDER SCREEN
+        // Convert the hardware pixel buffer and color matrix into a visible Windows image
+        //RENDER SCREEN
         private void RenderScreen()
         {
-            int renderW = 512;
-            int renderH = 512;
+            int renderW = _screen.ScreenWidth;
+            int renderH = _screen.ScreenHeight;
 
             Bitmap frame = new Bitmap(renderW, renderH, PixelFormat.Format32bppArgb);
             BitmapData bmpData = frame.LockBits(
@@ -145,16 +147,16 @@ namespace WinFormsApp1
             unsafe
             {
                 int* ptr = (int*)bmpData.Scan0;
-                for (int y = 0; y < 512; y++)
+                for (int y = 0; y < renderH; y++)
                 {
-                    for (int x = 0; x < 512; x++)
+                    for (int x = 0; x < renderW; x++)
                     {
                         ushort colorCode = _screen.GetColorAttribute(x, y);
                         Color c = _screen.IsPixelActive(x, y)
                             ? HardwarePalette.Colors[colorCode]
                             : Color.Black;
                         c = RenderEffects.Apply(c, x, y);
-                        ptr[(y * renderH / 512) * renderW + (x * renderW / 512)] = c.ToArgb();
+                        ptr[y * renderW + x] = c.ToArgb();
                     }
                 }
             }
@@ -877,7 +879,7 @@ namespace WinFormsApp1
         private void cpuClock_Tick(object sender, EventArgs e)
         {
             // Set execution speed based on the current mode
-            int instructionsPerTick = isDebugMode ? 1 : 1290;
+            int instructionsPerTick = isDebugMode ? 1 : 5290;
 
             //can be faster? 
             for (int i = 0; i < instructionsPerTick; i++)

@@ -5,24 +5,44 @@ namespace WinFormsApp1.Models
 {
     public class ComputerMonitor
     {
-        private const int Width = 512;
-        private const int Height = 512;
-        private const int PixelScale = 4; //orginal 4
+        // ============================================================
+        //  DISPLAY CONFIG  — change these two and everything follows
+        // ============================================================
+        private const int Width = 256;       // was 512
+        private const int Height = 256;       // was 512
+        private const int PixelScale = 2;     // was 4 (logical area stays 128x128)
+
+        // ---- Derived constants (do not edit by hand) ----
+        private const int BlockSize = 8;                         // 8x8 color cells (ZX-style attributes)
+        private const int BlocksPerRow = Width / BlockSize;         // 32  (was 64)
+        private const int BlocksPerCol = Height / BlockSize;        // 32
+        private const int AttrCount = BlocksPerRow * BlocksPerCol; // 1024 (was 4096)
+
+        // Character cell geometry (logical pixels) — glyphs stay 4x5
+        private const int CharW = 4;   // glyph width  in logical px
+        private const int CharH = 5;   // glyph height in logical px
+        private const int CharAdvX = 5;   // x advance per char (4 + 1 gap)
+        private const int CharAdvY = 6;   // y advance per line (5 + 1 gap)
 
         private bool[,] _pixelBuffer;
         private ushort[] _attributeMatrix;
         private int _cursorX;
         private int _cursorY;
         private ushort _activeColorCode = 14;
-        //for back space 
-        public int CursorX=>_cursorX;
+
+        // for backspace / cursor read
+        public int CursorX => _cursorX;
         public int CursorY => _cursorY;
+
+        // expose dimensions so the renderer can stay in sync
+        public int ScreenWidth => Width;
+        public int ScreenHeight => Height;
 
         public ComputerMonitor()
         {
             _pixelBuffer = new bool[Width, Height];
-            _attributeMatrix = new ushort[4096];
-            for (int i = 0; i < 4096; i++)
+            _attributeMatrix = new ushort[AttrCount];
+            for (int i = 0; i < AttrCount; i++)
                 _attributeMatrix[i] = 0;
             _cursorX = 0;
             _cursorY = 0;
@@ -37,10 +57,10 @@ namespace WinFormsApp1.Models
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    int blockX = _cursorX / 8;
-                    int blockY = _cursorY / 8;
-                    int index = (blockY * 64) + blockX;
-                    if (index >= 0 && index < 4096)
+                    int blockX = _cursorX / BlockSize;
+                    int blockY = _cursorY / BlockSize;
+                    int index = (blockY * BlocksPerRow) + blockX;
+                    if (index >= 0 && index < AttrCount)
                         _attributeMatrix[index] = _activeColorCode;
 
                     bool bitValue = data[i];
@@ -56,15 +76,15 @@ namespace WinFormsApp1.Models
             // 0x01: Backspace — move cursor back one character
             else if (address == 1)
             {
-                _cursorX -= (5 * PixelScale);
+                _cursorX -= (CharAdvX * PixelScale);
                 if (_cursorX < 0) _cursorX = 0;
             }
 
             // 0x02: Draw cursor block at current position (no advance)
             else if (address == 2)
             {
-                for (int dx = 0; dx < 4 * PixelScale; dx++)
-                    for (int dy = 0; dy < 5 * PixelScale; dy++)
+                for (int dx = 0; dx < CharW * PixelScale; dx++)
+                    for (int dy = 0; dy < CharH * PixelScale; dy++)
                     {
                         int fx = _cursorX + dx;
                         int fy = _cursorY + dy;
@@ -107,7 +127,7 @@ namespace WinFormsApp1.Models
             else if (address == 10)
             {
                 Array.Clear(_pixelBuffer, 0, _pixelBuffer.Length);
-                for (int i = 0; i < 4096; i++)
+                for (int i = 0; i < AttrCount; i++)
                     _attributeMatrix[i] = 0;
                 _cursorX = 0;
                 _cursorY = 0;
@@ -125,13 +145,12 @@ namespace WinFormsApp1.Models
                 int yPos = ConvertBoolArrayToUShort(data) * PixelScale;
                 _cursorY = yPos;
             }
-            // 0x03: Set absolute X — HIGH BYTE (x16 multiplier)
+            // 0x03: Set absolute X — HIGH BYTE
             else if (address == 3)
             {
                 int xHigh = ConvertBoolArrayToUShort(data);
                 _cursorX = xHigh * 16 * PixelScale;
             }
-
         }
 
         private void AdvanceCursor()
@@ -156,10 +175,10 @@ namespace WinFormsApp1.Models
                 {
                     int px = startX + (c * PixelScale);
                     int py = startY + (r * PixelScale);
-                    int blockX = px / 8;
-                    int blockY = py / 8;
-                    int index = (blockY * 64) + blockX;
-                    if (index >= 0 && index < 4096)
+                    int blockX = px / BlockSize;
+                    int blockY = py / BlockSize;
+                    int index = (blockY * BlocksPerRow) + blockX;
+                    if (index >= 0 && index < AttrCount)
                         _attributeMatrix[index] = _activeColorCode;
 
                     bool bitValue = pattern[r][c];
@@ -174,11 +193,11 @@ namespace WinFormsApp1.Models
                 }
             }
 
-            _cursorX = startX + (5 * PixelScale);
+            _cursorX = startX + (CharAdvX * PixelScale);
             if (_cursorX >= Width)
             {
                 _cursorX = 0;
-                _cursorY += (6 * PixelScale);
+                _cursorY += (CharAdvY * PixelScale);
                 if (_cursorY >= Height)
                     _cursorY = 0;
             }
@@ -188,10 +207,10 @@ namespace WinFormsApp1.Models
 
         public ushort GetColorAttribute(int x, int y)
         {
-            int blockX = x / 8;
-            int blockY = y / 8;
-            int index = (blockY * 64) + blockX;
-            if (index < 0 || index >= 4096) return 2;
+            int blockX = x / BlockSize;
+            int blockY = y / BlockSize;
+            int index = (blockY * BlocksPerRow) + blockX;
+            if (index < 0 || index >= AttrCount) return 2;
             return _attributeMatrix[index];
         }
 

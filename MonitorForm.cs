@@ -53,6 +53,7 @@ namespace WinFormsApp1
                 btnPanel.Controls.Add(btn);
             }
 
+            //power button 
             Button pwrBtn = new Button();
             pwrBtn.Text = "PWR OFF";
             pwrBtn.Width = 80;
@@ -66,7 +67,27 @@ namespace WinFormsApp1
             pwrBtn.Click += (s, e) => this.Hide();
             btnPanel.Controls.Add(pwrBtn);
 
+            //cls screen button 
+            Button clsBtn = new Button();
+            clsBtn.Text = "CLS";
+            clsBtn.Width = 80;
+            clsBtn.Height = 30;
+            clsBtn.Location = new Point(10 + (effects.Length + 1) * 88, 15);
+            clsBtn.BackColor = Color.FromArgb(0, 40, 60);
+            clsBtn.ForeColor = Color.FromArgb(85, 200, 255);
+            clsBtn.FlatStyle = FlatStyle.Flat;
+            clsBtn.FlatAppearance.BorderColor = Color.FromArgb(85, 200, 255);
+            clsBtn.TabStop = false;
+            clsBtn.Click += (s, e) => {
+                DataMemory.ScreenHardware.ProcessCommand(10, new bool[4]);
+                this.Focus();
+            };
+            btnPanel.Controls.Add(clsBtn);
+
             this.KeyPreview = true;
+
+            
+
         }
 
         public void UpdateFrame(Bitmap newFrame)
