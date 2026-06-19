@@ -20,6 +20,8 @@ namespace WinFormsApp1
             monitorBox.Dock = DockStyle.Fill;
             monitorBox.BackColor = Color.Black;
             monitorBox.SizeMode = PictureBoxSizeMode.Zoom;
+            monitorBox.TabStop = false;
+            monitorBox.Click += (s, e) => this.Focus();
             this.Controls.Add(monitorBox);
 
             Panel btnPanel = new Panel();

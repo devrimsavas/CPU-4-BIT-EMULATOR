@@ -7,13 +7,16 @@ namespace WinFormsApp1.Models
     {
         private const int Width = 512;
         private const int Height = 512;
-        private const int PixelScale = 4;
+        private const int PixelScale = 4; //orginal 4
 
         private bool[,] _pixelBuffer;
         private ushort[] _attributeMatrix;
         private int _cursorX;
         private int _cursorY;
         private ushort _activeColorCode = 14;
+        //for back space 
+        public int CursorX=>_cursorX;
+        public int CursorY => _cursorY;
 
         public ComputerMonitor()
         {
@@ -49,6 +52,27 @@ namespace WinFormsApp1.Models
                     AdvanceCursor();
                 }
             }
+
+            // 0x01: Backspace — move cursor back one character
+            else if (address == 1)
+            {
+                _cursorX -= (5 * PixelScale);
+                if (_cursorX < 0) _cursorX = 0;
+            }
+
+            // 0x02: Draw cursor block at current position (no advance)
+            else if (address == 2)
+            {
+                for (int dx = 0; dx < 4 * PixelScale; dx++)
+                    for (int dy = 0; dy < 5 * PixelScale; dy++)
+                    {
+                        int fx = _cursorX + dx;
+                        int fy = _cursorY + dy;
+                        if (fx < Width && fy < Height)
+                            _pixelBuffer[fx, fy] = true;
+                    }
+            }
+
             // 0x0E: Set color
             else if (address == 14)
             {

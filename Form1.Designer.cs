@@ -390,8 +390,8 @@
             // assemblyCodeBox
             // 
             assemblyCodeBox.BackColor = SystemColors.Desktop;
-            assemblyCodeBox.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            assemblyCodeBox.ForeColor = Color.DarkOrange;
+            assemblyCodeBox.Font = new Font("Cascadia Code", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            assemblyCodeBox.ForeColor = Color.GreenYellow;
             assemblyCodeBox.Location = new Point(6, 22);
             assemblyCodeBox.Name = "assemblyCodeBox";
             assemblyCodeBox.Size = new Size(650, 1018);
@@ -477,7 +477,7 @@
             btnStartClock.Name = "btnStartClock";
             btnStartClock.Size = new Size(128, 39);
             btnStartClock.TabIndex = 24;
-            btnStartClock.Text = "&AUTO RUN";
+            btnStartClock.Text = "&RUN";
             btnStartClock.UseVisualStyleBackColor = false;
             btnStartClock.Click += btnStartClock_Click;
             // 

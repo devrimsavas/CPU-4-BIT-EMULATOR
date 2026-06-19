@@ -906,6 +906,10 @@ namespace WinFormsApp1
                 programCounter = 0;
                 isHalted = false;
             }
+            //LOAD PROGRAM DIRECTLY 
+            //simulate load button 
+            // i mean call this button :D 
+            loadToMemoryButton_Click(null, null);
             // Add visual separator for the start of the Autorun session
             OutputRegister.Items.Add("====================");
             OutputRegister.Items.Add("AUTORUN STARTED");

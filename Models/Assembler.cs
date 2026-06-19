@@ -214,6 +214,22 @@ namespace WinFormsApp1.Models
                                 return;
                             }
 
+                            //ADDRESS 1 - Backspace
+                            if (address == 1)
+                            {
+                                DataMemory.ScreenHardware.ProcessCommand(1, poppedReg.RegArray);
+                                OnExecutionComplete?.Invoke($"VPU: Backspace");
+                                return;
+                            }
+
+                            //ADDRESS 2 - Cursor
+                            if (address == 2)
+                            {
+                                DataMemory.ScreenHardware.ProcessCommand(2, poppedReg.RegArray);
+                                OnExecutionComplete?.Invoke($"VPU: Cursor drawn");
+                                return;
+                            }
+
 
                             // Standard RAM write for all other addresses
                             DataMemory.Write(address, poppedReg.RegArray);
@@ -276,7 +292,25 @@ namespace WinFormsApp1.Models
 
                             // Terminate the execution block to prevent normal RAM read
                             return;
-                        }                       
+                        }
+
+                        //READ CURSOR 
+                        // PORT 0x03: Read cursor X
+                        if (address == 2)
+                        {
+                            int cursorX = DataMemory.ScreenHardware.CursorX / 4; // Pixelscale 
+                            bool[] xBits = new bool[]
+                            {
+                                (cursorX & 0x08) != 0,
+                                (cursorX & 0x04) != 0,
+                                (cursorX & 0x02) != 0,
+                                (cursorX & 0x01) != 0
+                            };
+                            Program.Stack.AddRegister(new Register("CURSOR_X", xBits));
+                            OnExecutionComplete?.Invoke($"INPUT: Cursor X = {cursorX} loaded from port 0x03");
+                            return;
+                        }
+
 
                         // Normal RAM read for all other addresses (0x00 - 0x07, 0x09 - 0x0F)
                         bool[] ramData = DataMemory.Read(address);
