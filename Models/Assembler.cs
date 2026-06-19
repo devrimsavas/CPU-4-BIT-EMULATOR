@@ -23,7 +23,19 @@ namespace WinFormsApp1.Models
         // This delegate or action will point to  Form's UI update logic
         public static Action<string> OnExecutionComplete;
 
-    private static readonly Dictionary<string, Action> instructionSet = new(StringComparer.OrdinalIgnoreCase)
+        //RAndom Number generator 4 bit LFSR 
+        private static int _rngState = 1;  // seed — must never be 0
+
+        private static int NextRandom()
+        {
+            // 4-bit LFSR, taps at bits 3 and 2 (maximal-length sequence)
+            int bit = ((_rngState >> 3) ^ (_rngState >> 2)) & 1;
+            _rngState = ((_rngState << 1) | bit) & 0xF;
+            return _rngState;
+        }
+
+
+        private static readonly Dictionary<string, Action> instructionSet = new(StringComparer.OrdinalIgnoreCase)
 
     {
             // === LOGICAL OPERATIONS ===
@@ -281,6 +293,24 @@ namespace WinFormsApp1.Models
                             // Terminate the execution block to prevent normal RAM read
                             return;
                         }
+
+                        // PORT 0x01: Random number (4-bit LFSR)
+                        if (address == 1)
+                        {
+                            int rnd = NextRandom();
+                            bool[] rndBits = new bool[]
+                            {
+                                (rnd & 0x08) != 0,
+                                (rnd & 0x04) != 0,
+                                (rnd & 0x02) != 0,
+                                (rnd & 0x01) != 0
+                            };
+                            Program.Stack.AddRegister(new Register("RANDOM", rndBits));
+                            OnExecutionComplete?.Invoke($"INPUT: Random {rnd} from port 0x01");
+                            return;
+                        }
+
+
 
                         //port 0x06= KEYBOARD PAGE
                         if (address==6)
