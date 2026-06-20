@@ -821,13 +821,14 @@ namespace WinFormsApp1.Models
             // First 4 bits: Opcode (1100 or 1101), Last 4 bits: The binary data
             if (cleanLine.StartsWith("MOV AX,",StringComparison.OrdinalIgnoreCase))
             {
-                string data = cleanLine.Substring(8).Trim();
-                return "1100" + data;
+                string data = cleanLine.Substring(7).Trim();
+                return "1100" + data.PadLeft(4, '0');
             }
+            //BX 
             if (cleanLine.StartsWith("MOV BX,",StringComparison.OrdinalIgnoreCase))
             {
-                string data = cleanLine.Substring(8).Trim();
-                return "1101" + data;
+                string data = cleanLine.Substring(7).Trim();
+                return "1101" + data.PadLeft(4, '0');
             }
             //memory load 
             if (cleanLine.StartsWith("LOAD ",StringComparison.OrdinalIgnoreCase))

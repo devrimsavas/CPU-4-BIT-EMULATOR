@@ -80,8 +80,9 @@ namespace WinFormsApp1
             clsBtn.TabStop = false;
             clsBtn.Click += (s, e) => {
                 DataMemory.ScreenHardware.ProcessCommand(10, new bool[4]);
-                this.Focus();
+                this.ActiveControl = null;
             };
+            clsBtn.GotFocus += (s, e) => this.Focus();
             btnPanel.Controls.Add(clsBtn);
 
             this.KeyPreview = true;

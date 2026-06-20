@@ -83,6 +83,7 @@ namespace WinFormsApp1
 
             //BIOS 
             Bios.Boot();
+            //Bios.Boot1();
 
         }
 
@@ -135,8 +136,11 @@ namespace WinFormsApp1
         //RENDER SCREEN
         private void RenderScreen()
         {
-            int renderW = _screen.ScreenWidth;
-            int renderH = _screen.ScreenHeight;
+            int bufW = _screen.ScreenWidth;
+            int bufH = _screen.ScreenHeight;
+            int margin = 8;                       // margin
+            int renderW = bufW + margin * 2;
+            int renderH = bufH + margin * 2;
 
             Bitmap frame = new Bitmap(renderW, renderH, PixelFormat.Format32bppArgb);
             BitmapData bmpData = frame.LockBits(
@@ -144,21 +148,69 @@ namespace WinFormsApp1
                 ImageLockMode.WriteOnly,
                 PixelFormat.Format32bppArgb);
 
+            /*
             unsafe
             {
                 int* ptr = (int*)bmpData.Scan0;
-                for (int y = 0; y < renderH; y++)
+                int black = Color.Black.ToArgb();
+
+                // önce tüm frame'i siyahla doldur (çerçeve dahil)
+                for (int i = 0; i < renderW * renderH; i++)
+                    ptr[i] = black;
+
+                // buffer'ı margin kadar içeri kaydırarak çiz
+                for (int y = 0; y < bufH; y++)
                 {
-                    for (int x = 0; x < renderW; x++)
+                    for (int x = 0; x < bufW; x++)
                     {
                         ushort colorCode = _screen.GetColorAttribute(x, y);
                         Color c = _screen.IsPixelActive(x, y)
                             ? HardwarePalette.Colors[colorCode]
                             : Color.Black;
                         c = RenderEffects.Apply(c, x, y);
-                        ptr[y * renderW + x] = c.ToArgb();
+                        ptr[(y + margin) * renderW + (x + margin)] = c.ToArgb();
                     }
                 }
+            }
+            */
+
+            unsafe
+            {
+                int* ptr = (int*)bmpData.Scan0;
+                int black = Color.Black.ToArgb();
+
+                for (int i = 0; i < renderW * renderH; i++)
+                    ptr[i] = black;
+
+                // buffer çizimi
+                for (int y = 0; y < bufH; y++)
+                {
+                    for (int x = 0; x < bufW; x++)
+                    {
+                        ushort colorCode = _screen.GetColorAttribute(x, y);
+                        Color c = _screen.IsPixelActive(x, y)
+                            ? HardwarePalette.Colors[colorCode]
+                            : Color.Black;
+                        c = RenderEffects.Apply(c, x, y);
+                        ptr[(y + margin) * renderW + (x + margin)] = c.ToArgb();
+                    }
+                }
+
+                // ---- CURSOR (render-side, buffer'a dokunmaz) ----
+                int curX = _screen.CursorX;
+                int curY = _screen.CursorY;
+                int curW = 4 * 2;   // CharW * PixelScale
+                int curH = 5 * 2;   // CharH * PixelScale
+                int curColor = Color.FromArgb(255, 255, 85).ToArgb(); // sarımsı
+
+                for (int dy = 0; dy < curH; dy++)
+                    for (int dx = 0; dx < curW; dx++)
+                    {
+                        int px = curX + dx;
+                        int py = curY + dy;
+                        if (px >= 0 && px < bufW && py >= 0 && py < bufH)
+                            ptr[(py + margin) * renderW + (px + margin)] = curColor;
+                    }
             }
 
             frame.UnlockBits(bmpData);
@@ -656,7 +708,7 @@ namespace WinFormsApp1
             OutputRegister.DrawItem += OutputRegister_DrawItem!;
             OutputRegister.EnableDoubleBuffered(true);
 
-            
+
 
 
 
@@ -1012,7 +1064,7 @@ namespace WinFormsApp1
         private void tURBOMODEToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //turbo
-            cpuClock.Interval = 20;
+            cpuClock.Interval = 2;
         }
 
         //SAVE SOURCE CODE 
@@ -1438,8 +1490,10 @@ namespace WinFormsApp1
         private void resetMonitorBtn_Click(object sender, EventArgs e)
         {
             //CLS 
-            DataMemory.ScreenHardware.ProcessCommand(10, new bool[4]); 
+            DataMemory.ScreenHardware.ProcessCommand(10, new bool[4]);
         }
+
+        
 
 
 

@@ -78,11 +78,23 @@ namespace WinFormsApp1.Models
             {
                 _cursorX -= (CharAdvX * PixelScale);
                 if (_cursorX < 0) _cursorX = 0;
+                //added after 256x256 to delete cursor trace
+                // erase the character cell at the new position
+                for (int dx = 0; dx < CharAdvX * PixelScale; dx++)
+                    for (int dy = 0; dy < CharH * PixelScale; dy++)
+                    {
+                        int fx = _cursorX + dx;
+                        int fy = _cursorY + dy;
+                        if (fx >= 0 && fx < Width && fy >= 0 && fy < Height)
+                            _pixelBuffer[fx, fy] = false;
+                    }
+
             }
 
             // 0x02: Draw cursor block at current position (no advance)
             else if (address == 2)
             {
+                /*
                 for (int dx = 0; dx < CharW * PixelScale; dx++)
                     for (int dy = 0; dy < CharH * PixelScale; dy++)
                     {
@@ -91,6 +103,10 @@ namespace WinFormsApp1.Models
                         if (fx < Width && fy < Height)
                             _pixelBuffer[fx, fy] = true;
                     }
+                */
+                _cursorX -= (CharAdvX * PixelScale);
+                if (_cursorX < 0) _cursorX = 0;
+
             }
 
             // 0x0E: Set color
