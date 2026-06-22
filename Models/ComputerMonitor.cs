@@ -24,6 +24,10 @@ namespace WinFormsApp1.Models
         private const int CharAdvX = 5;   // x advance per char (4 + 1 gap)
         private const int CharAdvY = 6;   // y advance per line (5 + 1 gap)
 
+        //CURSOR 
+        public bool _cursorVisible = false; //cursor off as default 
+        public bool CursorVisible=> _cursorVisible;
+
         private bool[,] _pixelBuffer;
         private ushort[] _attributeMatrix;
         private int _cursorX;
@@ -91,25 +95,34 @@ namespace WinFormsApp1.Models
 
             }
 
-            // 0x02: Draw cursor block at current position (no advance)
-            else if (address == 2)
+            //CURSOR 
+            else if (address==8)
             {
-                /*
-                for (int dx = 0; dx < CharW * PixelScale; dx++)
-                    for (int dy = 0; dy < CharH * PixelScale; dy++)
-                    {
-                        int fx = _cursorX + dx;
-                        int fy = _cursorY + dy;
-                        if (fx < Width && fy < Height)
-                            _pixelBuffer[fx, fy] = true;
-                    }
-                */
-                _cursorX -= (CharAdvX * PixelScale);
-                if (_cursorX < 0) _cursorX = 0;
-
+                _cursorVisible = (ConvertBoolArrayToUShort(data) != 0);
             }
 
-            // 0x0E: Set color
+            // 0x02: Draw cursor block at current position (no advance)
+                /*
+                else if (address == 2)
+                {
+                    /*
+                    for (int dx = 0; dx < CharW * PixelScale; dx++)
+                        for (int dy = 0; dy < CharH * PixelScale; dy++)
+                        {
+                            int fx = _cursorX + dx;
+                            int fy = _cursorY + dy;
+                            if (fx < Width && fy < Height)
+                                _pixelBuffer[fx, fy] = true;
+                        }
+
+                    _cursorX -= (CharAdvX * PixelScale);
+                    if (_cursorX < 0) _cursorX = 0;
+
+                }
+                */
+
+
+                // 0x0E: Set color
             else if (address == 14)
             {
                 _activeColorCode = ConvertBoolArrayToUShort(data);

@@ -24,6 +24,7 @@ namespace WinFormsApp1
             monitorBox.Click += (s, e) => this.Focus();
             this.Controls.Add(monitorBox);
 
+            /*
             Panel btnPanel = new Panel();
             btnPanel.Dock = DockStyle.Bottom;
             btnPanel.Height = 60;
@@ -84,6 +85,7 @@ namespace WinFormsApp1
             };
             clsBtn.GotFocus += (s, e) => this.Focus();
             btnPanel.Controls.Add(clsBtn);
+            */
 
             this.KeyPreview = true;
 

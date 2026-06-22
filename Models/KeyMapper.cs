@@ -17,6 +17,13 @@ namespace WinFormsApp1.Models
                 case Keys.Enter: return (ToBits(0), ToBits(6));
                 case Keys.Escape: return (ToBits(0), ToBits(7));
                 case Keys.Back: return (ToBits(0), ToBits(8)); //back space 
+                case Keys.Oem102: return (ToBits(0), ToBits(9)); // greater ?
+                case Keys.Multiply: return (ToBits(0), ToBits(10)); //asterix *
+                case Keys.Add: return (ToBits(0), ToBits(11)); //plus + 
+                case Keys.Subtract: return (ToBits(0), ToBits(12)); //subtract - 
+                case Keys.Divide: return (ToBits(0), ToBits(13));// divide 
+                case Keys.Decimal: return (ToBits(0), ToBits(14));
+
 
                 // PAGE 1 — A to P
                 case Keys.A: return (ToBits(1), ToBits(0));

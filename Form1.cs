@@ -196,21 +196,27 @@ namespace WinFormsApp1
                     }
                 }
 
-                // ---- CURSOR (render-side, buffer'a dokunmaz) ----
-                int curX = _screen.CursorX;
-                int curY = _screen.CursorY;
-                int curW = 4 * 2;   // CharW * PixelScale
-                int curH = 5 * 2;   // CharH * PixelScale
-                int curColor = Color.FromArgb(255, 255, 85).ToArgb(); // sarımsı
+                if (_screen.CursorVisible)
+                {
+                    // ---- CURSOR (render-side, no buffer) ----
+                    int curX = _screen.CursorX;
+                    int curY = _screen.CursorY;
+                    int curW = 4 * 2;   // CharW * PixelScale
+                    int curH = 5 * 2;   // CharH * PixelScale
+                    int curColor = Color.FromArgb(255, 255, 85).ToArgb(); // yellow cursor color 
 
-                for (int dy = 0; dy < curH; dy++)
-                    for (int dx = 0; dx < curW; dx++)
-                    {
-                        int px = curX + dx;
-                        int py = curY + dy;
-                        if (px >= 0 && px < bufW && py >= 0 && py < bufH)
-                            ptr[(py + margin) * renderW + (px + margin)] = curColor;
-                    }
+                    for (int dy = 0; dy < curH; dy++)
+                        for (int dx = 0; dx < curW; dx++)
+                        {
+                            int px = curX + dx;
+                            int py = curY + dy;
+                            if (px >= 0 && px < bufW && py >= 0 && py < bufH)
+                                ptr[(py + margin) * renderW + (px + margin)] = curColor;
+                        }
+
+                }
+
+                
             }
 
             frame.UnlockBits(bmpData);

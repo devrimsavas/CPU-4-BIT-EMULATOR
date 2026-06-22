@@ -234,12 +234,20 @@ namespace WinFormsApp1.Models
                                 return;
                             }
 
-                            //ADDRESS 2 - Cursor
+                            //ADDRESS 2 - Cursor LEFT 
                             if (address == 2)
                             {
                                 DataMemory.ScreenHardware.ProcessCommand(2, poppedReg.RegArray);
                                 OnExecutionComplete?.Invoke($"VPU: Cursor drawn");
                                 return;
+                            }
+                            //CURSOR VISIBILITY 
+                            if (address==8)
+                            {
+                                DataMemory.ScreenHardware.ProcessCommand(8, poppedReg.RegArray);
+                                OnExecutionComplete?.Invoke($"VPU: Cursor visibility");
+                                return;
+
                             }
 
 

@@ -224,12 +224,13 @@
             // stackList
             // 
             stackList.BackColor = Color.Black;
-            stackList.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            stackList.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             stackList.ForeColor = SystemColors.HighlightText;
             stackList.FormattingEnabled = true;
             stackList.Location = new Point(0, 231);
+            stackList.MultiColumn = true;
             stackList.Name = "stackList";
-            stackList.Size = new Size(218, 88);
+            stackList.Size = new Size(218, 99);
             stackList.TabIndex = 1;
             // 
             // RegisterBxBox

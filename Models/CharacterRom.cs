@@ -814,6 +814,103 @@ namespace WinFormsApp1.Models
 
         };
 
+        public static Dictionary<int, bool[][]> BallGame = new()
+        {
+             // Sprite 0
+             { 0, new bool[][] {
+                 new bool[] { false, false, false, false },    // 0000
+                 new bool[] { false, false, true, true },    // 0011
+                 new bool[] { false, true, true, true },    // 0111
+                 new bool[] { true, true, true, true },    // 1111
+                 new bool[] { true, true, true, true }    // 1111
+             }},
+
+             // Sprite 1
+             { 1, new bool[][] {
+                 new bool[] { false, false, false, false },    // 0000
+                 new bool[] { true, true, false, false },    // 1100
+                 new bool[] { true, true, true, false },    // 1110
+                 new bool[] { true, true, true, true },    // 1111
+                 new bool[] { false, true, true, true }    // 0111
+             }},
+
+             // Sprite 2
+             { 2, new bool[][] {
+                 new bool[] { true, true, true, false },    // 1110
+                 new bool[] { true, true, true, true },    // 1111
+                 new bool[] { false, true, true, true },    // 0111
+                 new bool[] { false, false, true, true },    // 0011
+                 new bool[] { false, false, false, false }    // 0000
+             }},
+
+             // Sprite 3
+             { 3, new bool[][] {
+                 new bool[] { true, true, true, true },    // 1111
+                 new bool[] { true, true, true, true },    // 1111
+                 new bool[] { true, true, true, false },    // 1110
+                 new bool[] { true, true, false, false },    // 1100
+                 new bool[] { false, false, false, false }    // 0000
+             }},
+              // Sprite 4
+             { 4, new bool[][] {
+                 new bool[] { true, false, true, false },    // 1010
+                 new bool[] { false, true, false, true },    // 0101
+                 new bool[] { true, false, true, false },    // 1010
+                 new bool[] { false, true, false, true },    // 0101
+                 new bool[] { true, false, true, false }    // 1010
+             }},
+
+             // Sprite 5
+             { 5, new bool[][] {
+                 new bool[] { true, false, true, false },    // 1010
+                 new bool[] { false, true, false, true },    // 0101
+                 new bool[] { true, false, true, false },    // 1010
+                 new bool[] { false, true, false, true },    // 0101
+                 new bool[] { true, false, true, false }    // 1010
+             }},
+
+             // Sprite 6
+             { 6, new bool[][] {
+                 new bool[] { false, true, false, true },    // 0101
+                 new bool[] { true, false, true, false },    // 1010
+                 new bool[] { false, true, false, true },    // 0101
+                 new bool[] { true, false, true, false },    // 1010
+                 new bool[] { false, true, false, true }    // 0101
+             }},
+
+             // Sprite 7
+             { 7, new bool[][] {
+                 new bool[] { false, true, false, true },    // 0101
+                 new bool[] { true, false, true, false },    // 1010
+                 new bool[] { false, true, false, true },    // 0101
+                 new bool[] { true, false, true, false },    // 1010
+                 new bool[] { false, true, false, true }    // 0101
+             }},
+             // Sprite 8
+             { 8, new bool[][] {
+                 new bool[] { false, false, true, false },    // 0010
+                 new bool[] { false, false, true, true },    // 0011
+                 new bool[] { false, true, false, true },    // 0101
+                 new bool[] { false, true, true, true },    // 0111
+                 new bool[] { false, false, true, false }    // 0010
+             }},
+
+             // Sprite 9
+             { 9, new bool[][] {
+                 new bool[] { false, true, false, false },    // 0100
+                 new bool[] { true, true, false, false },    // 1100
+                 new bool[] { true, false, true, false },    // 1010
+                 new bool[] { true, true, true, false },    // 1110
+                 new bool[] { false, true, false, false }    // 0100
+             }},
+
+
+
+
+
+
+        };
+
         public static readonly List<Dictionary<int, bool[][]>> RomPages = new()
         {
             Data,
@@ -822,7 +919,8 @@ namespace WinFormsApp1.Models
             DataDigits,
             DataSpecial,
             //GameSprites,
-            GameMan1
+            //GameMan1
+            BallGame,
         };
 
 
