@@ -6,11 +6,11 @@ namespace WinFormsApp1.Models
     public class ComputerMonitor
     {
         // ============================================================
-        //  DISPLAY CONFIG  — change these two and everything follows
+        //  DISPLAY CONFIG  —
         // ============================================================
         private const int Width = 256;       // was 512
         private const int Height = 256;       // was 512
-        private const int PixelScale = 2;     // was 4 (logical area stays 128x128)
+        private const int PixelScale = 8;     // was 4 (logical area stays 128x128)
 
         // ---- Derived constants (do not edit by hand) ----
         private const int BlockSize = 8;                         // 8x8 color cells (ZX-style attributes)
@@ -41,6 +41,13 @@ namespace WinFormsApp1.Models
         // expose dimensions so the renderer can stay in sync
         public int ScreenWidth => Width;
         public int ScreenHeight => Height;
+
+        //sprite  draw mode pset or xor 
+        private int _drawMode = 0;
+
+        // y scroll will use 4+4 
+        private int _yLatchState = 0; //0=high byte 1=low byte
+        private int _yHigh = 0;
 
         public ComputerMonitor()
         {
@@ -161,6 +168,8 @@ namespace WinFormsApp1.Models
                 _cursorX = 0;
                 _cursorY = 0;
                 _activeColorCode = 14;
+                _yLatchState = 0;
+                _yHigh = 0;
             }
             // 0x07: Set absolute X
             else if (address == 7)
@@ -171,7 +180,7 @@ namespace WinFormsApp1.Models
             // 0x04: Set absolute Y
             else if (address == 4)
             {
-                int yPos = ConvertBoolArrayToUShort(data) * PixelScale;
+                int yPos = ConvertBoolArrayToUShort(data) * PixelScale*2 ;
                 _cursorY = yPos;
             }
             // 0x03: Set absolute X — HIGH BYTE
@@ -180,6 +189,14 @@ namespace WinFormsApp1.Models
                 int xHigh = ConvertBoolArrayToUShort(data);
                 _cursorX = xHigh * 16 * PixelScale;
             }
+
+            // 0x00: Draw mode (0 = normal/PSET, 1 = XOR)
+            else if (address == 0)
+            {
+                _drawMode = ConvertBoolArrayToUShort(data);
+            }
+
+
         }
 
         private void AdvanceCursor()
@@ -230,6 +247,53 @@ namespace WinFormsApp1.Models
                 if (_cursorY >= Height)
                     _cursorY = 0;
             }
+        }
+
+        public void DrawSprite()
+        {
+            int startX = _cursorX;
+            int startY = _cursorY;
+
+            //Bank 15 read 5 lines (sprite data)
+            int savedBank = DataMemory.ActiveBank;
+            DataMemory.SwitchBank(15);
+
+            for (int r = 0; r < CharH; r++)   // 5 row
+            {
+                bool[] rowData = DataMemory.Read(r, 15);  // bank 15, adress r
+
+                for (int c = 0; c < CharW; c++)   // 4 columns 
+                {
+                    int px = startX + (c * PixelScale);
+                    int py = startY + (r * PixelScale);
+
+                    int blockX = px / BlockSize;
+                    int blockY = py / BlockSize;
+                    int index = (blockY * BlocksPerRow) + blockX;
+                    if (index >= 0 && index < AttrCount)
+                        _attributeMatrix[index] = _activeColorCode;
+
+                    bool bitValue = rowData[c];
+                    for (int dx = 0; dx < PixelScale; dx++)
+                        for (int dy = 0; dy < PixelScale; dy++)
+                        {
+                            int finalX = px + dx;
+                            int finalY = py + dy;
+
+                            if (finalX < Width && finalY < Height)
+                            {
+                                if (_drawMode == 1)
+                                    _pixelBuffer[finalX, finalY] ^= bitValue;   // XOR modu
+                                else
+                                    _pixelBuffer[finalX, finalY] = bitValue;    // normal
+                            }
+
+                        }
+                }
+            }
+            DataMemory.SwitchBank(savedBank); //no cursor movement 
+
+
         }
 
         public bool IsPixelActive(int x, int y) => _pixelBuffer[x, y];

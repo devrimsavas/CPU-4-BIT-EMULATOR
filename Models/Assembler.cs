@@ -250,6 +250,25 @@ namespace WinFormsApp1.Models
 
                             }
 
+                            //ADDRESS 6 - Draw sprite from bank 15
+                            if (address == 6)
+                            {
+                                DataMemory.ScreenHardware.DrawSprite();
+                                OnExecutionComplete?.Invoke($"VPU: Sprite drawn from bank 15");
+                                return;
+                            }
+
+                            //ADDRESS 0 - Draw mode
+                            if (address == 0)
+                            {
+                                DataMemory.ScreenHardware.ProcessCommand(0, poppedReg.RegArray);
+                                OnExecutionComplete?.Invoke($"VPU: Draw mode");
+                                return;
+                            }
+
+
+
+
 
                             // Standard RAM write for all other addresses
                             DataMemory.Write(address, poppedReg.RegArray);

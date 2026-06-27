@@ -77,7 +77,7 @@ namespace WinFormsApp1
             _monitorForm.Show();
 
             //_ram = new Ram(_screen);
-            screenClock.Interval = 16; // Set screen refresh rate (e.g., 100ms for 10 FPS) 
+            screenClock.Interval = 1; // Set screen refresh rate (e.g., 100ms for 10 FPS) 
             screenClock.Tick += screenClock_Tick;
             screenClock.Start();
 

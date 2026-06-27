@@ -903,6 +903,16 @@ namespace WinFormsApp1.Models
                  new bool[] { true, true, true, false },    // 1110
                  new bool[] { false, true, false, false }    // 0100
              }},
+            { 10, new bool[][]
+            {
+                new bool[] { false, false, false, false },
+                new bool[] { false, false, false, false },
+                new bool[] { false, false, false, false },
+                new bool[] { false, false, false, false },
+                new bool[] { false, false, false, false }
+
+
+            }}
 
 
 
