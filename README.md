@@ -1,4 +1,127 @@
 ﻿
+# BIT4 — Release Notes
+
+**Last updated:** 27.06.2026
+
+##  What changed since 19.06.2026
+
+This update focuses on **animation primitives** and **architectural fit** — making BIT4 behave more like a real 4-bit handheld and less like an oversized text terminal. The display was downscaled to match the ISA's natural reach, and a proper sprite engine was added alongside historically authentic drawing modes.
+
+---
+
+## 🆕 New features
+
+### Sprite engine (bank 15)
+A dedicated sprite system was added. Bank 15 is reserved as sprite data (one 4×5 sprite in rows 0–4). A single STORE call paints the sprite at the current cursor position using the active color and draw mode.
+
+- **`store 0006`** — draw sprite from bank 15 at cursor (X, Y)
+- Sprite data is just five 4-bit rows in bank 15, addresses 0x00–0x04
+- Combine multiple sprites into larger objects (metasprite style) by drawing sequentially at offset positions
+- Color and position are picked up from the existing color/cursor ports — sprite engine integrates with the rest of the VPU naturally
+
+### Draw mode register (PSET / XOR)
+GW-BASIC-style drawing modes. The VPU now has a mode register that affects sprite drawing.
+
+- **`store 0000`** — set draw mode
+  - `0000` = normal (PSET): pixel = bit value
+  - `0001` = XOR: pixel ^= bit value
+- XOR mode enables the canonical "draw same sprite twice = erase" trick, used for flicker-light animation without per-frame CLS
+
+### Render-side cursor + visibility toggle
+The text cursor is no longer drawn into the framebuffer. It is now painted by the renderer on top of the buffer, so it leaves no trail when moved.
+
+- **`store 0008`** — cursor visibility (0 = hide, non-zero = show)
+- Editor / console programs open the cursor; drawing or sprite programs hide it
+- Cursor advance behavior unchanged — only the visual is moved render-side
+
+### Random number port
+A simple 4-bit LFSR is exposed as a LOAD port, giving programs a stream of pseudo-random nibbles.
+
+- **`load 0001`** — push next random nibble onto the stack
+- Period 15 (4-bit LFSR), enough for Snake-style or coin-flip games
+- Stateful across reads; no manual seeding required
+
+### Cursor LEFT (arrow key support)
+A second port for cursor movement was added so the left arrow key can move the cursor back **without erasing** (regular backspace still erases).
+
+- **`store 0002`** — cursor LEFT (no erase), used by the left arrow key in the editor
+- Backspace (`store 0001`) still moves back and erases — these are now two distinct behaviors
+
+### Wider Y range (single 4-bit value)
+The Y coordinate multiplier in `store 0004` was changed so a single 4-bit value now reaches the full screen height. No latching, no two-call protocol, no breakage of older programs.
+
+- `store 0004` value × scale × 8 → ≈ full screen reach
+- Steps are coarser (16 host pixels per step on 32×32 logical) but cover the whole display
+
+---
+
+## 🖥️ Architectural change — display downscale
+
+The biggest single change in this update. After realizing the 128×128 logical area was forcing constant "address-extension" tricks (HIGH/LOW nibble combining) against the 4-bit ISA, the display was downscaled.
+
+**Before:** 256×256 physical, PixelScale 2, **128×128 logical** — sprites were tiny, Y reach was awkward, the machine felt like it was straining to act 8-bit.
+
+**After:** 256×256 physical (unchanged window), **PixelScale 8**, **32×32 logical** — sprites have real screen weight, Y reach fits within a 4-bit value, the machine sits comfortably in the handheld/calculator-era niche (Game & Watch, Chip-8).
+
+This was a conscious decision: 4-bit is about working within constraints, not pretending to be a bigger architecture. The smaller logical area is the honest one.
+
+### Concrete impact
+- Sprites and characters now look meaningful on screen, not microscopic
+- Y range fits in a single 4-bit value with no latch tricks
+- Framebuffer is 16× smaller — directly helps the upcoming Arduino + TFT integration (less serial data to push)
+- BIOS welcome text and editor have to be shorter / tighter — work in progress
+
+---
+
+## 🔧 Port map summary
+
+After this update, STORE has only 3 free slots and LOAD has 13 free — see `docs/BIT4_PortMap_27062026.pdf` for the complete table.
+
+### Notable STORE ports (post-update)
+| Addr | Function |
+|------|----------|
+| 0x00 | Draw mode (PSET / XOR) — **NEW** |
+| 0x02 | Cursor LEFT (no erase) — **REPURPOSED** |
+| 0x04 | Y absolute (now × scale × 8) — **WIDENED** |
+| 0x06 | Draw sprite from bank 15 — **NEW** |
+| 0x08 | Cursor visibility — **NEW** |
+
+### Notable LOAD ports (post-update)
+| Addr | Function |
+|------|----------|
+| 0x01 | Random nibble (LFSR) — **NEW** |
+
+---
+
+## 📐 Hardware progress
+
+- TFT display (2.4″ ILI9341 SPI, 240×320) — tested in Wokwi simulation, draws BIT4 logo correctly. Physical wiring tested with Arduino Uno R3; encountering a white-screen issue traced to voltage level shifting (modular J1 jumper / 10K resistor protection needed).
+- 4×4 matrix keyboard ordered for physical input.
+- Plan: render the C# framebuffer over serial to Arduino, Arduino drives the TFT. With 32×32 logical and a smaller framebuffer, bandwidth is now manageable for static scenes (1–2 FPS), animation TBD with optimization.
+
+---
+
+## 🗺️ Roadmap (next)
+
+- BIOS / editor re-fit for 32×32 logical area
+- Simple Game & Watch-style demo (good test of sprite engine + XOR mode)
+- Arduino + TFT serial bridge (waiting on level shifter / J1 fix)
+- 4×4 keyboard integration as a real input source (replacing PC keyboard)
+- Eventually: address-based jumps (kill the LABEL marker, move toward proper machine code)
+
+---
+
+## 📚 Companion documents
+
+- `docs/BIT4_PortMap_27062026.pdf` — full STORE/LOAD port map with descriptions, sprite engine walkthrough, display config
+- `docs/BIT4_InstructionSet_27062026.pdf` — complete ISA listing with machine codes
+
+---
+
+*BIT4 is a hobby / educational fantasy 4-bit computer. Built from scratch — custom CPU, ALU, VPU, sprite engine, assembler, keyboard, editor, BIOS. The goal is to learn computer architecture by building one, then move it to real hardware (Arduino + TFT).*
+
+
+
 #UPDATE 09.06.2026
 full document 
 ![Document](Documents/BIT4_TechnicalReference_09062026.pdf)
